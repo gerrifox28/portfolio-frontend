@@ -3,6 +3,7 @@ import { AllScenariosRequest, AllScenariosResponse, SimulationRequest } from './
 import { useDefaults, runAllScenarios } from './hooks/useSimulator';
 import StatCards from './components/StatCards';
 import OutcomesChart from './components/OutcomesChart';
+import OutcomesHeatmap from './components/OutcomesHeatmap';
 import SorrExplainer from './components/SorrExplainer';
 import './App.css';
 
@@ -17,6 +18,8 @@ const ALLOCATION_FIELDS: Array<{ field: keyof SimulationRequest; label: string }
   { field: 'ffEmgMkts',  label: 'F/F Emerging Markets' },
 ];
 
+type ChartView = 'scatter' | 'heatmap' | 'both';
+
 export default function App() {
   const defaults = useDefaults();
   const [nestEgg, setNestEgg] = useState(1_000_000);
@@ -26,6 +29,7 @@ export default function App() {
   const [result, setResult] = useState<AllScenariosResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [chartView, setChartView] = useState<ChartView>('both');
 
   useEffect(() => { if (defaults) setAdvanced(defaults); }, [defaults]);
 
@@ -65,7 +69,6 @@ export default function App() {
       {/* ── Inputs ── */}
       <section className="inputs-section">
         <div className="inputs-inner">
-
           <div className="main-inputs">
             <div className="main-input-group">
               <label>Starting Nest Egg</label>
@@ -83,15 +86,12 @@ export default function App() {
                   onChange={e => setWithdrawal(parseFloat(e.target.value) || 0)} />
               </div>
             </div>
-
             {error && <p className="error-msg">{error}</p>}
-
             <button className="run-btn" onClick={handleRun} disabled={loading}>
               {loading ? <><span className="btn-spinner" /> Running 58 scenarios…</> : 'Run All Historical Scenarios →'}
             </button>
           </div>
 
-          {/* Advanced toggle */}
           <div className="advanced-section">
             <button className="advanced-toggle" onClick={() => setShowAdvanced(v => !v)}>
               {showAdvanced ? '▲' : '▼'} Advanced: Portfolio Allocation & Fees
@@ -125,7 +125,6 @@ export default function App() {
               </div>
             )}
           </div>
-
         </div>
       </section>
 
@@ -133,8 +132,26 @@ export default function App() {
       {result && !loading && (
         <section id="results" className="results-section">
           <div className="results-inner">
+
             <StatCards result={result} />
-            <OutcomesChart scenarios={result.scenarios} />
+
+            {/* Chart toggle */}
+            <div className="chart-toggle">
+              <button className={`chart-toggle-btn ${chartView === 'scatter' ? 'active' : ''}`}
+                onClick={() => setChartView('scatter')}>Scatter Plot</button>
+              <button className={`chart-toggle-btn ${chartView === 'heatmap' ? 'active' : ''}`}
+                onClick={() => setChartView('heatmap')}>Outcomes Grid</button>
+              <button className={`chart-toggle-btn ${chartView === 'both' ? 'active' : ''}`}
+                onClick={() => setChartView('both')}>Show Both</button>
+            </div>
+
+            {(chartView === 'scatter' || chartView === 'both') && (
+              <OutcomesChart scenarios={result.scenarios} />
+            )}
+            {(chartView === 'heatmap' || chartView === 'both') && (
+              <OutcomesHeatmap scenarios={result.scenarios} />
+            )}
+
             <SorrExplainer result={result} />
           </div>
         </section>
