@@ -72,14 +72,6 @@ export default function SorrExplainer({ result }: Props) {
           use to smooth out this stark contrast and create a far more stable retirement journey —
           regardless of when markets decide to cooperate.
         </p>
-        <div className="cta-buttons">
-          <a href="#" className="cta-btn cta-btn--primary">
-            Watch: The Identical Twins Story →
-          </a>
-          <a href="#" className="cta-btn cta-btn--secondary">
-            Let's build your strategy →
-          </a>
-        </div>
       </section>
 
     </div>
