@@ -44,3 +44,27 @@ export interface Metadata {
   maxYear: number;
   assetClasses: AssetClass[];
 }
+
+export interface AllScenariosRequest {
+  startingNestEgg: number;
+  initialWithdrawal: number;
+}
+
+export interface ScenarioSummary {
+  startYear: number;
+  endingBalance: number;
+  failed: boolean;
+  yearsSurvived: number;
+}
+
+export interface AllScenariosResponse {
+  scenarios: ScenarioSummary[];
+  totalScenarios: number;
+  failureCount: number;
+  failureRate: number;
+  earliestFailureYears: number;
+  highestEndingBalance: number;
+  averageEndingBalance: number;
+  worstStartYear: number;
+  bestStartYear: number;
+}
