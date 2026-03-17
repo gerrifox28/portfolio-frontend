@@ -50,7 +50,7 @@ export default function SorrExplainer({ result }: Props) {
         <h2 className="explainer-heading">Key takeaway</h2>
         <p>
           Look at the spread in the chart above. The worst historical starting year
-          ({worstStartYear}) led to portfolio exhaustion after just {earliestFailureYears} years.
+          ({worstStartYear}) led to portfolio exhaustion after just {earliestFailureYear} years.
           The best starting year ({bestStartYear}) left <strong>{fmt$(highestFinalBalance)}</strong> after
           40 years. The average surviving portfolio ended at <strong>{fmt$(averageFinalBalance)}</strong>.
         </p>

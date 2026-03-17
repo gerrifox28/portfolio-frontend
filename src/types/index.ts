@@ -62,9 +62,9 @@ export interface AllScenariosResponse {
   totalScenarios: number;
   failureCount: number;
   failureRate: number;
-  earliestFailureYears: number;
-  highestEndingBalance: number;
-  averageEndingBalance: number;
+  earliestFailureYear: number;      // was earliestFailureYears
+  highestFinalBalance: number;      // was highestEndingBalance
+  averageFinalBalance: number;      // was averageEndingBalance
   worstStartYear: number;
   bestStartYear: number;
 }
