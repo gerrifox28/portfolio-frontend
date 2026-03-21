@@ -10,7 +10,7 @@ function fmt$(n: number) {
 
 export default function SorrExplainer({ result }: Props) {
   const { totalScenarios, failureCount, failureRate, earliestFailureYears,
-        highestEndingBalance, averageEndingBalance, worstStartYear, bestStartYear } = result;
+          highestEndingBalance, averageEndingBalance, worstStartYear, bestStartYear } = result;
 
   return (
     <div className="explainer">
@@ -19,46 +19,46 @@ export default function SorrExplainer({ result }: Props) {
         <h2 className="explainer-heading">What calculations were made?</h2>
         <p>
           <strong>{totalScenarios} iterations</strong> were run — one for each starting year
-          from 1929 through {1929 + totalScenarios - 1}. Each iteration simulates a complete
-          40-year retirement window using <em>actual</em> historical market returns, inflation
-          data, and your withdrawal amount. This gives us every full 40-year period that has
-          occurred in modern financial history.
+          from 1929 through 1986. Each iteration simulates a complete 40-year retirement
+          window using actual historical market returns, inflation data, and your withdrawal
+          amount. This gives us every full 40-year period that has occurred in modern
+          financial history.
         </p>
         <p>
-          Why 40 years? It represents a reasonable long-term retirement planning horizon — long
-          enough to capture the full effects of market cycles, inflation, and compounding.
-        </p>
-      </section>
-
-      <section className="explainer-section">
-        <h2 className="explainer-heading">What is Sequence of Returns Risk?</h2>
-        <p>
-          Sequence of Returns Risk (SORR) is one of the most significant — and least discussed —
-          risks in retirement planning. It refers to the danger that the <em>timing</em> of
-          market downturns, not just their magnitude, can permanently damage a retirement portfolio.
+          Why 40 years? It represents a reasonable long-term retirement planning horizon —
+          long enough to capture the full effects of market cycles, inflation, and compounding.
         </p>
         <p>
-          Two retirees with identical portfolios, identical withdrawals, and identical average
-          returns over 40 years can end up with wildly different outcomes — purely based on
-          <em> when</em> they retired. A severe market decline in the early years of retirement,
-          when withdrawals are being made from a shrinking portfolio, can be devastating in a way
-          that the same decline mid-retirement simply is not.
+          To explore alternative scenarios, click the "Advanced" option beneath the blue
+          "Run All" button to adjust allocations and assumptions.
+        </p>
+        <p>
+          If you want tailored guidance or to discuss how this applies to your situation,{' '}
+          <a href="#" className="explainer-link">schedule a call with me today!</a>
+        </p>
+        <p className="explainer-footnote">
+          * This simulation is based on a portfolio allocation of approximately 60% globally
+          diversified stocks, 25% intermediate-term U.S. bonds, 10% REITs, and 5% short-term
+          U.S. Treasuries. The portfolio is rebalanced annually and assumes a 1.2% total
+          expense and management fee.
         </p>
       </section>
 
       <section className="explainer-section">
         <h2 className="explainer-heading">Key takeaway</h2>
         <p>
-          Look at the spread in the chart above. The worst historical starting year
-          ({worstStartYear}) led to portfolio exhaustion after just {earliestFailureYears} years.
-          The best starting year ({bestStartYear}) left <strong>{fmt$(highestEndingBalance)}</strong> after
-          40 years. The average surviving portfolio ended at <strong>{fmt$(averageEndingBalance)}</strong>.
+          Look at the variances! The worst historical starting year ({worstStartYear}) led to
+          portfolio exhaustion after just{' '}
+          <strong>{failureCount > 0 ? `${earliestFailureYears} years` : 'never'}</strong>.
+          The best starting year ({bestStartYear}) left{' '}
+          <strong>{fmt$(highestEndingBalance)}</strong> after 40 years. The average surviving
+          portfolio ended at <strong>{fmt$(averageEndingBalance)}</strong>.
         </p>
         <p>
           That is an enormous range of outcomes — from running out of money decades too early,
           to leaving a multi-million dollar legacy — driven entirely by which year you happened
-          to retire. And {failureCount} out of {totalScenarios} historical scenarios
-          ({failureRate}%) ended in failure.
+          to retire. And <strong>{failureCount} out of {totalScenarios}</strong> historical
+          scenarios (<strong>{failureRate}%</strong>) ended in failure.
         </p>
         <p className="explainer-callout">
           Kind of a big spread, wouldn't you say?
@@ -68,10 +68,19 @@ export default function SorrExplainer({ result }: Props) {
       <section className="explainer-section explainer-cta-section">
         <h2 className="explainer-heading">What can you do about it?</h2>
         <p>
-          The good news: SORR is manageable. There are proven strategies smart nest egg managers
-          use to smooth out this stark contrast and create a far more stable retirement journey —
-          regardless of when markets decide to cooperate.
+          The good news: SORR is manageable. There are proven strategies smart nest egg
+          managers use to smooth out this stark contrast and create a far more stable
+          retirement journey — regardless of when markets decide to cooperate.
         </p>
+        <p>
+          If you'd like to see how this applies to your situation, simply click below to
+          schedule a time that works best for you.
+        </p>
+        <div className="cta-buttons">
+          <a href="#" className="cta-btn cta-btn--primary">
+            Schedule a call →
+          </a>
+        </div>
       </section>
 
     </div>
