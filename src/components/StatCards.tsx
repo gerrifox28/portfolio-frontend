@@ -17,7 +17,7 @@ export default function StatCards({ result }: Props) {
   const cards = [
     {
       type: 'danger',
-      icon: '💸',
+      icon: '⏳',
       label: 'Earliest Portfolio Failure',
       value: failureCount > 0 ? `${earliestFailureYears} years` : 'Never',
       sub: failureCount > 0
