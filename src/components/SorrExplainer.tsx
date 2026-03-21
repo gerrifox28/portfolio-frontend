@@ -9,8 +9,8 @@ function fmt$(n: number) {
 }
 
 export default function SorrExplainer({ result }: Props) {
-  const { totalScenarios, failureCount, failureRate, earliestFailureYear,
-        highestFinalBalance, averageFinalBalance, worstStartYear, bestStartYear } = result;
+  const { totalScenarios, failureCount, failureRate, earliestFailureYears,
+        highestEndingBalance, averageEndingBalance, worstStartYear, bestStartYear } = result;
 
   return (
     <div className="explainer">
@@ -50,9 +50,9 @@ export default function SorrExplainer({ result }: Props) {
         <h2 className="explainer-heading">Key takeaway</h2>
         <p>
           Look at the spread in the chart above. The worst historical starting year
-          ({worstStartYear}) led to portfolio exhaustion after just {earliestFailureYear} years.
-          The best starting year ({bestStartYear}) left <strong>{fmt$(highestFinalBalance)}</strong> after
-          40 years. The average surviving portfolio ended at <strong>{fmt$(averageFinalBalance)}</strong>.
+          ({worstStartYear}) led to portfolio exhaustion after just {earliestFailureYears} years.
+          The best starting year ({bestStartYear}) left <strong>{fmt$(highestEndingBalance)}</strong> after
+          40 years. The average surviving portfolio ended at <strong>{fmt$(averageEndingBalance)}</strong>.
         </p>
         <p>
           That is an enormous range of outcomes — from running out of money decades too early,
