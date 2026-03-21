@@ -68,9 +68,7 @@ export default function SorrExplainer({ result }: Props) {
       <section className="explainer-section explainer-cta-section">
         <h2 className="explainer-heading">What can you do about it?</h2>
         <p>
-          The good news: SORR is manageable. There are proven strategies smart nest egg
-          managers use to smooth out this stark contrast and create a far more stable
-          retirement journey — regardless of when markets decide to cooperate.
+          The good news: SORR is manageable. TThere are proven strategies smart nest egg managers use to smooth out this stark contrast and create a far more stable retirement income journey — regardless of when markets decide to cooperate.
         </p>
         <p>
           If you'd like to see how this applies to your situation, simply click below to

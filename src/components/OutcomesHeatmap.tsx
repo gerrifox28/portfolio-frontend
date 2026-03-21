@@ -17,17 +17,27 @@ export default function OutcomesHeatmap({ scenarios }: Props) {
       <div className="chart-header">
         <h3>Outcomes Grid by Starting Year</h3>
         <div className="chart-legend">
-          <span className="legend-dot legend-dot--success" /> Survived &nbsp;
-          <span className="legend-dot legend-dot--danger" /> Failed
+          <span className="legend-dot legend-dot--success" /> Survived — brighter green = larger balance &nbsp;
+          <span className="legend-dot legend-dot--danger" /> Failed — brighter red = failed sooner
         </div>
       </div>
 
       <div className="heatmap-grid">
         {scenarios.map(s => {
-          const intensity = s.failed ? 0 : s.endingBalance / maxBalance;
-          const bg = s.failed
-            ? `rgba(239,68,68,${0.3 + (1 - s.yearsSurvived / 40) * 0.5})`
-            : `rgba(16,185,129,${0.15 + intensity * 0.75})`;
+          let bg: string;
+
+          if (s.failed) {
+            // Bright red = failed earliest (low yearsSurvived)
+            // Dark red = nearly made it (yearsSurvived close to 40)
+            const failSeverity = 1 - (s.yearsSurvived / 40); // 1 = failed very early, 0 = almost made it
+            const opacity = 0.35 + failSeverity * 0.65; // range 0.35 → 1.0
+            bg = `rgba(220, 38, 38, ${opacity})`;
+          } else {
+            // Muted green = smaller balance, rich green = larger balance
+            const wealth = s.endingBalance / maxBalance; // 0 → 1
+            const opacity = 0.2 + wealth * 0.75; // range 0.2 → 0.95
+            bg = `rgba(16, 185, 129, ${opacity})`;
+          }
 
           return (
             <div key={s.startYear} className="heatmap-cell" style={{ background: bg }}>
@@ -44,8 +54,8 @@ export default function OutcomesHeatmap({ scenarios }: Props) {
       </div>
 
       <p className="chart-note">
-        Each square = one 40-year retirement window. Green intensity = final balance size.
-        Red intensity = how early the portfolio failed (darker = failed sooner).
+        Each tile represents one 40-year retirement window.
+        Greener = larger remaining balance. Brighter red = portfolio ran out sooner.
       </p>
     </div>
   );
