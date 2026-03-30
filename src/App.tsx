@@ -37,7 +37,19 @@ export default function App() {
     setLoading(true);
     setError(null);
     try {
-      const req: AllScenariosRequest = { startingNestEgg: nestEgg, initialWithdrawal: withdrawal };
+      const req: AllScenariosRequest = {
+        startingNestEgg: nestEgg,
+        initialWithdrawal: withdrawal,
+        expensesAndMgmtFee: advanced?.expensesAndMgmtFee ?? 0.012,
+        sp500:       advanced?.sp500       ?? 0.0,
+        crsp1_10:    advanced?.crsp1_10    ?? 0.31110,
+        oneMonth:    advanced?.oneMonth    ?? 0.05,
+        fiveYearUS:  advanced?.fiveYearUS  ?? 0.25,
+        crsp6_10:    advanced?.crsp6_10    ?? 0.0549,
+        ffIntl:      advanced?.ffIntl      ?? 0.162,
+        djUsReit:    advanced?.djUsReit    ?? 0.10,
+        ffEmgMkts:   advanced?.ffEmgMkts   ?? 0.072,
+      };
       setResult(await runAllScenarios(req));
       setTimeout(() => document.getElementById('results')?.scrollIntoView({ behavior: 'smooth' }), 100);
     } catch (e: any) {

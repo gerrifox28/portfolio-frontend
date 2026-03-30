@@ -48,6 +48,15 @@ export interface Metadata {
 export interface AllScenariosRequest {
   startingNestEgg: number;
   initialWithdrawal: number;
+  expensesAndMgmtFee: number;
+  sp500: number;
+  crsp1_10: number;
+  oneMonth: number;
+  fiveYearUS: number;
+  crsp6_10: number;
+  ffIntl: number;
+  djUsReit: number;
+  ffEmgMkts: number;
 }
 
 export interface ScenarioSummary {
