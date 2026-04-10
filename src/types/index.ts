@@ -48,15 +48,9 @@ export interface Metadata {
 export interface AllScenariosRequest {
   startingNestEgg: number;
   initialWithdrawal: number;
+  stockMarketAllocation: number;
+  yearCount: number;
   expensesAndMgmtFee: number;
-  sp500: number;
-  crsp1_10: number;
-  oneMonth: number;
-  fiveYearUS: number;
-  crsp6_10: number;
-  ffIntl: number;
-  djUsReit: number;
-  ffEmgMkts: number;
 }
 
 export interface ScenarioSummary {
@@ -71,9 +65,28 @@ export interface AllScenariosResponse {
   totalScenarios: number;
   failureCount: number;
   failureRate: number;
-  earliestFailureYears: number;      
-  highestEndingBalance: number;      
-  averageEndingBalance: number;     
+  earliestFailureYears: number;
+  highestEndingBalance: number;
+  averageEndingBalance: number;
   worstStartYear: number;
   bestStartYear: number;
+  yearCount: number;
+}
+
+export interface AnnuityCompareRequest {
+  startingNestEgg: number;
+  initialWithdrawal: number;
+  stockMarketAllocation: number;
+  yearCount: number;
+  expensesAndMgmtFee: number;
+  age: number;
+  joint: boolean;
+  annuityPercentage: number;
+}
+
+export interface AnnuityCompareResponse {
+  withoutAnnuity: AllScenariosResponse;
+  withAnnuity: AllScenariosResponse;
+  annuityRate: number;
+  initialAnnuityIncome: number;
 }

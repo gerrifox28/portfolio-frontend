@@ -10,7 +10,8 @@ function fmt$(n: number) {
 
 export default function SorrExplainer({ result }: Props) {
   const { totalScenarios, failureCount, failureRate, earliestFailureYears,
-          highestEndingBalance, averageEndingBalance, worstStartYear, bestStartYear } = result;
+          highestEndingBalance, averageEndingBalance, worstStartYear, bestStartYear,
+          yearCount } = result;
 
   return (
     <div className="explainer">
@@ -19,27 +20,19 @@ export default function SorrExplainer({ result }: Props) {
         <h2 className="explainer-heading">What calculations were made?</h2>
         <p>
           <strong>{totalScenarios} iterations</strong> were run — one for each starting year
-          from 1929 through 1986. Each iteration simulates a complete 40-year retirement
-          window using actual historical market returns, inflation data, and your withdrawal
-          amount. This gives us every full 40-year period that has occurred in modern
-          financial history.
-        </p>
-        <p>
-          Why 40 years? It represents a reasonable long-term retirement planning horizon —
-          long enough to capture the full effects of market cycles, inflation, and compounding.
-        </p>
-        <p>
-          To explore alternative scenarios, click the "Advanced" option beneath the blue
-          "Run All" button to adjust allocations and assumptions.
+          in our historical dataset. Each iteration simulates a complete {yearCount}-year
+          retirement window using actual historical market returns, inflation data, and your
+          withdrawal amount. This gives us every full {yearCount}-year period that has occurred
+          in modern financial history.
         </p>
         <p>
           If you want tailored guidance or to discuss how this applies to your situation,{' '}
           <a href="#" className="explainer-link">schedule a call with me today!</a>
         </p>
         <p className="explainer-footnote">
-          * This simulation is based on a portfolio allocation of approximately 60% globally
-          diversified stocks, 25% intermediate-term U.S. bonds, 10% REITs, and 5% short-term
-          U.S. Treasuries. The portfolio is rebalanced annually and assumes a 1.2% total
+          * Portfolio allocation is based on your selected stock market percentage, split across
+          globally diversified equities (CRSP 1-10, CRSP 6-10, F/F International, F/F Emerging
+          Markets), with the remainder in REITs and U.S. Treasuries. Assumes a 1.2% total
           expense and management fee.
         </p>
       </section>
@@ -51,8 +44,8 @@ export default function SorrExplainer({ result }: Props) {
           portfolio exhaustion after just{' '}
           <strong>{failureCount > 0 ? `${earliestFailureYears} years` : 'never'}</strong>.
           The best starting year ({bestStartYear}) left{' '}
-          <strong>{fmt$(highestEndingBalance)}</strong> after 40 years. The average surviving
-          portfolio ended at <strong>{fmt$(averageEndingBalance)}</strong>.
+          <strong>{fmt$(highestEndingBalance)}</strong> after {yearCount} years. The average
+          surviving portfolio ended at <strong>{fmt$(averageEndingBalance)}</strong>.
         </p>
         <p>
           That is an enormous range of outcomes — from running out of money decades too early,

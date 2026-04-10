@@ -1,56 +1,82 @@
-import React, { useState, useEffect } from 'react';
-import { AllScenariosRequest, AllScenariosResponse, SimulationRequest } from './types';
-import { useDefaults, runAllScenarios } from './hooks/useSimulator';
+import React, { useState } from 'react';
+import { AllScenariosRequest, AllScenariosResponse, AnnuityCompareRequest, AnnuityCompareResponse } from './types';
+import { runAllScenarios, runCompare, uploadSpreadsheet, UploadResult } from './hooks/useSimulator';
 import StatCards from './components/StatCards';
 import OutcomesChart from './components/OutcomesChart';
 import OutcomesHeatmap from './components/OutcomesHeatmap';
 import SorrExplainer from './components/SorrExplainer';
+import CompareChart from './components/CompareChart';
 import './App.css';
 
-const ALLOCATION_FIELDS: Array<{ field: keyof SimulationRequest; label: string }> = [
-  { field: 'sp500',       label: 'S&P 500' },
-  { field: 'crsp1_10',   label: 'CRSP 1-10 (Total Market)' },
-  { field: 'oneMonth',   label: 'One-Month T-Bills' },
-  { field: 'fiveYearUS', label: '5-Year US Treasuries' },
-  { field: 'crsp6_10',   label: 'CRSP 6-10 (Small Cap)' },
-  { field: 'ffIntl',     label: 'F/F International' },
-  { field: 'djUsReit',   label: 'DJ US REIT' },
-  { field: 'ffEmgMkts',  label: 'F/F Emerging Markets' },
-];
-
-type ChartView = 'scatter' | 'heatmap' | 'both';
-
 export default function App() {
-  const defaults = useDefaults();
+  // ── Core inputs ────────────────────────────────────────────────────────────
   const [nestEgg, setNestEgg] = useState(1_000_000);
   const [withdrawal, setWithdrawal] = useState(40_000);
-  const [advanced, setAdvanced] = useState<SimulationRequest | null>(null);
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [yearCount, setYearCount] = useState(40);
+  const [stockPct, setStockPct] = useState(60);
+
+  // ── Annuity inputs ─────────────────────────────────────────────────────────
+  const [showAnnuity, setShowAnnuity] = useState(false);
+  const [age, setAge] = useState(65);
+  const [joint, setJoint] = useState(false);
+  const [annuityPct, setAnnuityPct] = useState(30); // displayed as whole number
+
+  // ── Results ────────────────────────────────────────────────────────────────
   const [result, setResult] = useState<AllScenariosResponse | null>(null);
+  const [compareResult, setCompareResult] = useState<AnnuityCompareResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [chartView, setChartView] = useState<ChartView>('both');
+  const [chartView, setChartView] = useState<'scatter' | 'heatmap' | 'both'>('both');
 
-  useEffect(() => { if (defaults) setAdvanced(defaults); }, [defaults]);
+  // ── Upload ─────────────────────────────────────────────────────────────────
+  const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setUploadResult(null);
+    setUploadError(null);
+    try {
+      const res = await uploadSpreadsheet(file);
+      setUploadResult(res);
+    } catch (err: any) {
+      setUploadError(err.message);
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
+  }
 
   async function handleRun() {
     setLoading(true);
     setError(null);
+    setResult(null);
+    setCompareResult(null);
     try {
-      const req: AllScenariosRequest = {
+      const base = {
         startingNestEgg: nestEgg,
         initialWithdrawal: withdrawal,
-        expensesAndMgmtFee: advanced?.expensesAndMgmtFee ?? 0.012,
-        sp500:       advanced?.sp500       ?? 0.0,
-        crsp1_10:    advanced?.crsp1_10    ?? 0.31110,
-        oneMonth:    advanced?.oneMonth    ?? 0.05,
-        fiveYearUS:  advanced?.fiveYearUS  ?? 0.25,
-        crsp6_10:    advanced?.crsp6_10    ?? 0.0549,
-        ffIntl:      advanced?.ffIntl      ?? 0.162,
-        djUsReit:    advanced?.djUsReit    ?? 0.10,
-        ffEmgMkts:   advanced?.ffEmgMkts   ?? 0.072,
+        stockMarketAllocation: stockPct / 100,
+        yearCount,
+        expensesAndMgmtFee: 0.012,
       };
-      setResult(await runAllScenarios(req));
+
+      if (showAnnuity) {
+        const req: AnnuityCompareRequest = {
+          ...base,
+          age,
+          joint,
+          annuityPercentage: annuityPct / 100,
+        };
+        setCompareResult(await runCompare(req));
+      } else {
+        const req: AllScenariosRequest = base;
+        setResult(await runAllScenarios(req));
+      }
+
       setTimeout(() => document.getElementById('results')?.scrollIntoView({ behavior: 'smooth' }), 100);
     } catch (e: any) {
       setError(e.message);
@@ -59,10 +85,9 @@ export default function App() {
     }
   }
 
-  const allocSum = advanced
-    ? ALLOCATION_FIELDS.reduce((s, f) => s + (advanced[f.field] as number), 0)
-    : 1;
-  const allocOk = Math.abs(allocSum - 1.0) < 0.001;
+  // Allocation breakdown for display
+  const reitPct = Math.min(10, 100 - stockPct);
+  const bondPct = Math.round((100 - stockPct - reitPct) / 2);
 
   return (
     <div className="app">
@@ -78,93 +103,135 @@ export default function App() {
         </div>
       </header>
 
+      {/* ── Spreadsheet Upload ── */}
+      <section className="upload-section">
+        <div className="upload-inner">
+          <label className="upload-label">
+            {uploading ? 'Uploading…' : 'Update historical data (.xlsx / .xltm)'}
+            <input type="file" accept=".xlsx,.xltm,.xls" onChange={handleUpload} disabled={uploading} style={{ display: 'none' }} />
+          </label>
+          {uploadResult && <span className="upload-success">✓ {uploadResult.yearsLoaded} years loaded ({uploadResult.minYear}–{uploadResult.maxYear})</span>}
+          {uploadError && <span className="upload-error">{uploadError}</span>}
+        </div>
+      </section>
+
       {/* ── Inputs ── */}
       <section className="inputs-section">
         <div className="inputs-inner">
           <div className="main-inputs">
+
             <div className="main-input-group">
-              <label>Starting Nest Egg</label>
+              <label>Size of Nest Egg</label>
               <div className="input-prefix">
                 <span>$</span>
                 <input type="number" value={nestEgg} min={0} step={10000}
                   onChange={e => setNestEgg(parseFloat(e.target.value) || 0)} />
               </div>
             </div>
+
             <div className="main-input-group">
-              <label>Initial Annual Withdrawal <span className="label-note">*adjusts for inflation each year</span></label>
+              <label>Inflation-Adjusted Annual Income <span className="label-note">*adjusts with inflation each year</span></label>
               <div className="input-prefix">
                 <span>$</span>
                 <input type="number" value={withdrawal} min={0} step={1000}
                   onChange={e => setWithdrawal(parseFloat(e.target.value) || 0)} />
               </div>
             </div>
-            {error && <p className="error-msg">{error}</p>}
-            <button className="run-btn" onClick={handleRun} disabled={loading}>
-              {loading ? <><span className="btn-spinner" /> Running 58 scenarios…</> : 'Run All Historical Scenarios →'}
-            </button>
-          </div>
 
-          <div className="advanced-section">
-            <button className="advanced-toggle" onClick={() => setShowAdvanced(v => !v)}>
-              {showAdvanced ? '▲' : '▼'} Advanced: Portfolio Allocation & Fees
-            </button>
-            {showAdvanced && advanced && (
-              <div className="advanced-grid">
-                <div className="adv-input-group">
-                  <label>Expenses + Mgmt Fee</label>
-                  <div className="input-suffix">
-                    <input type="number" value={Math.round(advanced.expensesAndMgmtFee * 1000) / 10}
-                      min={0} max={10} step={0.1}
-                      onChange={e => setAdvanced({ ...advanced, expensesAndMgmtFee: (parseFloat(e.target.value) || 0) / 100 })} />
-                    <span>%</span>
+            <div className="main-input-group">
+              <label>Years to Simulate</label>
+              <input type="number" value={yearCount} min={1} max={96} step={1}
+                onChange={e => setYearCount(parseInt(e.target.value) || 40)} />
+            </div>
+
+            <div className="main-input-group">
+              <label>
+                Stock Market Allocation
+                <span className="label-note"> *remainder goes to bonds &amp; REITs</span>
+              </label>
+              <div className="stock-slider-row">
+                <input type="range" min={0} max={100} step={1} value={stockPct}
+                  onChange={e => setStockPct(parseInt(e.target.value))} className="stock-slider" />
+                <span className="stock-pct-value">{stockPct}%</span>
+              </div>
+              <p className="alloc-breakdown">
+                {stockPct}% stocks (globally diversified) · {reitPct}% REIT · {bondPct}% T-Bills · {bondPct}% 5-yr Treasuries
+              </p>
+            </div>
+
+            {/* ── Annuity toggle ── */}
+            <div className="annuity-section">
+              <button className="annuity-toggle" onClick={() => setShowAnnuity(v => !v)}>
+                {showAnnuity ? '▲' : '▼'} Add Annuity Comparison
+              </button>
+
+              {showAnnuity && (
+                <div className="annuity-grid">
+                  <div className="adv-input-group">
+                    <label>Your Age</label>
+                    <input type="number" value={age} min={49} max={80} step={1}
+                      onChange={e => setAge(parseInt(e.target.value) || 65)} />
+                    <span className="field-note">Ages 49–80 supported</span>
                   </div>
-                </div>
-                {ALLOCATION_FIELDS.map(({ field, label }) => (
-                  <div key={field} className="adv-input-group">
-                    <label>{label}</label>
-                    <div className="input-suffix">
-                      <input type="number"
-                        value={Math.round((advanced[field] as number) * 1000) / 10}
-                        min={0} max={100} step={0.1}
-                        onChange={e => setAdvanced({ ...advanced, [field]: (parseFloat(e.target.value) || 0) / 100 })} />
-                      <span>%</span>
+
+                  <div className="adv-input-group">
+                    <label>Coverage Type</label>
+                    <div className="coverage-toggle">
+                      <button className={`coverage-btn ${!joint ? 'active' : ''}`} onClick={() => setJoint(false)}>Single</button>
+                      <button className={`coverage-btn ${joint ? 'active' : ''}`} onClick={() => setJoint(true)}>Joint</button>
                     </div>
                   </div>
-                ))}
-                <p className={`alloc-sum ${allocOk ? 'alloc-ok' : 'alloc-warn'}`}>
-                  Allocation total: {Math.round(allocSum * 1000) / 10}% {allocOk ? '✓' : '— must equal 100%'}
-                </p>
-              </div>
-            )}
+
+                  <div className="adv-input-group">
+                    <label>% of Nest Egg to Annuitize</label>
+                    <div className="stock-slider-row">
+                      <input type="range" min={1} max={99} step={1} value={annuityPct}
+                        onChange={e => setAnnuityPct(parseInt(e.target.value))} className="stock-slider" />
+                      <span className="stock-pct-value">{annuityPct}%</span>
+                    </div>
+                    <p className="alloc-breakdown">
+                      ${Math.round(nestEgg * annuityPct / 100).toLocaleString()} to annuity · ${Math.round(nestEgg * (100 - annuityPct) / 100).toLocaleString()} invested
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {error && <p className="error-msg">{error}</p>}
+
+            <button className="run-btn" onClick={handleRun} disabled={loading}>
+              {loading
+                ? <><span className="btn-spinner" /> Running scenarios…</>
+                : showAnnuity ? 'Run Annuity Comparison →' : 'Run All Historical Scenarios →'}
+            </button>
           </div>
         </div>
       </section>
 
-      {/* ── Results ── */}
+      {/* ── Results: standard ── */}
       {result && !loading && (
         <section id="results" className="results-section">
           <div className="results-inner">
-
             <StatCards result={result} />
-
-            {/* Chart toggle */}
             <div className="chart-toggle">
-              <button className={`chart-toggle-btn ${chartView === 'scatter' ? 'active' : ''}`}
-                onClick={() => setChartView('scatter')}>Scatter Plot</button>
-              <button className={`chart-toggle-btn ${chartView === 'heatmap' ? 'active' : ''}`}
-                onClick={() => setChartView('heatmap')}>Outcomes Grid</button>
-              <button className={`chart-toggle-btn ${chartView === 'both' ? 'active' : ''}`}
-                onClick={() => setChartView('both')}>Show Both</button>
+              <button className={`chart-toggle-btn ${chartView === 'scatter' ? 'active' : ''}`} onClick={() => setChartView('scatter')}>Scatter Plot</button>
+              <button className={`chart-toggle-btn ${chartView === 'heatmap' ? 'active' : ''}`} onClick={() => setChartView('heatmap')}>Outcomes Grid</button>
+              <button className={`chart-toggle-btn ${chartView === 'both' ? 'active' : ''}`} onClick={() => setChartView('both')}>Show Both</button>
             </div>
-
-            {(chartView === 'scatter' || chartView === 'both') && (
-              <OutcomesChart scenarios={result.scenarios} />
-            )}
-            {(chartView === 'heatmap' || chartView === 'both') && (
-              <OutcomesHeatmap scenarios={result.scenarios} />
-            )}
-
+            {(chartView === 'scatter' || chartView === 'both') && <OutcomesChart scenarios={result.scenarios} yearCount={result.yearCount} />}
+            {(chartView === 'heatmap' || chartView === 'both') && <OutcomesHeatmap scenarios={result.scenarios} yearCount={result.yearCount} />}
             <SorrExplainer result={result} />
+          </div>
+        </section>
+      )}
+
+      {/* ── Results: annuity comparison ── */}
+      {compareResult && !loading && (
+        <section id="results" className="results-section">
+          <div className="results-inner">
+            <StatCards result={compareResult.withoutAnnuity} />
+            <CompareChart compare={compareResult} />
+            <SorrExplainer result={compareResult.withAnnuity} />
           </div>
         </section>
       )}
@@ -172,7 +239,7 @@ export default function App() {
       {loading && (
         <div className="loading-overlay">
           <div className="spinner" />
-          <p>Running {58} historical scenarios…</p>
+          <p>Running historical scenarios…</p>
         </div>
       )}
 

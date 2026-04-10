@@ -11,8 +11,7 @@ function fmt$(n: number) {
 
 export default function StatCards({ result }: Props) {
   const { failureCount, totalScenarios, failureRate, earliestFailureYears,
-        highestEndingBalance, averageEndingBalance } = result;
-
+        highestEndingBalance, averageEndingBalance, yearCount } = result;
 
   const cards = [
     {
@@ -22,7 +21,7 @@ export default function StatCards({ result }: Props) {
       value: failureCount > 0 ? `${earliestFailureYears} years` : 'Never',
       sub: failureCount > 0
         ? 'Shortest time before running out of money'
-        : 'Portfolio survived all 40-year windows',
+        : `Portfolio survived all ${yearCount}-year windows`,
     },
     {
       type: 'danger',
@@ -34,14 +33,14 @@ export default function StatCards({ result }: Props) {
     {
       type: 'success',
       icon: '🏆',
-      label: 'Best Outcome After 40 Years',
+      label: `Best Outcome After ${yearCount} Years`,
       value: fmt$(highestEndingBalance),
       sub: 'Highest remaining balance across all scenarios',
     },
     {
       type: 'success',
       icon: '📊',
-      label: 'Average Balance After 40 Years',
+      label: `Average Balance After ${yearCount} Years`,
       value: fmt$(averageEndingBalance),
       sub: 'Mean ending balance among surviving scenarios',
     },

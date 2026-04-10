@@ -5,7 +5,7 @@ import {
 } from 'recharts';
 import { ScenarioSummary } from '../types';
 
-interface Props { scenarios: ScenarioSummary[]; }
+interface Props { scenarios: ScenarioSummary[]; yearCount: number; }
 
 function fmt$(n: number) {
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
@@ -13,21 +13,20 @@ function fmt$(n: number) {
   return `$0`;
 }
 
-const CustomTooltip = ({ active, payload }: any) => {
-  if (!active || !payload?.length) return null;
-  const d: ScenarioSummary & { y: number } = payload[0].payload;
-  return (
-    <div className="chart-tooltip">
-      <p className="tooltip-year">Started {d.startYear}</p>
-      {d.failed
-        ? <p>Portfolio <strong style={{ color: '#ef4444' }}>exhausted</strong> after <strong>{d.yearsSurvived} years</strong></p>
-        : <p>Balance after 40 yrs: <strong>{fmt$(d.endingBalance)}</strong></p>
-      }
-    </div>
-  );
-};
-
-export default function OutcomesChart({ scenarios }: Props) {
+export default function OutcomesChart({ scenarios, yearCount }: Props) {
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (!active || !payload?.length) return null;
+    const d: ScenarioSummary & { y: number } = payload[0].payload;
+    return (
+      <div className="chart-tooltip">
+        <p className="tooltip-year">Started {d.startYear}</p>
+        {d.failed
+          ? <p>Portfolio <strong style={{ color: '#ef4444' }}>exhausted</strong> after <strong>{d.yearsSurvived} years</strong></p>
+          : <p>Balance after {yearCount} yrs: <strong>{fmt$(d.endingBalance)}</strong></p>
+        }
+      </div>
+    );
+  };
   // Survivors: y = ending balance
   // Failed: y = negative value so they plot below the zero line, scaled for visibility
   const maxBalance = Math.max(...scenarios.map(s => s.endingBalance));
@@ -35,7 +34,7 @@ export default function OutcomesChart({ scenarios }: Props) {
 
   const data = scenarios.map(s => ({
     ...s,
-    y: s.failed ? failedFloor * (1 - (s.yearsSurvived / 40) * 0.5) : s.endingBalance,
+    y: s.failed ? failedFloor * (1 - (s.yearsSurvived / yearCount) * 0.5) : s.endingBalance,
   }));
 
   const survivors = data.filter(d => !d.failed);
@@ -44,7 +43,7 @@ export default function OutcomesChart({ scenarios }: Props) {
   return (
     <div className="chart-container">
       <div className="chart-header">
-        <h3>40-Year Outcomes by Starting Year</h3>
+        <h3>{yearCount}-Year Outcomes by Starting Year</h3>
         <div className="chart-legend">
           <span className="legend-dot legend-dot--success" /> Survived &nbsp;
           <span className="legend-dot legend-dot--danger" /> Failed (below line)
@@ -90,7 +89,7 @@ export default function OutcomesChart({ scenarios }: Props) {
         </ScatterChart>
       </ResponsiveContainer>
       <p className="chart-note">
-        Hover any dot for details. Green dots show final balance after 40 years.
+        Hover any dot for details. Green dots show final balance after {yearCount} years.
         Red dots indicate portfolio exhaustion — positioned lower = failed earlier.
       </p>
     </div>

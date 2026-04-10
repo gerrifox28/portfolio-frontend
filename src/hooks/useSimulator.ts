@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { SimulationRequest, SimulationResponse, Metadata, AllScenariosRequest, AllScenariosResponse } from '../types';
+import { SimulationRequest, SimulationResponse, Metadata, AllScenariosRequest, AllScenariosResponse, AnnuityCompareRequest, AnnuityCompareResponse } from '../types';
 
 const BASE = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api';
 
@@ -34,6 +34,35 @@ export async function runSimulation(req: SimulationRequest): Promise<SimulationR
   if (!res.ok) {
     const err = await res.json();
     throw new Error(err.error || 'Simulation failed');
+  }
+  return res.json();
+}
+
+export interface UploadResult {
+  message: string;
+  yearsLoaded: number;
+  minYear: number;
+  maxYear: number;
+}
+
+export async function uploadSpreadsheet(file: File): Promise<UploadResult> {
+  const form = new FormData();
+  form.append('file', file);
+  const res = await fetch(`${BASE}/data/upload`, { method: 'POST', body: form });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error || 'Upload failed');
+  return json;
+}
+
+export async function runCompare(req: AnnuityCompareRequest): Promise<AnnuityCompareResponse> {
+  const res = await fetch(`${BASE}/simulate/compare`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(req),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Comparison failed');
   }
   return res.json();
 }

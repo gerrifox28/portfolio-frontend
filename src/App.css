@@ -507,3 +507,185 @@ body {
   padding-left: 12px !important;
   margin-top: 4px;
 }
+
+/* ── Spreadsheet Upload ── */
+.upload-section {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 0;
+}
+.upload-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.upload-label {
+  cursor: pointer;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 14px;
+  transition: border-color 0.15s, color 0.15s;
+}
+.upload-label:hover {
+  border-color: var(--border-hover);
+  color: var(--text);
+}
+.upload-success {
+  font-size: 0.78rem;
+  color: #4ade80;
+}
+.upload-error {
+  font-size: 0.78rem;
+  color: #f87171;
+}
+
+/* ── Stock Allocation Slider ── */
+.stock-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.stock-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, var(--accent) 0%, var(--accent) var(--val, 60%), rgba(255,255,255,0.1) var(--val, 60%));
+  outline: none;
+  cursor: pointer;
+}
+.stock-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg);
+  cursor: pointer;
+}
+.stock-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg);
+  cursor: pointer;
+}
+.stock-pct-value {
+  min-width: 42px;
+  text-align: right;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--accent);
+}
+.alloc-breakdown {
+  margin-top: 8px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ── Annuity Section ── */
+.annuity-section { display: flex; flex-direction: column; gap: 16px; }
+.annuity-toggle {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  text-align: left;
+  transition: border-color 0.15s, color 0.15s;
+}
+.annuity-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.annuity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  padding: 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.field-note {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+.coverage-toggle { display: flex; gap: 0; }
+.coverage-btn {
+  flex: 1;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.coverage-btn:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+.coverage-btn:last-child  { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; border-left: none; }
+.coverage-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Comparison Charts ── */
+.compare-container {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-top: 24px;
+}
+.compare-header { margin-bottom: 20px; }
+.compare-header h3 { font-size: 1.1rem; font-family: var(--font-display); }
+.compare-subtitle { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
+.compare-deltas {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.compare-delta {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+}
+.compare-delta--better { border-color: rgba(16,185,129,0.3); }
+.compare-delta--worse  { border-color: rgba(239,68,68,0.3); }
+.compare-delta--same   { border-color: var(--border); }
+.delta-label { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 4px; }
+.delta-value { font-size: 1.25rem; font-weight: 600; font-family: var(--font-display); }
+.compare-delta--better .delta-value { color: var(--success); }
+.compare-delta--worse  .delta-value { color: var(--danger); }
+.delta-sub   { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; }
+.compare-charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 640px) {
+  .compare-charts { grid-template-columns: 1fr; }
+  .compare-deltas { grid-template-columns: 1fr; }
+}
+.compare-panel {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+}
+.compare-panel-title {
+  font-size: 0.85rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
