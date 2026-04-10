@@ -742,6 +742,14 @@ body {
   margin-bottom: 8px;
 }
 
+/* ── Click prompt ── */
+.click-prompt {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  margin-top: 12px;
+}
+
 /* ── Compare Full Charts (side-by-side scatter + heatmap) ── */
 .compare-full-charts {
   display: grid;
