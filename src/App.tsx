@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AllScenariosRequest, AllScenariosResponse, AnnuityCompareRequest, AnnuityCompareResponse } from './types';
-import { runAllScenarios, runCompare, uploadSpreadsheet, UploadResult } from './hooks/useSimulator';
+import { runAllScenarios, runCompare } from './hooks/useSimulator';
 import StatCards from './components/StatCards';
 import OutcomesChart from './components/OutcomesChart';
 import OutcomesHeatmap from './components/OutcomesHeatmap';
@@ -27,28 +27,6 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [chartView, setChartView] = useState<'scatter' | 'heatmap' | 'both'>('both');
-
-  // ── Upload ─────────────────────────────────────────────────────────────────
-  const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
-
-  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    setUploadResult(null);
-    setUploadError(null);
-    try {
-      const res = await uploadSpreadsheet(file);
-      setUploadResult(res);
-    } catch (err: any) {
-      setUploadError(err.message);
-    } finally {
-      setUploading(false);
-      e.target.value = '';
-    }
-  }
 
   async function handleRun() {
     setLoading(true);
@@ -103,18 +81,6 @@ export default function App() {
         </div>
       </header>
 
-      {/* ── Spreadsheet Upload ── */}
-      <section className="upload-section">
-        <div className="upload-inner">
-          <label className="upload-label">
-            {uploading ? 'Uploading…' : 'Update historical data (.xlsx / .xltm)'}
-            <input type="file" accept=".xlsx,.xltm,.xls" onChange={handleUpload} disabled={uploading} style={{ display: 'none' }} />
-          </label>
-          {uploadResult && <span className="upload-success">✓ {uploadResult.yearsLoaded} years loaded ({uploadResult.minYear}–{uploadResult.maxYear})</span>}
-          {uploadError && <span className="upload-error">{uploadError}</span>}
-        </div>
-      </section>
-
       {/* ── Inputs ── */}
       <section className="inputs-section">
         <div className="inputs-inner">
@@ -140,8 +106,11 @@ export default function App() {
 
             <div className="main-input-group">
               <label>Years to Simulate</label>
-              <input type="number" value={yearCount} min={1} max={96} step={1}
-                onChange={e => setYearCount(parseInt(e.target.value) || 40)} />
+              <div className="input-prefix">
+                <span>yrs</span>
+                <input type="number" value={yearCount} min={1} max={96} step={1}
+                  onChange={e => setYearCount(parseInt(e.target.value) || 40)} />
+              </div>
             </div>
 
             <div className="main-input-group">
