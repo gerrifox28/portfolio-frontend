@@ -742,6 +742,29 @@ body {
   margin-bottom: 8px;
 }
 
+/* ── Compare Full Charts (side-by-side scatter + heatmap) ── */
+.compare-full-charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 24px;
+}
+@media (max-width: 900px) {
+  .compare-full-charts { grid-template-columns: 1fr; }
+}
+.compare-full-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.compare-full-title {
+  font-size: 0.9rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
 /* ── Year-by-Year Results Table ── */
 .results-table-wrap { margin-top: 16px; }
 .results-table-wrap h3 {

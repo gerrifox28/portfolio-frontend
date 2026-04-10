@@ -290,6 +290,20 @@ export default function App() {
             <StatCards result={compareResult.withoutAnnuity} />
             <CompareChart compare={compareResult} onYearClick={handleDrill} />
 
+            {/* Side-by-side scatter + heatmap for each scenario */}
+            <div className="compare-full-charts">
+              <div className="compare-full-panel">
+                <h4 className="compare-full-title" style={{ color: '#10b981' }}>Without Annuity — Outcomes</h4>
+                <OutcomesChart scenarios={compareResult.withoutAnnuity.scenarios} yearCount={compareResult.withoutAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} />
+                <OutcomesHeatmap scenarios={compareResult.withoutAnnuity.scenarios} yearCount={compareResult.withoutAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} />
+              </div>
+              <div className="compare-full-panel">
+                <h4 className="compare-full-title" style={{ color: '#6366f1' }}>With Annuity — Outcomes</h4>
+                <OutcomesChart scenarios={compareResult.withAnnuity.scenarios} yearCount={compareResult.withAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} />
+                <OutcomesHeatmap scenarios={compareResult.withAnnuity.scenarios} yearCount={compareResult.withAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} />
+              </div>
+            </div>
+
             <DrillSection
               drillYear={drillYear} setDrillYear={setDrillYear}
               drillResult={drillResult} drillLoading={drillLoading} drillError={drillError}
