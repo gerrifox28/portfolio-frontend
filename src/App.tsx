@@ -76,6 +76,9 @@ export default function App() {
   const [drillLoading, setDrillLoading] = useState(false);
   const [drillError, setDrillError] = useState<string | null>(null);
 
+  // ── Compare heatmap toggle ─────────────────────────────────────────────────
+  const [compareHeatmap, setCompareHeatmap] = useState<'without' | 'with'>('without');
+
   async function handleRun() {
     setLoading(true);
     setError(null);
@@ -296,21 +299,21 @@ export default function App() {
 
             {drillResult && (
               <>
-                <div className="compare-full-charts">
-                  <div className="compare-full-panel">
-                    <h4 className="compare-full-title" style={{ color: '#10b981' }}>Without Annuity</h4>
-                    <OutcomesHeatmap scenarios={compareResult.withoutAnnuity.scenarios} yearCount={compareResult.withoutAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillYear} />
-                  </div>
-                  <div className="compare-full-panel">
-                    <h4 className="compare-full-title" style={{ color: '#6366f1' }}>With Annuity</h4>
-                    <OutcomesHeatmap scenarios={compareResult.withAnnuity.scenarios} yearCount={compareResult.withAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillYear} />
-                  </div>
-                </div>
                 <DrillSection
                   drillYear={drillYear} setDrillYear={setDrillYear}
                   drillResult={drillResult} drillLoading={drillLoading} drillError={drillError}
                   onRun={handleDrill}
                 />
+                <div className="compare-full-panel">
+                  <div className="chart-toggle" style={{ marginBottom: 16 }}>
+                    <button className={`chart-toggle-btn ${compareHeatmap === 'without' ? 'active' : ''}`} onClick={() => setCompareHeatmap('without')}>Without Annuity</button>
+                    <button className={`chart-toggle-btn ${compareHeatmap === 'with' ? 'active' : ''}`} onClick={() => setCompareHeatmap('with')}>With Annuity</button>
+                  </div>
+                  {compareHeatmap === 'without'
+                    ? <OutcomesHeatmap scenarios={compareResult.withoutAnnuity.scenarios} yearCount={compareResult.withoutAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillYear} />
+                    : <OutcomesHeatmap scenarios={compareResult.withAnnuity.scenarios} yearCount={compareResult.withAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillYear} />
+                  }
+                </div>
               </>
             )}
 
