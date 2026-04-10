@@ -13,7 +13,7 @@ function fmt$(n: number) {
   return '$0';
 }
 
-function fmtRate(r: number) { return `${(r * 100).toFixed(1)}%`; }
+function fmtRate(r: number) { return `${(r * 100).toFixed(2)}%`; }
 
 function ScenarioScatter({
   scenarios, yearCount, title, color, onYearClick,

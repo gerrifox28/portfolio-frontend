@@ -5,7 +5,7 @@ import {
 } from 'recharts';
 import { ScenarioSummary } from '../types';
 
-interface Props { scenarios: ScenarioSummary[]; yearCount: number; onYearClick?: (year: number) => void; }
+interface Props { scenarios: ScenarioSummary[]; yearCount: number; onYearClick?: (year: number) => void; selectedYear?: number; }
 
 function fmt$(n: number) {
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
@@ -13,7 +13,7 @@ function fmt$(n: number) {
   return `$0`;
 }
 
-export default function OutcomesChart({ scenarios, yearCount, onYearClick }: Props) {
+export default function OutcomesChart({ scenarios, yearCount, onYearClick, selectedYear }: Props) {
   const CustomTooltip = ({ active, payload }: any) => {
     if (!active || !payload?.length) return null;
     const d: ScenarioSummary & { y: number } = payload[0].payload;
@@ -79,16 +79,26 @@ export default function OutcomesChart({ scenarios, yearCount, onYearClick }: Pro
             label={{ value: '← Survived above · Failed below →', position: 'insideTopRight', fill: '#64748b', fontSize: 11 }}
           />
           {/* Failed scenarios — red dots below zero line */}
-          <Scatter name="Failed" data={failures} fill="#ef4444" opacity={0.85} r={7}
+          <Scatter name="Failed" data={failures} opacity={0.85}
             onClick={(pt: any) => onYearClick?.(pt.startYear)}
             style={{ cursor: onYearClick ? 'pointer' : 'default' }}>
-            {failures.map((_, i) => <Cell key={i} fill="#ef4444" />)}
+            {failures.map((d, i) => (
+              <Cell key={i} fill="#ef4444"
+                r={d.startYear === selectedYear ? 11 : 7}
+                stroke={d.startYear === selectedYear ? '#fff' : 'none'}
+                strokeWidth={2} />
+            ))}
           </Scatter>
           {/* Surviving scenarios — green dots above zero line */}
-          <Scatter name="Survived" data={survivors} fill="#10b981" opacity={0.85} r={7}
+          <Scatter name="Survived" data={survivors} opacity={0.85}
             onClick={(pt: any) => onYearClick?.(pt.startYear)}
             style={{ cursor: onYearClick ? 'pointer' : 'default' }}>
-            {survivors.map((_, i) => <Cell key={i} fill="#10b981" />)}
+            {survivors.map((d, i) => (
+              <Cell key={i} fill="#10b981"
+                r={d.startYear === selectedYear ? 11 : 7}
+                stroke={d.startYear === selectedYear ? '#fff' : 'none'}
+                strokeWidth={2} />
+            ))}
           </Scatter>
         </ScatterChart>
       </ResponsiveContainer>

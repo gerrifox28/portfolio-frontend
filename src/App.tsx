@@ -200,7 +200,8 @@ export default function App() {
               </label>
               <div className="stock-slider-row">
                 <input type="range" min={0} max={100} step={1} value={stockPct}
-                  onChange={e => setStockPct(parseInt(e.target.value))} className="stock-slider" />
+                  onChange={e => setStockPct(parseInt(e.target.value))} className="stock-slider"
+                  style={{ '--val': `${stockPct}%` } as React.CSSProperties} />
                 <span className="stock-pct-value">{stockPct}%</span>
               </div>
               <p className="alloc-breakdown">
@@ -235,7 +236,8 @@ export default function App() {
                     <label>% of Nest Egg to Annuitize</label>
                     <div className="stock-slider-row">
                       <input type="range" min={1} max={99} step={1} value={annuityPct}
-                        onChange={e => setAnnuityPct(parseInt(e.target.value))} className="stock-slider" />
+                        onChange={e => setAnnuityPct(parseInt(e.target.value))} className="stock-slider"
+                        style={{ '--val': `${annuityPct}%` } as React.CSSProperties} />
                       <span className="stock-pct-value">{annuityPct}%</span>
                     </div>
                     <p className="alloc-breakdown">
@@ -267,8 +269,8 @@ export default function App() {
               <button className={`chart-toggle-btn ${chartView === 'heatmap' ? 'active' : ''}`} onClick={() => setChartView('heatmap')}>Outcomes Grid</button>
               <button className={`chart-toggle-btn ${chartView === 'both' ? 'active' : ''}`} onClick={() => setChartView('both')}>Show Both</button>
             </div>
-            {(chartView === 'scatter' || chartView === 'both') && <OutcomesChart scenarios={result.scenarios} yearCount={result.yearCount} onYearClick={handleDrill} />}
-            {(chartView === 'heatmap' || chartView === 'both') && <OutcomesHeatmap scenarios={result.scenarios} yearCount={result.yearCount} />}
+            {(chartView === 'scatter' || chartView === 'both') && <OutcomesChart scenarios={result.scenarios} yearCount={result.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} />}
+            {(chartView === 'heatmap' || chartView === 'both') && <OutcomesHeatmap scenarios={result.scenarios} yearCount={result.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} />}
 
             <DrillSection
               drillYear={drillYear} setDrillYear={setDrillYear}

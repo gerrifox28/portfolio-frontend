@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScenarioSummary } from '../types';
 
-interface Props { scenarios: ScenarioSummary[]; yearCount: number; }
+interface Props { scenarios: ScenarioSummary[]; yearCount: number; onYearClick?: (year: number) => void; selectedYear?: number; }
 
 function fmt$(n: number) {
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
@@ -9,7 +9,7 @@ function fmt$(n: number) {
   return '$0';
 }
 
-export default function OutcomesHeatmap({ scenarios, yearCount }: Props) {
+export default function OutcomesHeatmap({ scenarios, yearCount, onYearClick, selectedYear }: Props) {
   const maxBalance = Math.max(...scenarios.map(s => s.endingBalance));
 
   return (
@@ -39,8 +39,15 @@ export default function OutcomesHeatmap({ scenarios, yearCount }: Props) {
             bg = `rgba(16, 185, 129, ${opacity})`;
           }
 
+          const isSelected = selectedYear === s.startYear;
           return (
-            <div key={s.startYear} className="heatmap-cell" style={{ background: bg }}>
+            <div
+              key={s.startYear}
+              className={`heatmap-cell ${onYearClick ? 'heatmap-cell--clickable' : ''} ${isSelected ? 'heatmap-cell--selected' : ''}`}
+              style={{ background: bg }}
+              onClick={() => onYearClick?.(s.startYear)}
+              title={onYearClick ? `Click to explore ${s.startYear}` : undefined}
+            >
               <div className="heatmap-year">{s.startYear}</div>
               <div className="heatmap-value">
                 {s.failed
@@ -56,6 +63,7 @@ export default function OutcomesHeatmap({ scenarios, yearCount }: Props) {
       <p className="chart-note">
         Each tile represents one {yearCount}-year retirement window.
         Greener = larger remaining balance. Brighter red = portfolio ran out sooner.
+        {onYearClick && ' Click any tile to see the year-by-year detail.'}
       </p>
     </div>
   );
