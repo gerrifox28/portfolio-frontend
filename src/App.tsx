@@ -113,7 +113,7 @@ export default function App() {
               </div>
             </div>
 
-            <div className="main-input-group">
+            <div className="main-input-group full-width">
               <label>
                 Stock Market Allocation
                 <span className="label-note"> *remainder goes to bonds &amp; REITs</span>
