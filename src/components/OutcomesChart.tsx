@@ -5,7 +5,7 @@ import {
 } from 'recharts';
 import { ScenarioSummary } from '../types';
 
-interface Props { scenarios: ScenarioSummary[]; yearCount: number; }
+interface Props { scenarios: ScenarioSummary[]; yearCount: number; onYearClick?: (year: number) => void; }
 
 function fmt$(n: number) {
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
@@ -13,7 +13,7 @@ function fmt$(n: number) {
   return `$0`;
 }
 
-export default function OutcomesChart({ scenarios, yearCount }: Props) {
+export default function OutcomesChart({ scenarios, yearCount, onYearClick }: Props) {
   const CustomTooltip = ({ active, payload }: any) => {
     if (!active || !payload?.length) return null;
     const d: ScenarioSummary & { y: number } = payload[0].payload;
@@ -79,17 +79,21 @@ export default function OutcomesChart({ scenarios, yearCount }: Props) {
             label={{ value: '← Survived above · Failed below →', position: 'insideTopRight', fill: '#64748b', fontSize: 11 }}
           />
           {/* Failed scenarios — red dots below zero line */}
-          <Scatter name="Failed" data={failures} fill="#ef4444" opacity={0.85} r={7}>
+          <Scatter name="Failed" data={failures} fill="#ef4444" opacity={0.85} r={7}
+            onClick={(pt: any) => onYearClick?.(pt.startYear)}
+            style={{ cursor: onYearClick ? 'pointer' : 'default' }}>
             {failures.map((_, i) => <Cell key={i} fill="#ef4444" />)}
           </Scatter>
           {/* Surviving scenarios — green dots above zero line */}
-          <Scatter name="Survived" data={survivors} fill="#10b981" opacity={0.85} r={7}>
+          <Scatter name="Survived" data={survivors} fill="#10b981" opacity={0.85} r={7}
+            onClick={(pt: any) => onYearClick?.(pt.startYear)}
+            style={{ cursor: onYearClick ? 'pointer' : 'default' }}>
             {survivors.map((_, i) => <Cell key={i} fill="#10b981" />)}
           </Scatter>
         </ScatterChart>
       </ResponsiveContainer>
       <p className="chart-note">
-        Hover any dot for details. Green dots show final balance after {yearCount} years.
+        {onYearClick ? 'Click' : 'Hover'} any dot for details. Green dots show final balance after {yearCount} years.
         Red dots indicate portfolio exhaustion — positioned lower = failed earlier.
       </p>
     </div>

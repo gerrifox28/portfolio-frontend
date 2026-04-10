@@ -5,7 +5,7 @@ import {
 } from 'recharts';
 import { AnnuityCompareResponse, ScenarioSummary } from '../types';
 
-interface Props { compare: AnnuityCompareResponse; }
+interface Props { compare: AnnuityCompareResponse; onYearClick?: (year: number) => void; }
 
 function fmt$(n: number) {
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
@@ -16,12 +16,13 @@ function fmt$(n: number) {
 function fmtRate(r: number) { return `${(r * 100).toFixed(1)}%`; }
 
 function ScenarioScatter({
-  scenarios, yearCount, title, color,
+  scenarios, yearCount, title, color, onYearClick,
 }: {
   scenarios: ScenarioSummary[];
   yearCount: number;
   title: string;
   color: string;
+  onYearClick?: (year: number) => void;
 }) {
   const maxBalance = Math.max(...scenarios.map(s => s.endingBalance), 1);
   const failedFloor = -maxBalance * 0.12;
@@ -67,10 +68,14 @@ function ScenarioScatter({
           />
           <Tooltip content={<TooltipContent />} cursor={{ strokeDasharray: '3 3', stroke: 'rgba(255,255,255,0.1)' }} />
           <ReferenceLine y={0} stroke="rgba(255,255,255,0.2)" strokeWidth={1.5} strokeDasharray="6 3" />
-          <Scatter name="Failed" data={failures} r={6}>
+          <Scatter name="Failed" data={failures} r={6}
+            onClick={(pt: any) => onYearClick?.(pt.startYear)}
+            style={{ cursor: onYearClick ? 'pointer' : 'default' }}>
             {failures.map((_, i) => <Cell key={i} fill="#ef4444" opacity={0.85} />)}
           </Scatter>
-          <Scatter name="Survived" data={survivors} r={6}>
+          <Scatter name="Survived" data={survivors} r={6}
+            onClick={(pt: any) => onYearClick?.(pt.startYear)}
+            style={{ cursor: onYearClick ? 'pointer' : 'default' }}>
             {survivors.map((_, i) => <Cell key={i} fill={color} opacity={0.85} />)}
           </Scatter>
         </ScatterChart>
@@ -79,7 +84,7 @@ function ScenarioScatter({
   );
 }
 
-export default function CompareChart({ compare }: Props) {
+export default function CompareChart({ compare, onYearClick }: Props) {
   const { withoutAnnuity, withAnnuity, annuityRate, initialAnnuityIncome } = compare;
   const yearCount = withoutAnnuity.yearCount;
 
@@ -133,12 +138,14 @@ export default function CompareChart({ compare }: Props) {
           yearCount={yearCount}
           title="Without Annuity"
           color="#10b981"
+          onYearClick={onYearClick}
         />
         <ScenarioScatter
           scenarios={withAnnuity.scenarios}
           yearCount={yearCount}
           title="With Annuity"
           color="#6366f1"
+          onYearClick={onYearClick}
         />
       </div>
       <p className="chart-note">

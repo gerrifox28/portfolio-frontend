@@ -1,12 +1,54 @@
 import React, { useState } from 'react';
 import { AllScenariosRequest, AllScenariosResponse, AnnuityCompareRequest, AnnuityCompareResponse } from './types';
-import { runAllScenarios, runCompare } from './hooks/useSimulator';
+import { runAllScenarios, runCompare, runSimulation } from './hooks/useSimulator';
 import StatCards from './components/StatCards';
 import OutcomesChart from './components/OutcomesChart';
 import OutcomesHeatmap from './components/OutcomesHeatmap';
 import SorrExplainer from './components/SorrExplainer';
 import CompareChart from './components/CompareChart';
+import PortfolioChart from './components/PortfolioChart';
+import ResultsTable from './components/ResultsTable';
 import './App.css';
+import { SimulationRequest, SimulationResponse } from './types';
+
+function DrillSection({ drillYear, setDrillYear, drillResult, drillLoading, drillError, onRun }: {
+  drillYear: number;
+  setDrillYear: (y: number) => void;
+  drillResult: SimulationResponse | null;
+  drillLoading: boolean;
+  drillError: string | null;
+  onRun: (year: number) => void;
+}) {
+  return (
+    <div id="drill" className="drill-section">
+      <div className="drill-input-row">
+        <span className="drill-label">Explore a specific start year:</span>
+        <div className="input-prefix drill-year-input">
+          <span>yr</span>
+          <input
+            type="number" value={drillYear} min={1929} max={2010} step={1}
+            onChange={e => setDrillYear(parseInt(e.target.value) || 1970)}
+            onKeyDown={e => e.key === 'Enter' && onRun(drillYear)}
+          />
+        </div>
+        <button className="drill-run-btn" onClick={() => onRun(drillYear)} disabled={drillLoading}>
+          {drillLoading ? <><span className="btn-spinner" /> Running…</> : 'Run →'}
+        </button>
+      </div>
+      {drillError && <p className="error-msg">{drillError}</p>}
+      {drillResult && !drillLoading && (
+        <div className="drill-results">
+          <h3 className="drill-heading">
+            Starting {drillResult.inputs.startYear}: {drillResult.yearlyResults.length}-year projection
+            {drillResult.portfolioExhausted && <span className="drill-exhausted"> — portfolio exhausted</span>}
+          </h3>
+          <PortfolioChart data={drillResult.yearlyResults} />
+          <ResultsTable data={drillResult.yearlyResults} />
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function App() {
   // ── Core inputs ────────────────────────────────────────────────────────────
@@ -27,6 +69,12 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [chartView, setChartView] = useState<'scatter' | 'heatmap' | 'both'>('both');
+
+  // ── Drill-down ─────────────────────────────────────────────────────────────
+  const [drillYear, setDrillYear] = useState<number>(1970);
+  const [drillResult, setDrillResult] = useState<SimulationResponse | null>(null);
+  const [drillLoading, setDrillLoading] = useState(false);
+  const [drillError, setDrillError] = useState<string | null>(null);
 
   async function handleRun() {
     setLoading(true);
@@ -60,6 +108,38 @@ export default function App() {
       setError(e.message);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleDrill(year: number) {
+    setDrillYear(year);
+    setDrillLoading(true);
+    setDrillError(null);
+    try {
+      const sma = stockPct / 100;
+      const reit = Math.min(0.10, 1 - sma);
+      const bond = (1 - sma - reit) / 2;
+      const req: SimulationRequest = {
+        startYear: year,
+        startingNestEgg: nestEgg,
+        initialWithdrawal: withdrawal,
+        expensesAndMgmtFee: 0.012,
+        sp500: 0,
+        crsp1_10: sma * 0.56,
+        crsp6_10: sma * 0.10,
+        ffIntl: sma * 0.23,
+        ffEmgMkts: sma * 0.11,
+        djUsReit: reit,
+        oneMonth: bond,
+        fiveYearUS: bond,
+      };
+      const res = await runSimulation(req);
+      setDrillResult(res);
+      setTimeout(() => document.getElementById('drill')?.scrollIntoView({ behavior: 'smooth' }), 100);
+    } catch (e: any) {
+      setDrillError(e.message);
+    } finally {
+      setDrillLoading(false);
     }
   }
 
@@ -187,8 +267,15 @@ export default function App() {
               <button className={`chart-toggle-btn ${chartView === 'heatmap' ? 'active' : ''}`} onClick={() => setChartView('heatmap')}>Outcomes Grid</button>
               <button className={`chart-toggle-btn ${chartView === 'both' ? 'active' : ''}`} onClick={() => setChartView('both')}>Show Both</button>
             </div>
-            {(chartView === 'scatter' || chartView === 'both') && <OutcomesChart scenarios={result.scenarios} yearCount={result.yearCount} />}
+            {(chartView === 'scatter' || chartView === 'both') && <OutcomesChart scenarios={result.scenarios} yearCount={result.yearCount} onYearClick={handleDrill} />}
             {(chartView === 'heatmap' || chartView === 'both') && <OutcomesHeatmap scenarios={result.scenarios} yearCount={result.yearCount} />}
+
+            <DrillSection
+              drillYear={drillYear} setDrillYear={setDrillYear}
+              drillResult={drillResult} drillLoading={drillLoading} drillError={drillError}
+              onRun={handleDrill}
+            />
+
             <SorrExplainer result={result} />
           </div>
         </section>
@@ -199,7 +286,14 @@ export default function App() {
         <section id="results" className="results-section">
           <div className="results-inner">
             <StatCards result={compareResult.withoutAnnuity} />
-            <CompareChart compare={compareResult} />
+            <CompareChart compare={compareResult} onYearClick={handleDrill} />
+
+            <DrillSection
+              drillYear={drillYear} setDrillYear={setDrillYear}
+              drillResult={drillResult} drillLoading={drillLoading} drillError={drillError}
+              onRun={handleDrill}
+            />
+
             <SorrExplainer result={compareResult.withAnnuity} />
           </div>
         </section>

@@ -592,6 +592,50 @@ body {
   line-height: 1.5;
 }
 
+/* ── Drill-down Section ── */
+.drill-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-top: 24px;
+}
+.drill-input-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.drill-label {
+  font-size: 13px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.drill-year-input { width: 110px; flex-shrink: 0; }
+.drill-run-btn {
+  padding: 10px 20px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: border-color 0.15s, color 0.15s;
+}
+.drill-run-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.drill-run-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.drill-results { margin-top: 24px; }
+.drill-heading {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  margin-bottom: 16px;
+}
+.drill-exhausted { color: var(--danger); font-size: 0.85rem; font-weight: 400; }
+
 /* ── Annuity Section ── */
 .annuity-section { display: flex; flex-direction: column; gap: 16px; }
 .annuity-toggle {
