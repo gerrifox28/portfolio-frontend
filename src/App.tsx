@@ -286,6 +286,15 @@ export default function App() {
               </div>
             </div>
 
+            <div className="main-input-group">
+              <label>Expenses &amp; Mgmt Fee</label>
+              <div className="input-suffix">
+                <input type="number" value={expensesFee} min={0} max={10} step={0.1}
+                  onChange={e => setExpensesFee(parseFloat(e.target.value) || 0)} />
+                <span>%</span>
+              </div>
+            </div>
+
             <div className="main-input-group full-width">
               <div className="alloc-header">
                 <label>Portfolio Allocation</label>
@@ -338,14 +347,6 @@ export default function App() {
                 );
               })()}
 
-              <div className="expenses-row">
-                <label className="expenses-label">Expenses &amp; Mgmt Fee</label>
-                <div className="input-prefix expenses-input">
-                  <input type="number" value={expensesFee} min={0} max={10} step={0.1}
-                    onChange={e => setExpensesFee(parseFloat(e.target.value) || 0)} />
-                  <span>%</span>
-                </div>
-              </div>
             </div>
 
             {/* ── Annuity toggle ── */}
