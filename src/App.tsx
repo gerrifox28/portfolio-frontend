@@ -77,13 +77,14 @@ export default function App() {
   // ── Allocation mode ────────────────────────────────────────────────────────
   const [allocMode, setAllocMode] = useState<'auto' | 'manual'>('auto');
   const [manualAlloc, setManualAlloc] = useState({
-    mSp500: 0, mCrsp1_10: 33.6, mCrsp6_10: 6.0,
-    mFfIntl: 13.8, mFfEmgMkts: 6.6, mDjUsReit: 10.0,
-    mOneMonth: 5.0, mFiveYearUS: 25.0,
+    mSp500: '0', mCrsp1_10: '33.6', mCrsp6_10: '6.0',
+    mFfIntl: '13.8', mFfEmgMkts: '6.6', mDjUsReit: '10.0',
+    mOneMonth: '5.0', mFiveYearUS: '25.0',
   });
-  function setField(key: keyof typeof manualAlloc, val: number) {
+  function setField(key: keyof typeof manualAlloc, val: string) {
     setManualAlloc(prev => ({ ...prev, [key]: val }));
   }
+  function parseAlloc(v: string) { return parseFloat(v) || 0; }
 
   // ── Annuity inputs ─────────────────────────────────────────────────────────
   const [showAnnuity, setShowAnnuity] = useState(false);
@@ -123,14 +124,14 @@ export default function App() {
     try {
       const manualFields = allocMode === 'manual' ? {
         manualAllocations: true,
-        mSp500:      manualAlloc.mSp500     / 100,
-        mCrsp1_10:   manualAlloc.mCrsp1_10  / 100,
-        mCrsp6_10:   manualAlloc.mCrsp6_10  / 100,
-        mFfIntl:     manualAlloc.mFfIntl    / 100,
-        mFfEmgMkts:  manualAlloc.mFfEmgMkts / 100,
-        mDjUsReit:   manualAlloc.mDjUsReit  / 100,
-        mOneMonth:   manualAlloc.mOneMonth  / 100,
-        mFiveYearUS: manualAlloc.mFiveYearUS / 100,
+        mSp500:      parseAlloc(manualAlloc.mSp500)     / 100,
+        mCrsp1_10:   parseAlloc(manualAlloc.mCrsp1_10)  / 100,
+        mCrsp6_10:   parseAlloc(manualAlloc.mCrsp6_10)  / 100,
+        mFfIntl:     parseAlloc(manualAlloc.mFfIntl)    / 100,
+        mFfEmgMkts:  parseAlloc(manualAlloc.mFfEmgMkts) / 100,
+        mDjUsReit:   parseAlloc(manualAlloc.mDjUsReit)  / 100,
+        mOneMonth:   parseAlloc(manualAlloc.mOneMonth)  / 100,
+        mFiveYearUS: parseAlloc(manualAlloc.mFiveYearUS) / 100,
       } : {};
       const base = {
         startingNestEgg: nestEgg,
@@ -176,14 +177,14 @@ export default function App() {
       const oneMonthAuto = Math.min(0.05, remaining);
       const fiveYearAuto = Math.max(0, remaining - oneMonthAuto);
       const baseAlloc = allocMode === 'manual' ? {
-        sp500:     manualAlloc.mSp500     / 100,
-        crsp1_10:  manualAlloc.mCrsp1_10  / 100,
-        crsp6_10:  manualAlloc.mCrsp6_10  / 100,
-        ffIntl:    manualAlloc.mFfIntl    / 100,
-        ffEmgMkts: manualAlloc.mFfEmgMkts / 100,
-        djUsReit:  manualAlloc.mDjUsReit  / 100,
-        oneMonth:  manualAlloc.mOneMonth  / 100,
-        fiveYearUS: manualAlloc.mFiveYearUS / 100,
+        sp500:     parseAlloc(manualAlloc.mSp500)     / 100,
+        crsp1_10:  parseAlloc(manualAlloc.mCrsp1_10)  / 100,
+        crsp6_10:  parseAlloc(manualAlloc.mCrsp6_10)  / 100,
+        ffIntl:    parseAlloc(manualAlloc.mFfIntl)    / 100,
+        ffEmgMkts: parseAlloc(manualAlloc.mFfEmgMkts) / 100,
+        djUsReit:  parseAlloc(manualAlloc.mDjUsReit)  / 100,
+        oneMonth:  parseAlloc(manualAlloc.mOneMonth)  / 100,
+        fiveYearUS: parseAlloc(manualAlloc.mFiveYearUS) / 100,
         expensesAndMgmtFee: expensesFee / 100,
         withdrawalMode,
       } : {
@@ -317,7 +318,7 @@ export default function App() {
               </>}
 
               {allocMode === 'manual' && (() => {
-                const total = Object.values(manualAlloc).reduce((a, b) => a + b, 0);
+                const total = Object.values(manualAlloc).reduce((a, b) => a + (parseFloat(b) || 0), 0);
                 const totalRounded = Math.round(total * 10) / 10;
                 return (
                   <div className="manual-alloc-grid">
@@ -335,7 +336,7 @@ export default function App() {
                         <span className="manual-alloc-label">{label}</span>
                         <div className="input-prefix manual-alloc-input">
                           <input type="number" value={manualAlloc[key]} min={0} max={100} step={0.1}
-                            onChange={e => setField(key, parseFloat(e.target.value) || 0)} />
+                            onChange={e => setField(key, e.target.value)} />
                           <span>%</span>
                         </div>
                       </div>

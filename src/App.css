@@ -642,7 +642,7 @@ body {
   flex: 1;
 }
 .manual-alloc-input {
-  width: 115px;
+  width: 125px;
   flex-shrink: 0;
 }
 .manual-alloc-input input { width: 100%; text-align: right; }
