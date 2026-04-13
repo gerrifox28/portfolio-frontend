@@ -100,6 +100,7 @@ body {
 }
 .withdrawal-mode-select:focus { outline: none; border-color: var(--accent); }
 .withdrawal-mode-select option[disabled] { color: var(--text-muted); font-style: italic; }
+.field-warn { font-size: 11px; color: var(--danger); margin-top: 4px; }
 .main-input-group.full-width { grid-column: 1 / -1; }
 .main-input-group label {
   font-size: 13px;

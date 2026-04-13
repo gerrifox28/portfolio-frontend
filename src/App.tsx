@@ -69,7 +69,7 @@ export default function App() {
   const [stockPct, setStockPct] = useState(60);
 
   // ── Withdrawal mode ────────────────────────────────────────────────────────
-  const [withdrawalMode, setWithdrawalMode] = useState<'inflation_adjusted' | 'fixed'>('inflation_adjusted');
+  const [withdrawalMode, setWithdrawalMode] = useState<'inflation_adjusted' | 'fixed' | 'tpa'>('inflation_adjusted');
 
   // ── Expenses fee ───────────────────────────────────────────────────────────
   const [expensesFee, setExpensesFee] = useState(1.2); // displayed as %, stored as %
@@ -200,6 +200,7 @@ export default function App() {
         startYear: year,
         startingNestEgg: nestEgg,
         initialWithdrawal: withdrawal,
+        yearCount,
         ...baseAlloc,
       };
       const [res, annuityRes] = await Promise.all([
@@ -262,11 +263,14 @@ export default function App() {
                 <input type="number" value={withdrawal} min={0} step={1000}
                   onChange={e => setWithdrawal(parseFloat(e.target.value) || 0)} />
               </div>
-              <select className="withdrawal-mode-select" value={withdrawalMode} onChange={e => setWithdrawalMode(e.target.value as 'inflation_adjusted' | 'fixed')}>
+              <select className="withdrawal-mode-select" value={withdrawalMode} onChange={e => setWithdrawalMode(e.target.value as 'inflation_adjusted' | 'fixed' | 'tpa')}>
                 <option value="inflation_adjusted">With Inflation Adjustment</option>
                 <option value="fixed">Fixed Withdrawal Amount</option>
-                <option value="tpa" disabled>Withdrawal Amount Subject to TPA (coming soon)</option>
+                <option value="tpa">Withdrawal Amount Subject to TPA</option>
               </select>
+              {withdrawalMode === 'tpa' && (yearCount < 30 || yearCount > 45) && (
+                <p className="field-warn">TPA requires Years to Simulate between 30 and 45.</p>
+              )}
             </div>
 
             <div className="main-input-group">

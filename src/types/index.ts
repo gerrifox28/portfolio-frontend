@@ -12,6 +12,7 @@ export interface SimulationRequest {
   djUsReit: number;
   ffEmgMkts: number;
   withdrawalMode?: string;
+  yearCount?: number;
   annuityInitialIncome?: number;
   annuityCap?: number;
 }
