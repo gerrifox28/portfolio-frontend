@@ -11,6 +11,9 @@ export interface SimulationRequest {
   ffIntl: number;
   djUsReit: number;
   ffEmgMkts: number;
+  withdrawalMode?: string;
+  annuityInitialIncome?: number;
+  annuityCap?: number;
 }
 
 export interface YearResult {
@@ -23,6 +26,8 @@ export interface YearResult {
   portfolioReturnDollars: number;
   totalIncome: number;
   portfolioEnd: number;
+  annuityPayment?: number;
+  inflationAdjPct?: number;
 }
 
 export interface SimulationResponse {
@@ -84,6 +89,7 @@ export interface AnnuityCompareRequest {
   joint: boolean;
   annuityPercentage: number;
   withdrawalMode: string;
+  annuityCap: number;
 }
 
 export interface AnnuityCompareResponse {

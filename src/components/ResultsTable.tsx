@@ -3,6 +3,7 @@ import { YearResult } from '../types';
 
 interface Props {
   data: YearResult[];
+  showAnnuityColumns?: boolean;
 }
 
 function fmt$(n: number) {
@@ -12,7 +13,7 @@ function fmtPct(n: number) {
   return (n * 100).toFixed(1) + '%';
 }
 
-export default function ResultsTable({ data }: Props) {
+export default function ResultsTable({ data, showAnnuityColumns = false }: Props) {
   const [expanded, setExpanded] = useState(false);
   const rows = expanded ? data : data.slice(0, 15);
 
@@ -31,6 +32,11 @@ export default function ResultsTable({ data }: Props) {
               <th>Return $</th>
               <th>Inflation</th>
               <th>End Balance</th>
+              {showAnnuityColumns && <>
+                <th>Annuity Pmt</th>
+                <th>Inf Adj %</th>
+                <th>Total Income</th>
+              </>}
             </tr>
           </thead>
           <tbody>
@@ -50,6 +56,11 @@ export default function ResultsTable({ data }: Props) {
                 <td className={`bold ${r.portfolioEnd <= 0 ? 'negative' : ''}`}>
                   {fmt$(r.portfolioEnd)}
                 </td>
+                {showAnnuityColumns && <>
+                  <td className="positive">{fmt$(r.annuityPayment ?? 0)}</td>
+                  <td className="dim">{r.sequenceNumber === 1 ? '—' : fmtPct(r.inflationAdjPct ?? 0)}</td>
+                  <td className="bold">{fmt$(r.totalIncome)}</td>
+                </>}
               </tr>
             ))}
           </tbody>

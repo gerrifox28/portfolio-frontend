@@ -11,14 +11,19 @@ import ResultsTable from './components/ResultsTable';
 import './App.css';
 import { SimulationRequest, SimulationResponse } from './types';
 
-function DrillSection({ drillYear, setDrillYear, drillResult, drillLoading, drillError, onRun }: {
+function DrillSection({ drillYear, setDrillYear, drillResult, drillAnnuityResult, drillLoading, drillError, onRun }: {
   drillYear: number;
   setDrillYear: (y: number) => void;
   drillResult: SimulationResponse | null;
+  drillAnnuityResult: SimulationResponse | null;
   drillLoading: boolean;
   drillError: string | null;
   onRun: (year: number) => void;
 }) {
+  const [drillView, setDrillView] = React.useState<'without' | 'with'>('without');
+  const showToggle = !!drillAnnuityResult;
+  const activeResult = showToggle && drillView === 'with' ? drillAnnuityResult : drillResult;
+
   return (
     <div id="drill" className="drill-section">
       <div className="drill-input-row">
@@ -36,14 +41,20 @@ function DrillSection({ drillYear, setDrillYear, drillResult, drillLoading, dril
         </button>
       </div>
       {drillError && <p className="error-msg">{drillError}</p>}
-      {drillResult && !drillLoading && (
+      {activeResult && !drillLoading && (
         <div className="drill-results">
+          {showToggle && (
+            <div className="chart-toggle" style={{ marginBottom: 16 }}>
+              <button className={`chart-toggle-btn ${drillView === 'without' ? 'active' : ''}`} onClick={() => setDrillView('without')}>Without Annuity</button>
+              <button className={`chart-toggle-btn ${drillView === 'with' ? 'active' : ''}`} onClick={() => setDrillView('with')}>With Annuity</button>
+            </div>
+          )}
           <h3 className="drill-heading">
-            Starting {drillResult.inputs.startYear}: {drillResult.yearlyResults.length}-year projection
-            {drillResult.portfolioExhausted && <span className="drill-exhausted"> — portfolio exhausted</span>}
+            Starting {activeResult.inputs.startYear}: {activeResult.yearlyResults.length}-year projection
+            {activeResult.portfolioExhausted && <span className="drill-exhausted"> — portfolio exhausted</span>}
           </h3>
-          <PortfolioChart data={drillResult.yearlyResults} />
-          <ResultsTable data={drillResult.yearlyResults} />
+          <PortfolioChart data={activeResult.yearlyResults} />
+          <ResultsTable data={activeResult.yearlyResults} showAnnuityColumns={showToggle && drillView === 'with'} />
         </div>
       )}
     </div>
@@ -82,11 +93,19 @@ export default function App() {
   // ── Compare heatmap toggle ─────────────────────────────────────────────────
   const [compareHeatmap, setCompareHeatmap] = useState<'without' | 'with'>('without');
 
+  // ── Annuity cap ────────────────────────────────────────────────────────────
+  const [annuityCap, setAnnuityCap] = useState(0.03);
+
+  // ── Annuity drill result ───────────────────────────────────────────────────
+  const [drillAnnuityResult, setDrillAnnuityResult] = useState<SimulationResponse | null>(null);
+
   async function handleRun() {
     setLoading(true);
     setError(null);
     setResult(null);
     setCompareResult(null);
+    setDrillResult(null);
+    setDrillAnnuityResult(null);
     try {
       const base = {
         startingNestEgg: nestEgg,
@@ -103,6 +122,7 @@ export default function App() {
           age,
           joint,
           annuityPercentage: annuityPct / 100,
+          annuityCap,
         };
         setCompareResult(await runCompare(req));
       } else {
@@ -118,7 +138,8 @@ export default function App() {
     }
   }
 
-  async function handleDrill(year: number) {
+  async function handleDrill(year: number, currentCompareResult?: typeof compareResult) {
+    const activeCompare = currentCompareResult ?? compareResult;
     setDrillYear(year);
     setDrillLoading(true);
     setDrillError(null);
@@ -126,11 +147,7 @@ export default function App() {
       const sma = stockPct / 100;
       const reit = Math.min(0.10, 1 - sma);
       const bond = (1 - sma - reit) / 2;
-      const req: SimulationRequest = {
-        startYear: year,
-        startingNestEgg: nestEgg,
-        initialWithdrawal: withdrawal,
-        expensesAndMgmtFee: 0.012,
+      const baseAlloc = {
         sp500: 0,
         crsp1_10: sma * 0.56,
         crsp6_10: sma * 0.10,
@@ -139,9 +156,28 @@ export default function App() {
         djUsReit: reit,
         oneMonth: bond,
         fiveYearUS: bond,
+        expensesAndMgmtFee: 0.012,
+        withdrawalMode,
       };
-      const res = await runSimulation(req);
+      const req: SimulationRequest = {
+        startYear: year,
+        startingNestEgg: nestEgg,
+        initialWithdrawal: withdrawal,
+        ...baseAlloc,
+      };
+      const [res, annuityRes] = await Promise.all([
+        runSimulation(req),
+        activeCompare ? runSimulation({
+          startYear: year,
+          startingNestEgg: nestEgg * (1 - annuityPct / 100),
+          initialWithdrawal: withdrawal,
+          ...baseAlloc,
+          annuityInitialIncome: activeCompare.initialAnnuityIncome,
+          annuityCap,
+        }) : Promise.resolve(null),
+      ]);
       setDrillResult(res);
+      setDrillAnnuityResult(annuityRes);
       setTimeout(() => document.getElementById('drill')?.scrollIntoView({ behavior: 'smooth' }), 100);
     } catch (e: any) {
       setDrillError(e.message);
@@ -245,6 +281,16 @@ export default function App() {
                   </div>
 
                   <div className="adv-input-group">
+                    <label>Annuity COLA Cap</label>
+                    <select className="withdrawal-mode-select" value={annuityCap} onChange={e => setAnnuityCap(parseFloat(e.target.value))}>
+                      <option value={0.03}>3% / year</option>
+                      <option value={0.04}>4% / year</option>
+                      <option value={0.05}>5% / year</option>
+                    </select>
+                    <span className="field-note">Max annual annuity income increase</span>
+                  </div>
+
+                  <div className="adv-input-group">
                     <label>% of Nest Egg to Annuitize</label>
                     <div className="stock-slider-row">
                       <input type="range" min={1} max={99} step={1} value={annuityPct}
@@ -286,7 +332,8 @@ export default function App() {
 
             <DrillSection
               drillYear={drillYear} setDrillYear={setDrillYear}
-              drillResult={drillResult} drillLoading={drillLoading} drillError={drillError}
+              drillResult={drillResult} drillAnnuityResult={null}
+              drillLoading={drillLoading} drillError={drillError}
               onRun={handleDrill}
             />
 
@@ -310,7 +357,8 @@ export default function App() {
               <>
                 <DrillSection
                   drillYear={drillYear} setDrillYear={setDrillYear}
-                  drillResult={drillResult} drillLoading={drillLoading} drillError={drillError}
+                  drillResult={drillResult} drillAnnuityResult={drillAnnuityResult}
+                  drillLoading={drillLoading} drillError={drillError}
                   onRun={handleDrill}
                 />
                 <div className="compare-full-panel">
