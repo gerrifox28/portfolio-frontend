@@ -71,6 +71,20 @@ export default function App() {
   // ── Withdrawal mode ────────────────────────────────────────────────────────
   const [withdrawalMode, setWithdrawalMode] = useState<'inflation_adjusted' | 'fixed'>('inflation_adjusted');
 
+  // ── Expenses fee ───────────────────────────────────────────────────────────
+  const [expensesFee, setExpensesFee] = useState(1.2); // displayed as %, stored as %
+
+  // ── Allocation mode ────────────────────────────────────────────────────────
+  const [allocMode, setAllocMode] = useState<'auto' | 'manual'>('auto');
+  const [manualAlloc, setManualAlloc] = useState({
+    mSp500: 0, mCrsp1_10: 33.6, mCrsp6_10: 6.0,
+    mFfIntl: 13.8, mFfEmgMkts: 6.6, mDjUsReit: 10.0,
+    mOneMonth: 15.0, mFiveYearUS: 15.0,
+  });
+  function setField(key: keyof typeof manualAlloc, val: number) {
+    setManualAlloc(prev => ({ ...prev, [key]: val }));
+  }
+
   // ── Annuity inputs ─────────────────────────────────────────────────────────
   const [showAnnuity, setShowAnnuity] = useState(false);
   const [age, setAge] = useState(65);
@@ -107,13 +121,25 @@ export default function App() {
     setDrillResult(null);
     setDrillAnnuityResult(null);
     try {
+      const manualFields = allocMode === 'manual' ? {
+        manualAllocations: true,
+        mSp500:      manualAlloc.mSp500     / 100,
+        mCrsp1_10:   manualAlloc.mCrsp1_10  / 100,
+        mCrsp6_10:   manualAlloc.mCrsp6_10  / 100,
+        mFfIntl:     manualAlloc.mFfIntl    / 100,
+        mFfEmgMkts:  manualAlloc.mFfEmgMkts / 100,
+        mDjUsReit:   manualAlloc.mDjUsReit  / 100,
+        mOneMonth:   manualAlloc.mOneMonth  / 100,
+        mFiveYearUS: manualAlloc.mFiveYearUS / 100,
+      } : {};
       const base = {
         startingNestEgg: nestEgg,
         initialWithdrawal: withdrawal,
         stockMarketAllocation: stockPct / 100,
         yearCount,
-        expensesAndMgmtFee: 0.012,
+        expensesAndMgmtFee: expensesFee / 100,
         withdrawalMode,
+        ...manualFields,
       };
 
       if (showAnnuity) {
@@ -147,7 +173,18 @@ export default function App() {
       const sma = stockPct / 100;
       const reit = Math.min(0.10, 1 - sma);
       const bond = (1 - sma - reit) / 2;
-      const baseAlloc = {
+      const baseAlloc = allocMode === 'manual' ? {
+        sp500:     manualAlloc.mSp500     / 100,
+        crsp1_10:  manualAlloc.mCrsp1_10  / 100,
+        crsp6_10:  manualAlloc.mCrsp6_10  / 100,
+        ffIntl:    manualAlloc.mFfIntl    / 100,
+        ffEmgMkts: manualAlloc.mFfEmgMkts / 100,
+        djUsReit:  manualAlloc.mDjUsReit  / 100,
+        oneMonth:  manualAlloc.mOneMonth  / 100,
+        fiveYearUS: manualAlloc.mFiveYearUS / 100,
+        expensesAndMgmtFee: expensesFee / 100,
+        withdrawalMode,
+      } : {
         sp500: 0,
         crsp1_10: sma * 0.56,
         crsp6_10: sma * 0.10,
@@ -156,7 +193,7 @@ export default function App() {
         djUsReit: reit,
         oneMonth: bond,
         fiveYearUS: bond,
-        expensesAndMgmtFee: 0.012,
+        expensesAndMgmtFee: expensesFee / 100,
         withdrawalMode,
       };
       const req: SimulationRequest = {
@@ -242,19 +279,65 @@ export default function App() {
             </div>
 
             <div className="main-input-group full-width">
-              <label>
-                Stock Market Allocation
-                <span className="label-note"> *remainder goes to bonds &amp; REITs</span>
-              </label>
-              <div className="stock-slider-row">
-                <input type="range" min={0} max={100} step={1} value={stockPct}
-                  onChange={e => setStockPct(parseInt(e.target.value))} className="stock-slider"
-                  style={{ '--val': `${stockPct}%` } as React.CSSProperties} />
-                <span className="stock-pct-value">{stockPct}%</span>
+              <div className="alloc-header">
+                <label>Portfolio Allocation</label>
+                <div className="coverage-toggle" style={{ marginLeft: 'auto' }}>
+                  <button className={`coverage-btn ${allocMode === 'auto' ? 'active' : ''}`} onClick={() => setAllocMode('auto')}>Auto</button>
+                  <button className={`coverage-btn ${allocMode === 'manual' ? 'active' : ''}`} onClick={() => setAllocMode('manual')}>Manual</button>
+                </div>
               </div>
-              <p className="alloc-breakdown">
-                {stockPct}% stocks (globally diversified) · {reitPct}% REIT · {bondPct}% T-Bills · {bondPct}% 5-yr Treasuries
-              </p>
+
+              {allocMode === 'auto' && <>
+                <div className="stock-slider-row">
+                  <input type="range" min={0} max={100} step={1} value={stockPct}
+                    onChange={e => setStockPct(parseInt(e.target.value))} className="stock-slider"
+                    style={{ '--val': `${stockPct}%` } as React.CSSProperties} />
+                  <span className="stock-pct-value">{stockPct}%</span>
+                </div>
+                <p className="alloc-breakdown">
+                  {stockPct}% stocks (globally diversified) · {reitPct}% REIT · {bondPct}% T-Bills · {bondPct}% 5-yr Treasuries
+                </p>
+              </>}
+
+              {allocMode === 'manual' && (() => {
+                const total = Object.values(manualAlloc).reduce((a, b) => a + b, 0);
+                const totalRounded = Math.round(total * 10) / 10;
+                return (
+                  <div className="manual-alloc-grid">
+                    {([
+                      ['mSp500',     'S&P 500'],
+                      ['mCrsp1_10',  'CRSP 1-10 (Total Mkt)'],
+                      ['mCrsp6_10',  'CRSP 6-10 (Small/Mid)'],
+                      ['mFfIntl',    'Intl Developed'],
+                      ['mFfEmgMkts', 'Emerging Markets'],
+                      ['mDjUsReit',  'US REIT'],
+                      ['mOneMonth',  '1-Mo T-Bills'],
+                      ['mFiveYearUS','5-Yr Treasuries'],
+                    ] as [keyof typeof manualAlloc, string][]).map(([key, label]) => (
+                      <div key={key} className="manual-alloc-row">
+                        <span className="manual-alloc-label">{label}</span>
+                        <div className="input-prefix manual-alloc-input">
+                          <input type="number" value={manualAlloc[key]} min={0} max={100} step={0.1}
+                            onChange={e => setField(key, parseFloat(e.target.value) || 0)} />
+                          <span>%</span>
+                        </div>
+                      </div>
+                    ))}
+                    <div className={`manual-alloc-total ${Math.abs(totalRounded - 100) < 0.1 ? 'total-ok' : 'total-warn'}`}>
+                      Total: {totalRounded}% {Math.abs(totalRounded - 100) >= 0.1 && <span>(must equal 100%)</span>}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              <div className="expenses-row">
+                <label className="expenses-label">Expenses &amp; Mgmt Fee</label>
+                <div className="input-prefix expenses-input">
+                  <input type="number" value={expensesFee} min={0} max={10} step={0.1}
+                    onChange={e => setExpensesFee(parseFloat(e.target.value) || 0)} />
+                  <span>%</span>
+                </div>
+              </div>
             </div>
 
             {/* ── Annuity toggle ── */}

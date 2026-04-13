@@ -50,6 +50,17 @@ export interface Metadata {
   assetClasses: AssetClass[];
 }
 
+export interface ManualAllocations {
+  mSp500: number;
+  mCrsp1_10: number;
+  mCrsp6_10: number;
+  mFfIntl: number;
+  mFfEmgMkts: number;
+  mDjUsReit: number;
+  mOneMonth: number;
+  mFiveYearUS: number;
+}
+
 export interface AllScenariosRequest {
   startingNestEgg: number;
   initialWithdrawal: number;
@@ -57,6 +68,15 @@ export interface AllScenariosRequest {
   yearCount: number;
   expensesAndMgmtFee: number;
   withdrawalMode: string;
+  manualAllocations?: boolean;
+  mSp500?: number;
+  mCrsp1_10?: number;
+  mCrsp6_10?: number;
+  mFfIntl?: number;
+  mFfEmgMkts?: number;
+  mDjUsReit?: number;
+  mOneMonth?: number;
+  mFiveYearUS?: number;
 }
 
 export interface ScenarioSummary {
@@ -90,6 +110,15 @@ export interface AnnuityCompareRequest {
   annuityPercentage: number;
   withdrawalMode: string;
   annuityCap: number;
+  manualAllocations?: boolean;
+  mSp500?: number;
+  mCrsp1_10?: number;
+  mCrsp6_10?: number;
+  mFfIntl?: number;
+  mFfEmgMkts?: number;
+  mDjUsReit?: number;
+  mOneMonth?: number;
+  mFiveYearUS?: number;
 }
 
 export interface AnnuityCompareResponse {

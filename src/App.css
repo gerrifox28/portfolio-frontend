@@ -614,6 +614,66 @@ body {
   color: var(--text-muted);
   line-height: 1.5;
 }
+.alloc-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.alloc-header label { margin-bottom: 0; }
+
+/* ── Manual allocation grid ── */
+.manual-alloc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 20px;
+  margin-top: 8px;
+}
+.manual-alloc-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+}
+.manual-alloc-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  flex: 1;
+}
+.manual-alloc-input {
+  width: 90px;
+  flex-shrink: 0;
+}
+.manual-alloc-input input { width: 100%; text-align: right; }
+.manual-alloc-input span { font-size: 12px; }
+.manual-alloc-total {
+  grid-column: 1 / -1;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 0;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+}
+.total-ok   { color: var(--success); }
+.total-warn { color: var(--danger); }
+
+/* ── Expenses row ── */
+.expenses-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.expenses-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  flex: 1;
+}
+.expenses-input { width: 100px; flex-shrink: 0; }
+.expenses-input input { width: 100%; text-align: right; }
+.expenses-input span { font-size: 12px; }
 
 /* ── Drill-down Section ── */
 .drill-section {
