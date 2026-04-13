@@ -63,16 +63,16 @@ function DrillSection({ drillYear, setDrillYear, drillResult, drillAnnuityResult
 
 export default function App() {
   // ── Core inputs ────────────────────────────────────────────────────────────
-  const [nestEgg, setNestEgg] = useState(1_000_000);
-  const [withdrawal, setWithdrawal] = useState(40_000);
-  const [yearCount, setYearCount] = useState(40);
+  const [nestEgg, setNestEgg] = useState('1000000');
+  const [withdrawal, setWithdrawal] = useState('40000');
+  const [yearCount, setYearCount] = useState('40');
   const [stockPct, setStockPct] = useState(60);
 
   // ── Withdrawal mode ────────────────────────────────────────────────────────
   const [withdrawalMode, setWithdrawalMode] = useState<'inflation_adjusted' | 'fixed' | 'tpa'>('inflation_adjusted');
 
   // ── Expenses fee ───────────────────────────────────────────────────────────
-  const [expensesFee, setExpensesFee] = useState(1.2); // displayed as %, stored as %
+  const [expensesFee, setExpensesFee] = useState('1.2'); // displayed as %, stored as %
 
   // ── Allocation mode ────────────────────────────────────────────────────────
   const [allocMode, setAllocMode] = useState<'auto' | 'manual'>('auto');
@@ -134,11 +134,11 @@ export default function App() {
         mFiveYearUS: parseAlloc(manualAlloc.mFiveYearUS) / 100,
       } : {};
       const base = {
-        startingNestEgg: nestEgg,
-        initialWithdrawal: withdrawal,
+        startingNestEgg: parseFloat(nestEgg) || 0,
+        initialWithdrawal: parseFloat(withdrawal) || 0,
         stockMarketAllocation: stockPct / 100,
-        yearCount,
-        expensesAndMgmtFee: expensesFee / 100,
+        yearCount: parseInt(yearCount) || 40,
+        expensesAndMgmtFee: (parseFloat(expensesFee) || 0) / 100,
         withdrawalMode,
         ...manualFields,
       };
@@ -185,7 +185,7 @@ export default function App() {
         djUsReit:  parseAlloc(manualAlloc.mDjUsReit)  / 100,
         oneMonth:  parseAlloc(manualAlloc.mOneMonth)  / 100,
         fiveYearUS: parseAlloc(manualAlloc.mFiveYearUS) / 100,
-        expensesAndMgmtFee: expensesFee / 100,
+        expensesAndMgmtFee: (parseFloat(expensesFee) || 0) / 100,
         withdrawalMode,
       } : {
         sp500: 0,
@@ -196,22 +196,22 @@ export default function App() {
         djUsReit: reit,
         oneMonth: oneMonthAuto,
         fiveYearUS: fiveYearAuto,
-        expensesAndMgmtFee: expensesFee / 100,
+        expensesAndMgmtFee: (parseFloat(expensesFee) || 0) / 100,
         withdrawalMode,
       };
       const req: SimulationRequest = {
         startYear: year,
-        startingNestEgg: nestEgg,
-        initialWithdrawal: withdrawal,
-        yearCount,
+        startingNestEgg: parseFloat(nestEgg) || 0,
+        initialWithdrawal: parseFloat(withdrawal) || 0,
+        yearCount: parseInt(yearCount) || 40,
         ...baseAlloc,
       };
       const [res, annuityRes] = await Promise.all([
         runSimulation(req),
         activeCompare ? runSimulation({
           startYear: year,
-          startingNestEgg: nestEgg * (1 - annuityPct / 100),
-          initialWithdrawal: withdrawal,
+          startingNestEgg: (parseFloat(nestEgg) || 0) * (1 - annuityPct / 100),
+          initialWithdrawal: parseFloat(withdrawal) || 0,
           ...baseAlloc,
           annuityInitialIncome: activeCompare.initialAnnuityIncome,
           annuityCap,
@@ -257,7 +257,7 @@ export default function App() {
               <div className="input-prefix">
                 <span>$</span>
                 <input type="number" value={nestEgg} min={0} step={10000}
-                  onChange={e => setNestEgg(parseFloat(e.target.value) || 0)} />
+                  onChange={e => setNestEgg(e.target.value)} />
               </div>
             </div>
 
@@ -266,14 +266,14 @@ export default function App() {
               <div className="input-prefix">
                 <span>$</span>
                 <input type="number" value={withdrawal} min={0} step={1000}
-                  onChange={e => setWithdrawal(parseFloat(e.target.value) || 0)} />
+                  onChange={e => setWithdrawal(e.target.value)} />
               </div>
               <select className="withdrawal-mode-select" value={withdrawalMode} onChange={e => setWithdrawalMode(e.target.value as 'inflation_adjusted' | 'fixed' | 'tpa')}>
                 <option value="inflation_adjusted">With Inflation Adjustment</option>
                 <option value="fixed">Fixed Withdrawal Amount</option>
                 <option value="tpa">Withdrawal Amount Subject to TPA</option>
               </select>
-              {withdrawalMode === 'tpa' && (yearCount < 30 || yearCount > 45) && (
+              {withdrawalMode === 'tpa' && ((parseInt(yearCount) || 0) < 30 || (parseInt(yearCount) || 0) > 45) && (
                 <p className="field-warn">TPA requires Years to Simulate between 30 and 45.</p>
               )}
             </div>
@@ -283,7 +283,7 @@ export default function App() {
               <div className="input-prefix">
                 <span>yrs</span>
                 <input type="number" value={yearCount} min={1} max={96} step={1}
-                  onChange={e => setYearCount(parseInt(e.target.value) || 40)} />
+                  onChange={e => setYearCount(e.target.value)} />
               </div>
             </div>
 
@@ -291,7 +291,7 @@ export default function App() {
               <label>Expenses &amp; Mgmt Fee</label>
               <div className="input-suffix">
                 <input type="number" value={expensesFee} min={0} max={10} step={0.1}
-                  onChange={e => setExpensesFee(parseFloat(e.target.value) || 0)} />
+                  onChange={e => setExpensesFee(e.target.value)} />
                 <span>%</span>
               </div>
             </div>
@@ -392,7 +392,7 @@ export default function App() {
                       <span className="stock-pct-value">{annuityPct}%</span>
                     </div>
                     <p className="alloc-breakdown">
-                      ${Math.round(nestEgg * annuityPct / 100).toLocaleString()} to annuity · ${Math.round(nestEgg * (100 - annuityPct) / 100).toLocaleString()} invested
+                      ${Math.round((parseFloat(nestEgg) || 0) * annuityPct / 100).toLocaleString()} to annuity · ${Math.round((parseFloat(nestEgg) || 0) * (100 - annuityPct) / 100).toLocaleString()} invested
                     </p>
                   </div>
                 </div>
