@@ -83,7 +83,23 @@ body {
   gap: 20px;
   align-items: end;
 }
-.main-input-group { display: flex; flex-direction: column; gap: 8px; }
+.main-input-group { display: flex; flex-direction: column; gap: 6px; }
+.withdrawal-mode-select {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
+  font-size: 12px;
+  padding: 6px 10px;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748b'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+.withdrawal-mode-select:focus { outline: none; border-color: var(--accent); }
+.withdrawal-mode-select option[disabled] { color: var(--text-muted); font-style: italic; }
 .main-input-group.full-width { grid-column: 1 / -1; }
 .main-input-group label {
   font-size: 13px;

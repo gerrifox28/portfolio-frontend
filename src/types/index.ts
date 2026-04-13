@@ -51,6 +51,7 @@ export interface AllScenariosRequest {
   stockMarketAllocation: number;
   yearCount: number;
   expensesAndMgmtFee: number;
+  withdrawalMode: string;
 }
 
 export interface ScenarioSummary {
@@ -82,6 +83,7 @@ export interface AnnuityCompareRequest {
   age: number;
   joint: boolean;
   annuityPercentage: number;
+  withdrawalMode: string;
 }
 
 export interface AnnuityCompareResponse {

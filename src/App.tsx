@@ -57,6 +57,9 @@ export default function App() {
   const [yearCount, setYearCount] = useState(40);
   const [stockPct, setStockPct] = useState(60);
 
+  // ── Withdrawal mode ────────────────────────────────────────────────────────
+  const [withdrawalMode, setWithdrawalMode] = useState<'inflation_adjusted' | 'fixed'>('inflation_adjusted');
+
   // ── Annuity inputs ─────────────────────────────────────────────────────────
   const [showAnnuity, setShowAnnuity] = useState(false);
   const [age, setAge] = useState(65);
@@ -91,6 +94,7 @@ export default function App() {
         stockMarketAllocation: stockPct / 100,
         yearCount,
         expensesAndMgmtFee: 0.012,
+        withdrawalMode,
       };
 
       if (showAnnuity) {
@@ -179,12 +183,17 @@ export default function App() {
             </div>
 
             <div className="main-input-group">
-              <label>Inflation-Adjusted Annual Income <span className="label-note">*adjusts with inflation each year</span></label>
+              <label>Desired Annual Income</label>
               <div className="input-prefix">
                 <span>$</span>
                 <input type="number" value={withdrawal} min={0} step={1000}
                   onChange={e => setWithdrawal(parseFloat(e.target.value) || 0)} />
               </div>
+              <select className="withdrawal-mode-select" value={withdrawalMode} onChange={e => setWithdrawalMode(e.target.value as 'inflation_adjusted' | 'fixed')}>
+                <option value="inflation_adjusted">With Inflation Adjustment</option>
+                <option value="fixed">Fixed Withdrawal Amount</option>
+                <option value="tpa" disabled>Withdrawal Amount Subject to TPA (coming soon)</option>
+              </select>
             </div>
 
             <div className="main-input-group">
