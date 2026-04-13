@@ -79,7 +79,7 @@ export default function App() {
   const [manualAlloc, setManualAlloc] = useState({
     mSp500: 0, mCrsp1_10: 33.6, mCrsp6_10: 6.0,
     mFfIntl: 13.8, mFfEmgMkts: 6.6, mDjUsReit: 10.0,
-    mOneMonth: 15.0, mFiveYearUS: 15.0,
+    mOneMonth: 5.0, mFiveYearUS: 25.0,
   });
   function setField(key: keyof typeof manualAlloc, val: number) {
     setManualAlloc(prev => ({ ...prev, [key]: val }));
@@ -172,7 +172,9 @@ export default function App() {
     try {
       const sma = stockPct / 100;
       const reit = Math.min(0.10, 1 - sma);
-      const bond = (1 - sma - reit) / 2;
+      const remaining = 1 - sma - reit;
+      const oneMonthAuto = Math.min(0.05, remaining);
+      const fiveYearAuto = Math.max(0, remaining - oneMonthAuto);
       const baseAlloc = allocMode === 'manual' ? {
         sp500:     manualAlloc.mSp500     / 100,
         crsp1_10:  manualAlloc.mCrsp1_10  / 100,
@@ -191,8 +193,8 @@ export default function App() {
         ffIntl: sma * 0.23,
         ffEmgMkts: sma * 0.11,
         djUsReit: reit,
-        oneMonth: bond,
-        fiveYearUS: bond,
+        oneMonth: oneMonthAuto,
+        fiveYearUS: fiveYearAuto,
         expensesAndMgmtFee: expensesFee / 100,
         withdrawalMode,
       };
@@ -226,7 +228,9 @@ export default function App() {
 
   // Allocation breakdown for display
   const reitPct = Math.min(10, 100 - stockPct);
-  const bondPct = Math.round((100 - stockPct - reitPct) / 2);
+  const remainingPct = 100 - stockPct - reitPct;
+  const tBillsPct = Math.min(5, remainingPct);
+  const fiveYrPct = Math.max(0, remainingPct - tBillsPct);
 
   return (
     <div className="app">
@@ -299,7 +303,7 @@ export default function App() {
                   <span className="stock-pct-value">{stockPct}%</span>
                 </div>
                 <p className="alloc-breakdown">
-                  {stockPct}% stocks (globally diversified) · {reitPct}% REIT · {bondPct}% T-Bills · {bondPct}% 5-yr Treasuries
+                  {stockPct}% stocks (globally diversified) · {reitPct}% REIT · {tBillsPct}% T-Bills · {fiveYrPct}% 5-yr Treasuries
                 </p>
               </>}
 
