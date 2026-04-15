@@ -865,6 +865,48 @@ body {
 }
 .results-table th:first-child,
 .results-table td:first-child { text-align: left; }
+
+/* Sticky first two columns (#, Year) */
+.results-table th:nth-child(1),
+.results-table td:nth-child(1) {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  width: 36px;
+  min-width: 36px;
+  max-width: 36px;
+  padding-left: 10px;
+  padding-right: 6px;
+}
+.results-table th:nth-child(2),
+.results-table td:nth-child(2) {
+  position: sticky;
+  left: 36px;
+  z-index: 2;
+  width: 52px;
+  min-width: 52px;
+  max-width: 52px;
+  padding-left: 8px;
+  padding-right: 10px;
+  border-right: 1px solid var(--border);
+}
+/* Backgrounds for sticky cells */
+.results-table th:nth-child(1),
+.results-table th:nth-child(2) {
+  background: var(--surface-2);
+}
+.results-table td:nth-child(1),
+.results-table td:nth-child(2) {
+  background: var(--surface);
+}
+.results-table tbody tr:hover td:nth-child(1),
+.results-table tbody tr:hover td:nth-child(2) {
+  background: rgba(255,255,255,0.03);
+}
+.results-table .row-exhausted td:nth-child(1),
+.results-table .row-exhausted td:nth-child(2) {
+  background: rgba(239,68,68,0.07);
+}
 .results-table td {
   text-align: right;
   padding: 9px 18px;
