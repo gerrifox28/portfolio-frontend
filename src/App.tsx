@@ -212,6 +212,7 @@ export default function App() {
           startYear: year,
           startingNestEgg: (parseFloat(nestEgg) || 0) * (1 - annuityPct / 100),
           initialWithdrawal: parseFloat(withdrawal) || 0,
+          yearCount: parseInt(yearCount) || 40,
           ...baseAlloc,
           annuityInitialIncome: activeCompare.initialAnnuityIncome,
           annuityCap,

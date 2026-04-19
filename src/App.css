@@ -921,21 +921,9 @@ body {
   overflow: auto;
   flex: 1;
 }
-/* In the modal the table uses larger font and no sticky columns needed */
+/* In the modal the table uses larger font; sticky columns are preserved */
 .table-modal-scroll .results-table {
   font-size: 13px;
-}
-.table-modal-scroll .results-table th:nth-child(1),
-.table-modal-scroll .results-table td:nth-child(1),
-.table-modal-scroll .results-table th:nth-child(2),
-.table-modal-scroll .results-table td:nth-child(2) {
-  position: static;
-  width: auto;
-  min-width: unset;
-  max-width: unset;
-  border-right: none;
-  padding-left: 18px;
-  padding-right: 18px;
 }
 .table-scroll {
   overflow-x: auto;
