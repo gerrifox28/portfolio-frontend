@@ -10,7 +10,7 @@ function fmt$(n: number) {
   return '$' + Math.round(n).toLocaleString('en-US');
 }
 function fmtPct(n: number) {
-  return (n * 100).toFixed(1) + '%';
+  return (n * 100).toFixed(2) + '%';
 }
 
 function TableContent({ data, showAnnuityColumns }: { data: YearResult[]; showAnnuityColumns: boolean }) {
