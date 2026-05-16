@@ -654,9 +654,24 @@ body {
   padding: 6px 0;
   border-top: 1px solid var(--border);
   margin-top: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 .total-ok   { color: var(--success); }
 .total-warn { color: var(--danger); }
+.zero-alloc-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.zero-alloc-btn:hover { border-color: var(--border-hover); color: var(--text-dim); }
 
 
 /* ── Drill-down Section ── */

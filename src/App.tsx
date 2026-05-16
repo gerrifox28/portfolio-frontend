@@ -84,6 +84,9 @@ export default function App() {
   function setField(key: keyof typeof manualAlloc, val: string) {
     setManualAlloc(prev => ({ ...prev, [key]: val }));
   }
+  function zeroAllocations() {
+    setManualAlloc({ mSp500: '0', mCrsp1_10: '0', mCrsp6_10: '0', mFfIntl: '0', mFfEmgMkts: '0', mDjUsReit: '0', mOneMonth: '0', mFiveYearUS: '0' });
+  }
   function parseAlloc(v: string) { return parseFloat(v) || 0; }
 
   // ── Annuity inputs ─────────────────────────────────────────────────────────
@@ -343,7 +346,8 @@ export default function App() {
                       </div>
                     ))}
                     <div className={`manual-alloc-total ${Math.abs(totalRounded - 100) < 0.1 ? 'total-ok' : 'total-warn'}`}>
-                      Total: {totalRounded}% {Math.abs(totalRounded - 100) >= 0.1 && <span>(must equal 100%)</span>}
+                      <span>Total: {totalRounded}% {Math.abs(totalRounded - 100) >= 0.1 && <span>(must equal 100%)</span>}</span>
+                      <button className="zero-alloc-btn" onClick={zeroAllocations}>Clear</button>
                     </div>
                   </div>
                 );
