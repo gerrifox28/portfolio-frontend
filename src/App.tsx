@@ -65,7 +65,7 @@ export default function App() {
   // ── Core inputs ────────────────────────────────────────────────────────────
   const [nestEgg, setNestEgg] = useState('1000000');
   const [withdrawal, setWithdrawal] = useState('40000');
-  const [yearCount, setYearCount] = useState('40');
+  const [yearCount, setYearCount] = useState('30');
   const [stockPct, setStockPct] = useState(60);
 
   // ── Withdrawal mode ────────────────────────────────────────────────────────
@@ -137,7 +137,7 @@ export default function App() {
         startingNestEgg: parseFloat(nestEgg) || 0,
         initialWithdrawal: parseFloat(withdrawal) || 0,
         stockMarketAllocation: stockPct / 100,
-        yearCount: parseInt(yearCount) || 40,
+        yearCount: parseInt(yearCount) || 30,
         expensesAndMgmtFee: (parseFloat(expensesFee) || 0) / 100,
         withdrawalMode,
         ...manualFields,
@@ -203,7 +203,7 @@ export default function App() {
         startYear: year,
         startingNestEgg: parseFloat(nestEgg) || 0,
         initialWithdrawal: parseFloat(withdrawal) || 0,
-        yearCount: parseInt(yearCount) || 40,
+        yearCount: parseInt(yearCount) || 30,
         ...baseAlloc,
       };
       const [res, annuityRes] = await Promise.all([
@@ -212,7 +212,7 @@ export default function App() {
           startYear: year,
           startingNestEgg: (parseFloat(nestEgg) || 0) * (1 - annuityPct / 100),
           initialWithdrawal: parseFloat(withdrawal) || 0,
-          yearCount: parseInt(yearCount) || 40,
+          yearCount: parseInt(yearCount) || 30,
           ...baseAlloc,
           annuityInitialIncome: activeCompare.initialAnnuityIncome,
           annuityCap,
