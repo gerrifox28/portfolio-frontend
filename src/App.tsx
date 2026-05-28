@@ -31,7 +31,7 @@ function DrillSection({ drillYear, setDrillYear, drillResult, drillAnnuityResult
         <div className="input-prefix drill-year-input">
           <span>yr</span>
           <input
-            type="number" value={drillYear} min={1929} max={2010} step={1}
+            type="number" value={drillYear} min={1926} max={2010} step={1}
             onChange={e => setDrillYear(parseInt(e.target.value) || 1970)}
             onKeyDown={e => e.key === 'Enter' && onRun(drillYear)}
           />
