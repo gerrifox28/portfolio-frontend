@@ -186,7 +186,7 @@ body {
   border-bottom: none;
 }
 .spin-btn:hover {
-  background: var(--surface);
+  background: #ffffff;
 }
 .spin-btn:hover::after {
   border-bottom-color: var(--text);
