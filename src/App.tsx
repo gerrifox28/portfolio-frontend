@@ -312,8 +312,12 @@ export default function App() {
             <div className="main-input-group">
               <label>Expenses &amp; Mgmt Fee</label>
               <div className="input-suffix">
-                <input type="number" value={expensesFee} min={0} max={10} step={0.1}
+                <input type="number" className="hide-spin" value={expensesFee} min={0} max={10} step={0.1}
                   onChange={e => setExpensesFee(e.target.value)} />
+                <div className="spin-btns">
+                  <button type="button" className="spin-btn" onClick={() => setExpensesFee(v => String(Math.round(Math.min(10, (parseFloat(v) || 0) + 0.1) * 10) / 10))} />
+                  <button type="button" className="spin-btn" onClick={() => setExpensesFee(v => String(Math.round(Math.max(0, (parseFloat(v) || 0) - 0.1) * 10) / 10))} />
+                </div>
                 <span>%</span>
               </div>
             </div>
