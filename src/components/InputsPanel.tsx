@@ -17,17 +17,31 @@ function CurrencyInput({ label, field, values, onChange }: {
   values: SimulationRequest;
   onChange: (u: SimulationRequest) => void;
 }) {
+  const numericValue = values[field] as number;
+  const toDisplay = (n: number) => n > 0 ? n.toLocaleString('en-US') : '';
+  const [displayValue, setDisplayValue] = React.useState(() => toDisplay(numericValue));
+
+  React.useEffect(() => {
+    setDisplayValue(toDisplay(numericValue));
+  }, [numericValue]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/[^0-9]/g, '');
+    const num = raw === '' ? 0 : parseInt(raw, 10);
+    setDisplayValue(raw === '' ? '' : num.toLocaleString('en-US'));
+    onChange({ ...values, [field]: num });
+  };
+
   return (
     <div className="input-group">
       <label>{label}</label>
       <div className="input-prefix">
         <span>$</span>
         <input
-          type="number"
-          value={values[field] as number}
-          min={0}
-          step={1000}
-          onChange={e => onChange({ ...values, [field]: parseFloat(e.target.value) || 0 })}
+          type="text"
+          inputMode="numeric"
+          value={displayValue}
+          onChange={handleChange}
         />
       </div>
     </div>
