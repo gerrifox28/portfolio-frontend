@@ -266,7 +266,7 @@ export default function App() {
             </div>
 
             <div className="main-input-group">
-              <label>Desired Annual Income</label>
+              <label>Desired Year 1 Annual Income</label>
               <div className="input-prefix">
                 <span>$</span>
                 <input type="text" inputMode="numeric" value={withdrawal}
