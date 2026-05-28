@@ -155,21 +155,42 @@ body {
   flex-direction: column;
   border-left: 1px solid var(--border);
   flex-shrink: 0;
+  width: 22px;
+  align-self: stretch;
 }
 .spin-btn {
-  background: var(--surface-2);
+  background: transparent;
   border: none;
-  color: var(--text-muted);
   cursor: pointer;
-  padding: 0 9px;
   flex: 1;
-  font-size: 9px;
-  line-height: 1;
-  transition: background 0.1s, color 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.1s;
+  font-size: 0;
+}
+.spin-btn::after {
+  content: '';
+  display: block;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+}
+.spin-btn:first-child::after {
+  border-bottom: 5px solid var(--text-muted);
+  border-top: none;
+}
+.spin-btn:last-child::after {
+  border-top: 5px solid var(--text-muted);
+  border-bottom: none;
 }
 .spin-btn:hover {
   background: var(--surface);
-  color: var(--text);
+}
+.spin-btn:hover::after {
+  border-bottom-color: var(--text);
+  border-top-color: var(--text);
 }
 .spin-btn:first-child {
   border-bottom: 1px solid var(--border);
