@@ -150,6 +150,15 @@ body {
   min-width: 0;
 }
 
+.hide-spin::-webkit-inner-spin-button,
+.hide-spin::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.hide-spin {
+  -moz-appearance: textfield;
+}
+
 .spin-btns {
   display: flex;
   flex-direction: column;

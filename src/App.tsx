@@ -300,8 +300,12 @@ export default function App() {
               <label>Years to Simulate</label>
               <div className="input-prefix">
                 <span>yrs</span>
-                <input type="number" value={yearCount} min={1} max={96} step={1}
+                <input type="number" className="hide-spin" value={yearCount} min={1} max={96} step={1}
                   onChange={e => setYearCount(e.target.value)} />
+                <div className="spin-btns">
+                  <button type="button" className="spin-btn" onClick={() => setYearCount(String(Math.min(96, (parseInt(yearCount) || 0) + 1)))} />
+                  <button type="button" className="spin-btn" onClick={() => setYearCount(String(Math.max(1, (parseInt(yearCount) || 0) - 1)))} />
+                </div>
               </div>
             </div>
 

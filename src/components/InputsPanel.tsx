@@ -56,18 +56,27 @@ function PercentInput({ label, field, values, onChange, step = 0.1 }: {
   step?: number;
 }) {
   const pct = Math.round((values[field] as number) * 1000) / 10;
+  const handleSpin = (delta: number) => {
+    const newPct = Math.max(0, Math.min(100, Math.round((pct + delta) * 10) / 10));
+    onChange({ ...values, [field]: newPct / 100 });
+  };
   return (
     <div className="input-group">
       <label>{label}</label>
       <div className="input-suffix">
         <input
           type="number"
+          className="hide-spin"
           value={pct}
           min={0}
           max={100}
           step={step}
           onChange={e => onChange({ ...values, [field]: (parseFloat(e.target.value) || 0) / 100 })}
         />
+        <div className="spin-btns">
+          <button type="button" className="spin-btn" onClick={() => handleSpin(step)} />
+          <button type="button" className="spin-btn" onClick={() => handleSpin(-step)} />
+        </div>
         <span>%</span>
       </div>
     </div>
