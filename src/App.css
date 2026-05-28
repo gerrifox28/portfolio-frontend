@@ -150,6 +150,31 @@ body {
   min-width: 0;
 }
 
+.spin-btns {
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.spin-btn {
+  background: var(--surface-2);
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0 9px;
+  flex: 1;
+  font-size: 9px;
+  line-height: 1;
+  transition: background 0.1s, color 0.1s;
+}
+.spin-btn:hover {
+  background: var(--surface);
+  color: var(--text);
+}
+.spin-btn:first-child {
+  border-bottom: 1px solid var(--border);
+}
+
 .run-btn {
   grid-column: 1 / -1;
   padding: 16px 32px;

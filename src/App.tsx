@@ -61,6 +61,12 @@ function DrillSection({ drillYear, setDrillYear, drillResult, drillAnnuityResult
   );
 }
 
+function adjustCurrency(current: string, step: number, setter: (v: string) => void) {
+  const num = parseInt(current.replace(/,/g, ''), 10) || 0;
+  const next = Math.max(0, num + step);
+  setter(next.toLocaleString('en-US'));
+}
+
 export default function App() {
   // ── Core inputs ────────────────────────────────────────────────────────────
   const [nestEgg, setNestEgg] = useState('1,000,000');
@@ -262,6 +268,10 @@ export default function App() {
                 <span>$</span>
                 <input type="text" inputMode="numeric" value={nestEgg}
                   onChange={e => { const d = e.target.value.replace(/[^0-9]/g, ''); setNestEgg(d === '' ? '' : parseInt(d, 10).toLocaleString('en-US')); }} />
+                <div className="spin-btns">
+                  <button type="button" className="spin-btn" onClick={() => adjustCurrency(nestEgg, 10000, setNestEgg)}>▲</button>
+                  <button type="button" className="spin-btn" onClick={() => adjustCurrency(nestEgg, -10000, setNestEgg)}>▼</button>
+                </div>
               </div>
             </div>
 
@@ -271,6 +281,10 @@ export default function App() {
                 <span>$</span>
                 <input type="text" inputMode="numeric" value={withdrawal}
                   onChange={e => { const d = e.target.value.replace(/[^0-9]/g, ''); setWithdrawal(d === '' ? '' : parseInt(d, 10).toLocaleString('en-US')); }} />
+                <div className="spin-btns">
+                  <button type="button" className="spin-btn" onClick={() => adjustCurrency(withdrawal, 1000, setWithdrawal)}>▲</button>
+                  <button type="button" className="spin-btn" onClick={() => adjustCurrency(withdrawal, -1000, setWithdrawal)}>▼</button>
+                </div>
               </div>
               <select className="withdrawal-mode-select" value={withdrawalMode} onChange={e => setWithdrawalMode(e.target.value as 'inflation_adjusted' | 'fixed' | 'tpa')}>
                 <option value="inflation_adjusted">With Inflation Adjustment</option>
