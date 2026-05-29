@@ -83,7 +83,7 @@ export default function OutcomesChart({ scenarios, yearCount, onYearClick, selec
               onClick={(pt: any) => onYearClick?.(pt.startYear)}
               style={{ cursor: onYearClick ? 'pointer' : 'default' }}>
               {data.map((d, i) => (
-                <Cell key={i} fill="#6366f1"
+                <Cell key={i} fill={d.failed ? '#ef4444' : '#6366f1'}
                   r={d.startYear === selectedYear ? 11 : 7}
                   stroke={d.startYear === selectedYear ? '#fff' : 'none'}
                   strokeWidth={2} />

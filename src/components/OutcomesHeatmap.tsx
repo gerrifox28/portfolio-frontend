@@ -46,8 +46,10 @@ export default function OutcomesHeatmap({ scenarios, yearCount, onYearClick, sel
           if (incomeMode) {
             const incomeValue = getDisplayValue(s, annuityMode);
             const intensity = maxIncome > 0 ? incomeValue / maxIncome : 0;
-            const opacity = 0.2 + intensity * 0.75;
-            bg = `rgba(99, 102, 241, ${opacity})`;
+            const opacity = Math.max(0.35, 0.2 + intensity * 0.75);
+            bg = s.failed
+              ? `rgba(220, 38, 38, ${opacity})`
+              : `rgba(99, 102, 241, ${opacity})`;
           } else if (s.failed) {
             const failSeverity = 1 - (s.yearsSurvived / yearCount);
             const opacity = 0.35 + failSeverity * 0.65;
