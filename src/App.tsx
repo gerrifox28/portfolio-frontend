@@ -107,6 +107,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [chartView, setChartView] = useState<'scatter' | 'heatmap' | 'both'>('both');
+  const [incomeMode, setIncomeMode] = useState(false);
 
   // ── Drill-down ─────────────────────────────────────────────────────────────
   const [drillYear, setDrillYear] = useState<number>(1970);
@@ -446,9 +447,10 @@ export default function App() {
               <button className={`chart-toggle-btn ${chartView === 'scatter' ? 'active' : ''}`} onClick={() => setChartView('scatter')}>Scatter Plot</button>
               <button className={`chart-toggle-btn ${chartView === 'heatmap' ? 'active' : ''}`} onClick={() => setChartView('heatmap')}>Outcomes Grid</button>
               <button className={`chart-toggle-btn ${chartView === 'both' ? 'active' : ''}`} onClick={() => setChartView('both')}>Show Both</button>
+              <button className={`chart-toggle-btn ${incomeMode ? 'active' : ''}`} onClick={() => setIncomeMode(v => !v)}>Income</button>
             </div>
-            {(chartView === 'scatter' || chartView === 'both') && <OutcomesChart scenarios={result.scenarios} yearCount={result.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} />}
-            {(chartView === 'heatmap' || chartView === 'both') && <OutcomesHeatmap scenarios={result.scenarios} yearCount={result.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} />}
+            {(chartView === 'scatter' || chartView === 'both') && <OutcomesChart scenarios={result.scenarios} yearCount={result.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} />}
+            {(chartView === 'heatmap' || chartView === 'both') && <OutcomesHeatmap scenarios={result.scenarios} yearCount={result.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} />}
 
             <DrillSection
               drillYear={drillYear} setDrillYear={setDrillYear}
@@ -487,8 +489,8 @@ export default function App() {
                     <button className={`chart-toggle-btn ${compareHeatmap === 'with' ? 'active' : ''}`} onClick={() => setCompareHeatmap('with')}>With Annuity</button>
                   </div>
                   {compareHeatmap === 'without'
-                    ? <OutcomesHeatmap scenarios={compareResult.withoutAnnuity.scenarios} yearCount={compareResult.withoutAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillYear} />
-                    : <OutcomesHeatmap scenarios={compareResult.withAnnuity.scenarios} yearCount={compareResult.withAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillYear} />
+                    ? <OutcomesHeatmap scenarios={compareResult.withoutAnnuity.scenarios} yearCount={compareResult.withoutAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillYear} incomeMode={incomeMode} annuityMode={false} />
+                    : <OutcomesHeatmap scenarios={compareResult.withAnnuity.scenarios} yearCount={compareResult.withAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillYear} incomeMode={incomeMode} annuityMode={true} />
                   }
                 </div>
               </>

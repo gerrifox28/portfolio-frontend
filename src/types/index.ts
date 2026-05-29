@@ -85,6 +85,8 @@ export interface ScenarioSummary {
   endingBalance: number;
   failed: boolean;
   yearsSurvived: number;
+  finalWithdrawal: number;
+  finalTotalIncome: number;
 }
 
 export interface AllScenariosResponse {
