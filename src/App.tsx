@@ -466,7 +466,10 @@ export default function App() {
           <div className="results-inner">
             <StatCards result={compareResult.withoutAnnuity} />
 
-            <h3 className="compare-section-label">Without Annuity</h3>
+            <div className="compare-section-header">
+              <h3 className="compare-section-label">Without Annuity</h3>
+              <button className={`chart-toggle-btn ${incomeMode ? 'active' : ''}`} onClick={() => setIncomeMode(v => !v)}>Income</button>
+            </div>
             <OutcomesChart scenarios={compareResult.withoutAnnuity.scenarios} yearCount={compareResult.withoutAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} />
             <OutcomesHeatmap scenarios={compareResult.withoutAnnuity.scenarios} yearCount={compareResult.withoutAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} />
 

@@ -873,6 +873,14 @@ body {
 }
 
 /* ── Annuity comparison section label ── */
+.compare-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 28px 0 4px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
 .compare-section-label {
   font-size: 1rem;
   font-weight: 600;
@@ -882,6 +890,11 @@ body {
   margin: 28px 0 4px;
   padding-bottom: 8px;
   border-bottom: 1px solid var(--border);
+}
+.compare-section-header .compare-section-label {
+  margin: 0;
+  padding: 0;
+  border: none;
 }
 
 /* ── Click prompt ── */
