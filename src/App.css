@@ -872,6 +872,14 @@ body {
   margin-bottom: 8px;
 }
 
+/* ── Stat scenario toggle (annuity comparison mode) ── */
+.stat-scenario-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 16px;
+}
+
 /* ── Annuity comparison section label ── */
 .compare-section-header {
   display: flex;

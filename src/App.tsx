@@ -107,6 +107,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [chartView, setChartView] = useState<'scatter' | 'heatmap' | 'both'>('both');
   const [incomeMode, setIncomeMode] = useState(false);
+  const [statScenario, setStatScenario] = useState<'without' | 'with'>('without');
 
   // ── Drill-down ─────────────────────────────────────────────────────────────
   const [drillYear, setDrillYear] = useState<number>(1970);
@@ -158,6 +159,7 @@ export default function App() {
           annuityCap,
         };
         setCompareResult(await runCompare(req));
+        setStatScenario('without');
       } else {
         const req: AllScenariosRequest = base;
         setResult(await runAllScenarios(req));
@@ -464,7 +466,11 @@ export default function App() {
       {compareResult && !loading && (
         <section id="results" className="results-section">
           <div className="results-inner">
-            <StatCards result={compareResult.withoutAnnuity} />
+            <div className="stat-scenario-toggle">
+              <button className={`chart-toggle-btn ${statScenario === 'without' ? 'active' : ''}`} onClick={() => setStatScenario('without')}>Without Annuity</button>
+              <button className={`chart-toggle-btn ${statScenario === 'with' ? 'active' : ''}`} onClick={() => setStatScenario('with')}>With Annuity</button>
+            </div>
+            <StatCards result={statScenario === 'with' ? compareResult.withAnnuity : compareResult.withoutAnnuity} />
 
             <div className="compare-section-header">
               <h3 className="compare-section-label">Without Annuity</h3>
