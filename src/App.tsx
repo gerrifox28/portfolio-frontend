@@ -5,7 +5,6 @@ import StatCards from './components/StatCards';
 import OutcomesChart from './components/OutcomesChart';
 import OutcomesHeatmap from './components/OutcomesHeatmap';
 import SorrExplainer from './components/SorrExplainer';
-import CompareChart from './components/CompareChart';
 import PortfolioChart from './components/PortfolioChart';
 import ResultsTable from './components/ResultsTable';
 import './App.css';
@@ -114,9 +113,6 @@ export default function App() {
   const [drillResult, setDrillResult] = useState<SimulationResponse | null>(null);
   const [drillLoading, setDrillLoading] = useState(false);
   const [drillError, setDrillError] = useState<string | null>(null);
-
-  // ── Compare heatmap toggle ─────────────────────────────────────────────────
-  const [compareHeatmap, setCompareHeatmap] = useState<'without' | 'with'>('without');
 
   // ── Annuity cap ────────────────────────────────────────────────────────────
   const [annuityCap, setAnnuityCap] = useState(0.03);
@@ -469,31 +465,22 @@ export default function App() {
         <section id="results" className="results-section">
           <div className="results-inner">
             <StatCards result={compareResult.withoutAnnuity} />
-            <CompareChart compare={compareResult} onYearClick={handleDrill} />
 
-            {!drillResult && (
-              <p className="click-prompt">Click any dot above to explore a specific start year in detail.</p>
-            )}
+            <h3 className="compare-section-label">Without Annuity</h3>
+            <OutcomesChart scenarios={compareResult.withoutAnnuity.scenarios} yearCount={compareResult.withoutAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} />
+            <OutcomesHeatmap scenarios={compareResult.withoutAnnuity.scenarios} yearCount={compareResult.withoutAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} />
+
+            <h3 className="compare-section-label">With Annuity</h3>
+            <OutcomesChart scenarios={compareResult.withAnnuity.scenarios} yearCount={compareResult.withAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={true} />
+            <OutcomesHeatmap scenarios={compareResult.withAnnuity.scenarios} yearCount={compareResult.withAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={true} />
 
             {drillResult && (
-              <>
-                <DrillSection
-                  drillYear={drillYear} setDrillYear={setDrillYear}
-                  drillResult={drillResult} drillAnnuityResult={drillAnnuityResult}
-                  drillLoading={drillLoading} drillError={drillError}
-                  onRun={handleDrill}
-                />
-                <div className="compare-full-panel">
-                  <div className="chart-toggle" style={{ marginBottom: 16 }}>
-                    <button className={`chart-toggle-btn ${compareHeatmap === 'without' ? 'active' : ''}`} onClick={() => setCompareHeatmap('without')}>Without Annuity</button>
-                    <button className={`chart-toggle-btn ${compareHeatmap === 'with' ? 'active' : ''}`} onClick={() => setCompareHeatmap('with')}>With Annuity</button>
-                  </div>
-                  {compareHeatmap === 'without'
-                    ? <OutcomesHeatmap scenarios={compareResult.withoutAnnuity.scenarios} yearCount={compareResult.withoutAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillYear} incomeMode={incomeMode} annuityMode={false} />
-                    : <OutcomesHeatmap scenarios={compareResult.withAnnuity.scenarios} yearCount={compareResult.withAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillYear} incomeMode={incomeMode} annuityMode={true} />
-                  }
-                </div>
-              </>
+              <DrillSection
+                drillYear={drillYear} setDrillYear={setDrillYear}
+                drillResult={drillResult} drillAnnuityResult={drillAnnuityResult}
+                drillLoading={drillLoading} drillError={drillError}
+                onRun={handleDrill}
+              />
             )}
 
             <SorrExplainer result={compareResult.withAnnuity} />
