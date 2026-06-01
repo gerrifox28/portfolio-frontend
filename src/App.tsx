@@ -82,9 +82,9 @@ export default function App() {
   // ── Allocation mode ────────────────────────────────────────────────────────
   const [allocMode, setAllocMode] = useState<'auto' | 'manual'>('auto');
   const [manualAlloc, setManualAlloc] = useState({
-    mSp500: '0', mCrsp1_10: '33.6', mCrsp6_10: '6.0',
-    mFfIntl: '13.8', mFfEmgMkts: '6.6', mDjUsReit: '10.0',
-    mOneMonth: '5.0', mFiveYearUS: '25.0',
+    mSp500: '0', mCrsp1_10: '25', mCrsp6_10: '10',
+    mFfIntl: '10', mFfEmgMkts: '5', mDjUsReit: '5',
+    mOneMonth: '5', mFiveYearUS: '40',
   });
   function setField(key: keyof typeof manualAlloc, val: string) {
     setManualAlloc(prev => ({ ...prev, [key]: val }));
