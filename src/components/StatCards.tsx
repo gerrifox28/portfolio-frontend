@@ -24,7 +24,7 @@ export default function StatCards({ result }: Props) {
         : `Portfolio survived all ${yearCount}-year windows`,
     },
     {
-      type: 'danger',
+      type: failureRate === 0 ? 'success' : 'danger',
       icon: '⚠️',
       label: 'Failure Rate',
       value: `${failureCount} of ${totalScenarios}`,
