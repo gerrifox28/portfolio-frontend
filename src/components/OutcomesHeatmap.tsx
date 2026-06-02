@@ -1,5 +1,6 @@
 import React from 'react';
-import { ScenarioSummary } from '../types';
+import { ScenarioSummary, CashFlow } from '../types';
+import { adjustedBalance } from '../cashFlowUtils';
 
 interface Props {
   scenarios: ScenarioSummary[];
@@ -8,6 +9,7 @@ interface Props {
   selectedYear?: number;
   incomeMode?: boolean;
   annuityMode?: boolean;
+  cashFlows?: CashFlow[];
 }
 
 function fmt$(n: number) {
@@ -20,8 +22,9 @@ function getDisplayValue(s: ScenarioSummary, annuityMode: boolean): number {
   return annuityMode ? (s.finalTotalIncome ?? 0) : (s.finalWithdrawal ?? 0);
 }
 
-export default function OutcomesHeatmap({ scenarios, yearCount, onYearClick, selectedYear, incomeMode = false, annuityMode = false }: Props) {
-  const maxBalance = Math.max(...scenarios.map(s => s.endingBalance));
+export default function OutcomesHeatmap({ scenarios, yearCount, onYearClick, selectedYear, incomeMode = false, annuityMode = false, cashFlows = [] }: Props) {
+  const adjBalances = scenarios.map(s => adjustedBalance(s.endingBalance, yearCount, cashFlows));
+  const maxBalance = Math.max(...adjBalances);
   const maxIncome  = Math.max(...scenarios.map(s => getDisplayValue(s, annuityMode)));
 
   return (
@@ -40,7 +43,8 @@ export default function OutcomesHeatmap({ scenarios, yearCount, onYearClick, sel
       </div>
 
       <div className="heatmap-grid">
-        {scenarios.map(s => {
+        {scenarios.map((s, i) => {
+          const adjBal = adjBalances[i];
           let bg: string;
 
           if (incomeMode) {
@@ -55,7 +59,7 @@ export default function OutcomesHeatmap({ scenarios, yearCount, onYearClick, sel
             const opacity = 0.35 + failSeverity * 0.65;
             bg = `rgba(220, 38, 38, ${opacity})`;
           } else {
-            const wealth = s.endingBalance / maxBalance;
+            const wealth = maxBalance > 0 ? adjBal / maxBalance : 0;
             const opacity = 0.2 + wealth * 0.75;
             bg = `rgba(16, 185, 129, ${opacity})`;
           }
@@ -75,7 +79,7 @@ export default function OutcomesHeatmap({ scenarios, yearCount, onYearClick, sel
                   ? fmt$(getDisplayValue(s, annuityMode))
                   : s.failed
                     ? <><span className="heatmap-fail">✗</span> {s.yearsSurvived}yr</>
-                    : fmt$(s.endingBalance)
+                    : fmt$(adjBal)
                 }
               </div>
             </div>

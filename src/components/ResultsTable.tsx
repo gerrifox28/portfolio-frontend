@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { YearResult } from '../types';
+import { YearResult, CashFlow } from '../types';
+import { adjustedBalance } from '../cashFlowUtils';
 
 interface Props {
   data: YearResult[];
   showAnnuityColumns?: boolean;
+  cashFlows?: CashFlow[];
 }
 
 function fmt$(n: number) {
@@ -13,7 +15,7 @@ function fmtPct(n: number) {
   return (n * 100).toFixed(2) + '%';
 }
 
-function TableContent({ data, showAnnuityColumns }: { data: YearResult[]; showAnnuityColumns: boolean }) {
+function TableContent({ data, showAnnuityColumns, cashFlows = [] }: { data: YearResult[]; showAnnuityColumns: boolean; cashFlows?: CashFlow[] }) {
   return (
     <table className="results-table">
       <thead>
@@ -34,35 +36,38 @@ function TableContent({ data, showAnnuityColumns }: { data: YearResult[]; showAn
         </tr>
       </thead>
       <tbody>
-        {data.map(r => (
-          <tr key={r.sequenceNumber} className={r.portfolioEnd <= 0 ? 'row-exhausted' : ''}>
-            <td className="dim">{r.sequenceNumber}</td>
-            <td className="bold">{r.year}</td>
-            <td>{fmt$(r.portfolioBeginning)}</td>
-            <td className="dim">{fmt$(r.annualWithdrawal)}</td>
-            <td className={r.portfolioReturnRate >= 0 ? 'positive' : 'negative'}>
-              {fmtPct(r.portfolioReturnRate)}
-            </td>
-            <td className={r.portfolioReturnDollars >= 0 ? 'positive' : 'negative'}>
-              {fmt$(r.portfolioReturnDollars)}
-            </td>
-            <td className="dim">{fmtPct(r.inflation)}</td>
-            <td className={`bold ${r.portfolioEnd <= 0 ? 'negative' : ''}`}>
-              {fmt$(r.portfolioEnd)}
-            </td>
-            {showAnnuityColumns && <>
-              <td className="positive">{fmt$(r.annuityPayment ?? 0)}</td>
-              <td className="dim">{r.sequenceNumber === 1 ? '—' : fmtPct(r.inflationAdjPct ?? 0)}</td>
-              <td className="bold">{fmt$(r.totalIncome)}</td>
-            </>}
-          </tr>
-        ))}
+        {data.map(r => {
+          const displayEnd = adjustedBalance(r.portfolioEnd, r.sequenceNumber, cashFlows);
+          return (
+            <tr key={r.sequenceNumber} className={r.portfolioEnd <= 0 ? 'row-exhausted' : ''}>
+              <td className="dim">{r.sequenceNumber}</td>
+              <td className="bold">{r.year}</td>
+              <td>{fmt$(r.portfolioBeginning)}</td>
+              <td className="dim">{fmt$(r.annualWithdrawal)}</td>
+              <td className={r.portfolioReturnRate >= 0 ? 'positive' : 'negative'}>
+                {fmtPct(r.portfolioReturnRate)}
+              </td>
+              <td className={r.portfolioReturnDollars >= 0 ? 'positive' : 'negative'}>
+                {fmt$(r.portfolioReturnDollars)}
+              </td>
+              <td className="dim">{fmtPct(r.inflation)}</td>
+              <td className={`bold ${r.portfolioEnd <= 0 ? 'negative' : ''}`}>
+                {fmt$(displayEnd)}
+              </td>
+              {showAnnuityColumns && <>
+                <td className="positive">{fmt$(r.annuityPayment ?? 0)}</td>
+                <td className="dim">{r.sequenceNumber === 1 ? '—' : fmtPct(r.inflationAdjPct ?? 0)}</td>
+                <td className="bold">{fmt$(r.totalIncome)}</td>
+              </>}
+            </tr>
+          );
+        })}
       </tbody>
     </table>
   );
 }
 
-export default function ResultsTable({ data, showAnnuityColumns = false }: Props) {
+export default function ResultsTable({ data, showAnnuityColumns = false, cashFlows = [] }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [modal, setModal] = useState(false);
   const rows = expanded ? data : data.slice(0, 15);
@@ -90,7 +95,7 @@ export default function ResultsTable({ data, showAnnuityColumns = false }: Props
           </button>
         </div>
         <div className="table-scroll">
-          <TableContent data={rows} showAnnuityColumns={showAnnuityColumns} />
+          <TableContent data={rows} showAnnuityColumns={showAnnuityColumns} cashFlows={cashFlows} />
         </div>
         {data.length > 15 && (
           <button className="expand-btn" onClick={() => setExpanded(e => !e)}>

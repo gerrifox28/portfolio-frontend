@@ -1,3 +1,11 @@
+export interface CashFlow {
+  id: string;
+  description: string;
+  amount: number;
+  allYears: boolean;
+  year: number | null;
+}
+
 export interface SimulationRequest {
   startYear: number;
   startingNestEgg: number;

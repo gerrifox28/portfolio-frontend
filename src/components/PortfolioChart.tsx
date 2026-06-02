@@ -3,10 +3,12 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, ReferenceLine
 } from 'recharts';
-import { YearResult } from '../types';
+import { YearResult, CashFlow } from '../types';
+import { adjustedBalance } from '../cashFlowUtils';
 
 interface Props {
   data: YearResult[];
+  cashFlows?: CashFlow[];
 }
 
 function formatDollar(v: number) {
@@ -29,12 +31,17 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   );
 };
 
-export default function PortfolioChart({ data }: Props) {
+export default function PortfolioChart({ data, cashFlows = [] }: Props) {
+  const displayData = data.map(r => ({
+    ...r,
+    portfolioEnd: adjustedBalance(r.portfolioEnd, r.sequenceNumber, cashFlows),
+  }));
+
   return (
     <div className="chart-container">
       <h3>Portfolio Balance Over Time</h3>
       <ResponsiveContainer width="100%" height={320}>
-        <AreaChart data={data} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
+        <AreaChart data={displayData} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
           <defs>
             <linearGradient id="balanceGradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%"  stopColor="#3b82f6" stopOpacity={0.3} />
