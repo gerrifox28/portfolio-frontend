@@ -17,9 +17,19 @@ function fmtPct(n: number) {
 
 function TableContent({ data, showAnnuityColumns, cashFlows = [] }: { data: YearResult[]; showAnnuityColumns: boolean; cashFlows?: CashFlow[] }) {
   const adjBalances = applyFlowsToYears(data, cashFlows);
-  // Chain begin balances: year 1 uses the raw initial value; every subsequent year
-  // reads from the prior year's adjusted end balance so the column stays consistent.
   const adjBegins = data.map((r, i) => i === 0 ? r.portfolioBeginning : adjBalances[i - 1]);
+  const showCashFlowCol = cashFlows.length > 0;
+
+  // Track depletion to know whether flows were actually applied each year
+  let depleted = false;
+  const netFlows = data.map(r => {
+    if (depleted || r.portfolioEnd <= 0) { depleted = true; return null; }
+    const net = cashFlows.reduce((sum, cf) =>
+      (cf.allYears || cf.year === r.sequenceNumber) ? sum + cf.amount : sum, 0);
+    if ((r.portfolioEnd + net) <= 0) depleted = true;
+    return net !== 0 ? net : null;
+  });
+
   return (
     <table className="results-table">
       <thead>
@@ -32,6 +42,7 @@ function TableContent({ data, showAnnuityColumns, cashFlows = [] }: { data: Year
           <th>Return $</th>
           <th>Inflation</th>
           <th>End Balance</th>
+          {showCashFlowCol && <th>Cash Flows</th>}
           {showAnnuityColumns && <>
             <th>Annuity Pmt</th>
             <th>Inf Adj %</th>
@@ -43,6 +54,7 @@ function TableContent({ data, showAnnuityColumns, cashFlows = [] }: { data: Year
         {data.map((r, i) => {
           const displayEnd = adjBalances[i];
           const displayBegin = adjBegins[i];
+          const netFlow = netFlows[i];
           return (
             <tr key={r.sequenceNumber} className={r.portfolioEnd <= 0 ? 'row-exhausted' : ''}>
               <td className="dim">{r.sequenceNumber}</td>
@@ -59,6 +71,11 @@ function TableContent({ data, showAnnuityColumns, cashFlows = [] }: { data: Year
               <td className={`bold ${r.portfolioEnd <= 0 ? 'negative' : ''}`}>
                 {fmt$(displayEnd)}
               </td>
+              {showCashFlowCol && (
+                <td className={netFlow == null ? 'dim' : netFlow >= 0 ? 'positive' : 'negative'}>
+                  {netFlow == null ? '—' : `${netFlow >= 0 ? '+' : ''}${fmt$(netFlow)}`}
+                </td>
+              )}
               {showAnnuityColumns && <>
                 <td className="positive">{fmt$(r.annuityPayment ?? 0)}</td>
                 <td className="dim">{r.sequenceNumber === 1 ? '—' : fmtPct(r.inflationAdjPct ?? 0)}</td>
