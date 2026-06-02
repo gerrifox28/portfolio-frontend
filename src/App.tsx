@@ -451,7 +451,7 @@ export default function App() {
       {result && !loading && (
         <section id="results" className="results-section">
           <div className="results-inner">
-            <StatCards result={result} />
+            <StatCards result={result} cashFlows={cashFlows} />
             <div className="chart-toggle">
               <button className={`chart-toggle-btn ${chartView === 'scatter' ? 'active' : ''}`} onClick={() => setChartView('scatter')}>Scatter Plot</button>
               <button className={`chart-toggle-btn ${chartView === 'heatmap' ? 'active' : ''}`} onClick={() => setChartView('heatmap')}>Outcomes Grid</button>
@@ -481,7 +481,7 @@ export default function App() {
               <button className={`chart-toggle-btn ${statScenario === 'without' ? 'active' : ''}`} onClick={() => setStatScenario('without')}>Without Annuity</button>
               <button className={`chart-toggle-btn ${statScenario === 'with' ? 'active' : ''}`} onClick={() => setStatScenario('with')}>With Annuity</button>
             </div>
-            <StatCards result={statScenario === 'with' ? compareResult.withAnnuity : compareResult.withoutAnnuity} />
+            <StatCards result={statScenario === 'with' ? compareResult.withAnnuity : compareResult.withoutAnnuity} cashFlows={cashFlows} />
 
             <div className="compare-section-header">
               <h3 className="compare-section-label">Without Annuity</h3>

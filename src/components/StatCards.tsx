@@ -1,7 +1,11 @@
 import React from 'react';
-import { AllScenariosResponse } from '../types';
+import { AllScenariosResponse, CashFlow } from '../types';
+import { adjustedBalance } from '../cashFlowUtils';
 
-interface Props { result: AllScenariosResponse; }
+interface Props {
+  result: AllScenariosResponse;
+  cashFlows?: CashFlow[];
+}
 
 function fmt$(n: number) {
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
@@ -9,9 +13,24 @@ function fmt$(n: number) {
   return `$${Math.round(n).toLocaleString()}`;
 }
 
-export default function StatCards({ result }: Props) {
+export default function StatCards({ result, cashFlows = [] }: Props) {
   const { failureCount, totalScenarios, failureRate, earliestFailureYears,
-        highestEndingBalance, averageEndingBalance, yearCount } = result;
+        highestEndingBalance, averageEndingBalance, yearCount, scenarios } = result;
+
+  // Recompute best/average using cash-flow-adjusted balances for surviving scenarios.
+  // Failure count/rate and earliest failure are based on raw simulation depletion only.
+  let adjHighest = highestEndingBalance;
+  let adjAverage = averageEndingBalance;
+
+  if (cashFlows.length > 0 && scenarios?.length > 0) {
+    const survivorBalances = scenarios
+      .filter(s => !s.failed)
+      .map(s => adjustedBalance(s.endingBalance, yearCount, cashFlows));
+    if (survivorBalances.length > 0) {
+      adjHighest = Math.max(...survivorBalances);
+      adjAverage = survivorBalances.reduce((a, b) => a + b, 0) / survivorBalances.length;
+    }
+  }
 
   const cards = [
     {
@@ -34,14 +53,14 @@ export default function StatCards({ result }: Props) {
       type: 'success',
       icon: '🏆',
       label: `Best Outcome After ${yearCount} Years`,
-      value: fmt$(highestEndingBalance),
+      value: fmt$(adjHighest),
       sub: 'Highest remaining balance across all scenarios',
     },
     {
       type: 'success',
       icon: '📊',
       label: `Average Balance After ${yearCount} Years`,
-      value: fmt$(averageEndingBalance),
+      value: fmt$(adjAverage),
       sub: 'Mean ending balance among surviving scenarios',
     },
   ];
