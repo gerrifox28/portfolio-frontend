@@ -110,6 +110,12 @@ export default function App() {
   const [incomeMode, setIncomeMode] = useState(false);
   const [statScenario, setStatScenario] = useState<'without' | 'with'>('without');
   const [cashFlows, setCashFlows] = useState<CashFlow[]>([]);
+  const [resultsStale, setResultsStale] = useState(false);
+
+  function handleCashFlowChange(flows: CashFlow[]) {
+    setCashFlows(flows);
+    if (result || compareResult) setResultsStale(true);
+  }
 
   // ── Drill-down ─────────────────────────────────────────────────────────────
   const [drillYear, setDrillYear] = useState<number>(1970);
@@ -168,6 +174,7 @@ export default function App() {
         setResult(await runAllScenarios(req));
       }
 
+      setResultsStale(false);
       setTimeout(() => document.getElementById('results')?.scrollIntoView({ behavior: 'smooth' }), 100);
     } catch (e: any) {
       setError(e.message);
@@ -433,7 +440,7 @@ export default function App() {
             <div className="main-input-group full-width">
               <CashFlowPanel
                 cashFlows={cashFlows}
-                onChange={setCashFlows}
+                onChange={handleCashFlowChange}
                 maxYear={parseInt(yearCount) || 30}
               />
             </div>
@@ -453,6 +460,11 @@ export default function App() {
       {result && !loading && (
         <section id="results" className="results-section">
           <div className="results-inner">
+            {resultsStale && (
+              <div className="stale-warning">
+                ⚠ Cash flows have changed — re-run to see updated results.
+              </div>
+            )}
             <StatCards result={result} />
             <div className="chart-toggle">
               <button className={`chart-toggle-btn ${chartView === 'scatter' ? 'active' : ''}`} onClick={() => setChartView('scatter')}>Scatter Plot</button>
@@ -479,6 +491,11 @@ export default function App() {
       {compareResult && !loading && (
         <section id="results" className="results-section">
           <div className="results-inner">
+            {resultsStale && (
+              <div className="stale-warning">
+                ⚠ Cash flows have changed — re-run to see updated results.
+              </div>
+            )}
             <div className="stat-scenario-toggle">
               <button className={`chart-toggle-btn ${statScenario === 'without' ? 'active' : ''}`} onClick={() => setStatScenario('without')}>Without Annuity</button>
               <button className={`chart-toggle-btn ${statScenario === 'with' ? 'active' : ''}`} onClick={() => setStatScenario('with')}>With Annuity</button>

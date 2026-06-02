@@ -276,6 +276,17 @@ body {
 .alloc-ok  { color: var(--success); background: rgba(16,185,129,0.08); }
 .alloc-warn{ color: var(--warning); background: rgba(245,158,11,0.08); }
 
+.stale-warning {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  border-radius: var(--radius-sm);
+  color: #f59e0b;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 16px;
+  margin-bottom: 16px;
+}
+
 .error-msg {
   grid-column: 1 / -1;
   font-size: 13px;
