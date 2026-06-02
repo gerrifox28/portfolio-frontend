@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { YearResult, CashFlow } from '../types';
-import { adjustedBalance } from '../cashFlowUtils';
+import { applyFlowsToYears } from '../cashFlowUtils';
 
 interface Props {
   data: YearResult[];
@@ -16,6 +16,7 @@ function fmtPct(n: number) {
 }
 
 function TableContent({ data, showAnnuityColumns, cashFlows = [] }: { data: YearResult[]; showAnnuityColumns: boolean; cashFlows?: CashFlow[] }) {
+  const adjBalances = applyFlowsToYears(data, cashFlows);
   return (
     <table className="results-table">
       <thead>
@@ -36,8 +37,8 @@ function TableContent({ data, showAnnuityColumns, cashFlows = [] }: { data: Year
         </tr>
       </thead>
       <tbody>
-        {data.map(r => {
-          const displayEnd = adjustedBalance(r.portfolioEnd, r.sequenceNumber, cashFlows);
+        {data.map((r, i) => {
+          const displayEnd = adjBalances[i];
           return (
             <tr key={r.sequenceNumber} className={r.portfolioEnd <= 0 ? 'row-exhausted' : ''}>
               <td className="dim">{r.sequenceNumber}</td>

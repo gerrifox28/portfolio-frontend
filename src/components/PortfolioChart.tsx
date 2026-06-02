@@ -4,7 +4,7 @@ import {
   Tooltip, ResponsiveContainer, ReferenceLine
 } from 'recharts';
 import { YearResult, CashFlow } from '../types';
-import { adjustedBalance } from '../cashFlowUtils';
+import { applyFlowsToYears } from '../cashFlowUtils';
 
 interface Props {
   data: YearResult[];
@@ -32,10 +32,8 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export default function PortfolioChart({ data, cashFlows = [] }: Props) {
-  const displayData = data.map(r => ({
-    ...r,
-    portfolioEnd: adjustedBalance(r.portfolioEnd, r.sequenceNumber, cashFlows),
-  }));
+  const adjBalances = applyFlowsToYears(data, cashFlows);
+  const displayData = data.map((r, i) => ({ ...r, portfolioEnd: adjBalances[i] }));
 
   return (
     <div className="chart-container">
