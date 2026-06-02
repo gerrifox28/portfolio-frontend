@@ -11,7 +11,7 @@ import CashFlowPanel from './components/CashFlowPanel';
 import './App.css';
 import { SimulationRequest, SimulationResponse } from './types';
 
-function DrillSection({ drillYear, setDrillYear, drillResult, drillAnnuityResult, drillLoading, drillError, onRun, cashFlows }: {
+function DrillSection({ drillYear, setDrillYear, drillResult, drillAnnuityResult, drillLoading, drillError, onRun }: {
   drillYear: number;
   setDrillYear: (y: number) => void;
   drillResult: SimulationResponse | null;
@@ -19,7 +19,6 @@ function DrillSection({ drillYear, setDrillYear, drillResult, drillAnnuityResult
   drillLoading: boolean;
   drillError: string | null;
   onRun: (year: number) => void;
-  cashFlows: CashFlow[];
 }) {
   const [drillView, setDrillView] = React.useState<'without' | 'with'>('without');
   const showToggle = !!drillAnnuityResult;
@@ -54,8 +53,8 @@ function DrillSection({ drillYear, setDrillYear, drillResult, drillAnnuityResult
             Starting {activeResult.inputs.startYear}: {activeResult.yearlyResults.length}-year projection
             {activeResult.portfolioExhausted && <span className="drill-exhausted"> — portfolio exhausted</span>}
           </h3>
-          <PortfolioChart data={activeResult.yearlyResults} cashFlows={cashFlows} />
-          <ResultsTable data={activeResult.yearlyResults} showAnnuityColumns={showToggle && drillView === 'with'} cashFlows={cashFlows} />
+          <PortfolioChart data={activeResult.yearlyResults} />
+          <ResultsTable data={activeResult.yearlyResults} showAnnuityColumns={showToggle && drillView === 'with'} showCashFlowColumns={cashFlows.length > 0} />
         </div>
       )}
     </div>
@@ -150,6 +149,7 @@ export default function App() {
         yearCount: parseInt(yearCount) || 30,
         expensesAndMgmtFee: (parseFloat(expensesFee) || 0) / 100,
         withdrawalMode,
+        cashFlows,
         ...manualFields,
       };
 
@@ -215,6 +215,7 @@ export default function App() {
         startingNestEgg: parseFloat(nestEgg.replace(/,/g, '')) || 0,
         initialWithdrawal: parseFloat(withdrawal.replace(/,/g, '')) || 0,
         yearCount: parseInt(yearCount) || 30,
+        cashFlows,
         ...baseAlloc,
       };
       const [res, annuityRes] = await Promise.all([
@@ -224,6 +225,7 @@ export default function App() {
           startingNestEgg: (parseFloat(nestEgg.replace(/,/g, '')) || 0) * (1 - annuityPct / 100),
           initialWithdrawal: parseFloat(withdrawal.replace(/,/g, '')) || 0,
           yearCount: parseInt(yearCount) || 30,
+          cashFlows,
           ...baseAlloc,
           annuityInitialIncome: activeCompare.initialAnnuityIncome,
           annuityCap,
@@ -451,21 +453,21 @@ export default function App() {
       {result && !loading && (
         <section id="results" className="results-section">
           <div className="results-inner">
-            <StatCards result={result} cashFlows={cashFlows} />
+            <StatCards result={result} />
             <div className="chart-toggle">
               <button className={`chart-toggle-btn ${chartView === 'scatter' ? 'active' : ''}`} onClick={() => setChartView('scatter')}>Scatter Plot</button>
               <button className={`chart-toggle-btn ${chartView === 'heatmap' ? 'active' : ''}`} onClick={() => setChartView('heatmap')}>Outcomes Grid</button>
               <button className={`chart-toggle-btn ${chartView === 'both' ? 'active' : ''}`} onClick={() => setChartView('both')}>Show Both</button>
               <button className={`chart-toggle-btn ${incomeMode ? 'active' : ''}`} onClick={() => setIncomeMode(v => !v)}>Income</button>
             </div>
-            {(chartView === 'scatter' || chartView === 'both') && <OutcomesChart scenarios={result.scenarios} yearCount={result.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} cashFlows={cashFlows} />}
-            {(chartView === 'heatmap' || chartView === 'both') && <OutcomesHeatmap scenarios={result.scenarios} yearCount={result.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} cashFlows={cashFlows} />}
+            {(chartView === 'scatter' || chartView === 'both') && <OutcomesChart scenarios={result.scenarios} yearCount={result.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} />}
+            {(chartView === 'heatmap' || chartView === 'both') && <OutcomesHeatmap scenarios={result.scenarios} yearCount={result.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} />}
 
             <DrillSection
               drillYear={drillYear} setDrillYear={setDrillYear}
               drillResult={drillResult} drillAnnuityResult={null}
               drillLoading={drillLoading} drillError={drillError}
-              onRun={handleDrill} cashFlows={cashFlows}
+              onRun={handleDrill}
             />
 
             <SorrExplainer result={result} />
@@ -481,25 +483,25 @@ export default function App() {
               <button className={`chart-toggle-btn ${statScenario === 'without' ? 'active' : ''}`} onClick={() => setStatScenario('without')}>Without Annuity</button>
               <button className={`chart-toggle-btn ${statScenario === 'with' ? 'active' : ''}`} onClick={() => setStatScenario('with')}>With Annuity</button>
             </div>
-            <StatCards result={statScenario === 'with' ? compareResult.withAnnuity : compareResult.withoutAnnuity} cashFlows={cashFlows} />
+            <StatCards result={statScenario === 'with' ? compareResult.withAnnuity : compareResult.withoutAnnuity} />
 
             <div className="compare-section-header">
               <h3 className="compare-section-label">Without Annuity</h3>
               <button className={`chart-toggle-btn ${incomeMode ? 'active' : ''}`} onClick={() => setIncomeMode(v => !v)}>Income</button>
             </div>
-            <OutcomesChart scenarios={compareResult.withoutAnnuity.scenarios} yearCount={compareResult.withoutAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} cashFlows={cashFlows} />
-            <OutcomesHeatmap scenarios={compareResult.withoutAnnuity.scenarios} yearCount={compareResult.withoutAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} cashFlows={cashFlows} />
+            <OutcomesChart scenarios={compareResult.withoutAnnuity.scenarios} yearCount={compareResult.withoutAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} />
+            <OutcomesHeatmap scenarios={compareResult.withoutAnnuity.scenarios} yearCount={compareResult.withoutAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} />
 
             <h3 className="compare-section-label">With Annuity</h3>
-            <OutcomesChart scenarios={compareResult.withAnnuity.scenarios} yearCount={compareResult.withAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={true} cashFlows={cashFlows} />
-            <OutcomesHeatmap scenarios={compareResult.withAnnuity.scenarios} yearCount={compareResult.withAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={true} cashFlows={cashFlows} />
+            <OutcomesChart scenarios={compareResult.withAnnuity.scenarios} yearCount={compareResult.withAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={true} />
+            <OutcomesHeatmap scenarios={compareResult.withAnnuity.scenarios} yearCount={compareResult.withAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={true} />
 
             {drillResult && (
               <DrillSection
                 drillYear={drillYear} setDrillYear={setDrillYear}
                 drillResult={drillResult} drillAnnuityResult={drillAnnuityResult}
                 drillLoading={drillLoading} drillError={drillError}
-                onRun={handleDrill} cashFlows={cashFlows}
+                onRun={handleDrill}
               />
             )}
 

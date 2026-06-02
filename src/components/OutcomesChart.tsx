@@ -3,8 +3,7 @@ import {
   ScatterChart, Scatter, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, ReferenceLine, Cell
 } from 'recharts';
-import { ScenarioSummary, CashFlow } from '../types';
-import { adjustedBalance } from '../cashFlowUtils';
+import { ScenarioSummary } from '../types';
 
 interface Props {
   scenarios: ScenarioSummary[];
@@ -13,7 +12,6 @@ interface Props {
   selectedYear?: number;
   incomeMode?: boolean;
   annuityMode?: boolean;
-  cashFlows?: CashFlow[];
 }
 
 function fmt$(n: number) {
@@ -27,7 +25,7 @@ function getDisplayValue(s: ScenarioSummary, incomeMode: boolean, annuityMode: b
   return annuityMode ? (s.finalTotalIncome ?? 0) : (s.finalWithdrawal ?? 0);
 }
 
-export default function OutcomesChart({ scenarios, yearCount, onYearClick, selectedYear, incomeMode = false, annuityMode = false, cashFlows = [] }: Props) {
+export default function OutcomesChart({ scenarios, yearCount, onYearClick, selectedYear, incomeMode = false, annuityMode = false }: Props) {
   const CustomTooltip = ({ active, payload }: any) => {
     if (!active || !payload?.length) return null;
     const d: ScenarioSummary & { y: number } = payload[0].payload;
@@ -45,7 +43,7 @@ export default function OutcomesChart({ scenarios, yearCount, onYearClick, selec
         <p className="tooltip-year">Started {d.startYear}</p>
         {d.failed
           ? <p>Portfolio <strong style={{ color: '#ef4444' }}>exhausted</strong> after <strong>{d.yearsSurvived} years</strong></p>
-          : <p>Balance after {yearCount} yrs: <strong>{fmt$(d.y)}</strong></p>
+          : <p>Balance after {yearCount} yrs: <strong>{fmt$(d.endingBalance)}</strong></p>
         }
       </div>
     );
@@ -101,12 +99,11 @@ export default function OutcomesChart({ scenarios, yearCount, onYearClick, selec
   }
 
   // Standard balance mode
-  const adjBalances = scenarios.map(s => adjustedBalance(s.endingBalance, yearCount, cashFlows));
-  const maxBalance = Math.max(...adjBalances);
+  const maxBalance = Math.max(...scenarios.map(s => s.endingBalance));
   const failedFloor = -maxBalance * 0.12;
-  const data = scenarios.map((s, i) => ({
+  const data = scenarios.map(s => ({
     ...s,
-    y: s.failed ? failedFloor * (1 - (s.yearsSurvived / yearCount) * 0.5) : adjBalances[i],
+    y: s.failed ? failedFloor * (1 - (s.yearsSurvived / yearCount) * 0.5) : s.endingBalance,
   }));
   const survivors = data.filter(d => !d.failed);
   const failures  = data.filter(d => d.failed);
