@@ -445,6 +445,12 @@ export default function App() {
               />
             </div>
 
+            {resultsStale && (
+              <div className="stale-warning" style={{ gridColumn: '1 / -1' }}>
+                ⚠ Cash flows have changed — re-run to see updated results.
+              </div>
+            )}
+
             {error && <p className="error-msg">{error}</p>}
 
             <button className="run-btn" onClick={handleRun} disabled={loading}>
