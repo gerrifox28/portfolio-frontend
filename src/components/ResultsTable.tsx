@@ -17,6 +17,9 @@ function fmtPct(n: number) {
 
 function TableContent({ data, showAnnuityColumns, cashFlows = [] }: { data: YearResult[]; showAnnuityColumns: boolean; cashFlows?: CashFlow[] }) {
   const adjBalances = applyFlowsToYears(data, cashFlows);
+  // Chain begin balances: year 1 uses the raw initial value; every subsequent year
+  // reads from the prior year's adjusted end balance so the column stays consistent.
+  const adjBegins = data.map((r, i) => i === 0 ? r.portfolioBeginning : adjBalances[i - 1]);
   return (
     <table className="results-table">
       <thead>
@@ -39,11 +42,12 @@ function TableContent({ data, showAnnuityColumns, cashFlows = [] }: { data: Year
       <tbody>
         {data.map((r, i) => {
           const displayEnd = adjBalances[i];
+          const displayBegin = adjBegins[i];
           return (
             <tr key={r.sequenceNumber} className={r.portfolioEnd <= 0 ? 'row-exhausted' : ''}>
               <td className="dim">{r.sequenceNumber}</td>
               <td className="bold">{r.year}</td>
-              <td>{fmt$(r.portfolioBeginning)}</td>
+              <td>{fmt$(displayBegin)}</td>
               <td className="dim">{fmt$(r.annualWithdrawal)}</td>
               <td className={r.portfolioReturnRate >= 0 ? 'positive' : 'negative'}>
                 {fmtPct(r.portfolioReturnRate)}
