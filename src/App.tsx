@@ -114,7 +114,7 @@ export default function App() {
 
   function handleCashFlowChange(flows: CashFlow[]) {
     setCashFlows(flows);
-    if (result || compareResult) setResultsStale(true);
+    setResultsStale(true);
   }
 
   // ── Drill-down ─────────────────────────────────────────────────────────────
@@ -445,7 +445,7 @@ export default function App() {
               />
             </div>
 
-            {resultsStale && (
+            {resultsStale && (result || compareResult) && (
               <div className="stale-warning" style={{ gridColumn: '1 / -1' }}>
                 ⚠ Cash flows have changed — re-run to see updated results.
               </div>
