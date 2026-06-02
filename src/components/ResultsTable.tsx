@@ -41,6 +41,7 @@ function TableContent({ data, showAnnuityColumns, cashFlows = [] }: { data: Year
           <th>Return %</th>
           <th>Return $</th>
           <th>Inflation</th>
+          {showCashFlowCol && <th>End Balance (Raw)</th>}
           <th>End Balance</th>
           {showCashFlowCol && <th>Cash Flows</th>}
           {showAnnuityColumns && <>
@@ -68,6 +69,11 @@ function TableContent({ data, showAnnuityColumns, cashFlows = [] }: { data: Year
                 {fmt$(r.portfolioReturnDollars)}
               </td>
               <td className="dim">{fmtPct(r.inflation)}</td>
+              {showCashFlowCol && (
+                <td className={`dim ${r.portfolioEnd <= 0 ? 'negative' : ''}`}>
+                  {fmt$(r.portfolioEnd)}
+                </td>
+              )}
               <td className={`bold ${r.portfolioEnd <= 0 ? 'negative' : ''}`}>
                 {fmt$(displayEnd)}
               </td>
@@ -134,7 +140,7 @@ export default function ResultsTable({ data, showAnnuityColumns = false, cashFlo
               <button className="table-modal-close" onClick={closeModal}>✕</button>
             </div>
             <div className="table-modal-scroll">
-              <TableContent data={data} showAnnuityColumns={showAnnuityColumns} />
+              <TableContent data={data} showAnnuityColumns={showAnnuityColumns} cashFlows={cashFlows} />
             </div>
           </div>
         </div>
