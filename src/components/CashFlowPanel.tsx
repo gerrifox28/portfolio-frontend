@@ -25,8 +25,9 @@ export default function CashFlowPanel({ cashFlows, onChange, maxYear, offendingI
   function handleAdd() {
     setErr(null);
     if (!desc.trim()) { setErr('Description is required.'); return; }
-    const parsedAmount = parseFloat(amount.replace(/,/g, ''));
-    if (isNaN(parsedAmount) || amount.trim() === '') { setErr('Enter a valid amount.'); return; }
+    const rawAmount = amount.toString().replace(/[$,\s]/g, '');
+    const parsedAmount = parseFloat(rawAmount);
+    if (isNaN(parsedAmount) || rawAmount === '') { setErr('Please enter a valid number for Amount.'); return; }
     if (!allYears) {
       const parsedYear = parseInt(year);
       if (!year || isNaN(parsedYear) || parsedYear < 1 || parsedYear > maxYear) {

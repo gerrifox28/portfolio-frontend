@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AllScenariosRequest, AllScenariosResponse, AnnuityCompareRequest, AnnuityCompareResponse, CashFlow } from './types';
 import { runAllScenarios, runCompare, runSimulation } from './hooks/useSimulator';
 import StatCards from './components/StatCards';
@@ -118,6 +118,14 @@ export default function App() {
   const [pendingDrillResult, setPendingDrillResult] = useState<SimulationResponse | null>(null);
   const [pendingDrillAnnuityResult, setPendingDrillAnnuityResult] = useState<SimulationResponse | null>(null);
   const [depletionOffendingSeq, setDepletionOffendingSeq] = useState<number | null>(null);
+
+  // Sanitize any stale entries that may have a non-numeric amount
+  useEffect(() => {
+    setCashFlows(prev => prev.map(cf => ({
+      ...cf,
+      amount: isNaN(parseFloat(String(cf.amount))) ? 0 : parseFloat(String(cf.amount)),
+    })));
+  }, []);
 
   function handleCashFlowChange(flows: CashFlow[]) {
     setCashFlows(flows);

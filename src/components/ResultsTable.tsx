@@ -6,8 +6,9 @@ interface Props {
   showAnnuityColumns?: boolean;
 }
 
-function fmt$(n: number) {
-  return '$' + Math.round(n).toLocaleString('en-US');
+function fmt$(n: number | undefined | null) {
+  const num = (n == null || isNaN(n as number)) ? 0 : n as number;
+  return '$' + Math.round(num).toLocaleString('en-US');
 }
 function fmtPct(n: number) {
   return (n * 100).toFixed(2) + '%';
@@ -41,8 +42,8 @@ function TableContent({ data, showAnnuityColumns }: { data: YearResult[]; showAn
             <td className="bold">{r.year}</td>
             <td>{fmt$(r.portfolioBeginning)}</td>
             <td className="dim">{fmt$(r.annualWithdrawal)}</td>
-            <td className={r.cashFlowApplied > 0 ? 'positive' : r.cashFlowApplied < 0 ? 'negative' : 'dim'}>
-              {r.cashFlowApplied >= 0 ? '+' : ''}{fmt$(r.cashFlowApplied)}
+            <td className={(() => { const v = r.cashFlowApplied ?? 0; return v > 0 ? 'positive' : v < 0 ? 'negative' : 'dim'; })()}>
+              {(() => { const v = isNaN(r.cashFlowApplied) ? 0 : (r.cashFlowApplied ?? 0); return `${v >= 0 ? '+' : ''}${fmt$(v)}`; })()}
             </td>
             <td className={r.portfolioReturnRate >= 0 ? 'positive' : 'negative'}>
               {fmtPct(r.portfolioReturnRate)}
