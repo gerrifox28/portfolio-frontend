@@ -8,7 +8,17 @@ interface Props {
   offendingIds?: string[];
 }
 
-const BLANK_FLOW = { description: '', amount: '', year: '', allYears: false, inflationAdj: 'none' as const };
+interface NewFlowState {
+  description: string;
+  amount: string;
+  year: string;
+  allYears: boolean;
+  inflationAdj: 'none' | 'full' | 'half';
+}
+
+const BLANK: NewFlowState = {
+  description: '', amount: '', year: '', allYears: false, inflationAdj: 'none',
+};
 
 function fmt$(n: number) {
   const abs = Math.abs(n);
@@ -17,7 +27,6 @@ function fmt$(n: number) {
 }
 
 function inflAdjLabel(cf: CashFlow): string {
-  // Single-year entries: inflation adj has no mathematical effect (yearsElapsed=0)
   if (!cf.allYears && cf.yearStart === cf.yearEnd) return '—';
   if (cf.inflationAdj === 'full') return 'Full Inflation';
   if (cf.inflationAdj === 'half') return '½ Inflation';
@@ -36,43 +45,45 @@ function parseYearInput(input: string, maxYear: number):
   const trimmed = input.trim();
   const rangeMatch = trimmed.match(/^(\d+)\s*-\s*(\d+)$/);
   if (rangeMatch) {
-    const start = parseInt(rangeMatch[1]);
-    const end = parseInt(rangeMatch[2]);
+    const start = parseInt(rangeMatch[1], 10);
+    const end = parseInt(rangeMatch[2], 10);
     if (start >= 1 && end <= maxYear && start <= end)
       return { yearStart: start, yearEnd: end, valid: true };
     return { valid: false, error: `Range must be between 1 and ${maxYear}, and start must be ≤ end.` };
   }
-  const single = parseInt(trimmed);
+  const single = parseInt(trimmed, 10);
   if (!isNaN(single) && single >= 1 && single <= maxYear)
     return { yearStart: single, yearEnd: single, valid: true };
-  return { valid: false, error: `Year must be a single year or range (e.g. 5 or 5-10) within 1–${maxYear}.` };
+  return { valid: false, error: `Enter a single year (e.g. 5) or a range (e.g. 5-10) within 1–${maxYear}.` };
 }
 
 export default function CashFlowPanel({ cashFlows, onChange, maxYear, offendingIds = [] }: Props) {
   const [open, setOpen] = useState(false);
-  const [newFlow, setNewFlow] = useState(BLANK_FLOW);
-  const [err, setErr] = useState<string | null>(null);
-  const [yearErr, setYearErr] = useState<string | null>(null);
+  const [flow, setFlow] = useState<NewFlowState>(BLANK);
+  const [err, setErr] = useState('');
+  const [yearErr, setYearErr] = useState('');
 
-  function setField(field: keyof typeof BLANK_FLOW, value: string | boolean) {
-    setNewFlow(prev => ({ ...prev, [field]: value }));
-    if (field === 'year') setYearErr(null);
+  function update(patch: Partial<NewFlowState>) {
+    setFlow(prev => ({ ...prev, ...patch }));
+    if ('year' in patch) setYearErr('');
   }
 
   function handleAdd() {
-    setErr(null);
-    setYearErr(null);
-    if (!newFlow.description.trim()) { setErr('Description is required.'); return; }
-    const rawAmount = newFlow.amount.toString().replace(/[$,\s]/g, '');
+    setErr('');
+    setYearErr('');
+
+    if (!flow.description.trim()) { setErr('Description is required.'); return; }
+
+    const rawAmount = flow.amount.replace(/[$,\s]/g, '');
     const parsedAmount = parseFloat(rawAmount);
-    if (isNaN(parsedAmount) || rawAmount === '') { setErr('Please enter a valid number for Amount.'); return; }
+    if (!rawAmount || isNaN(parsedAmount)) { setErr('Enter a valid number for Amount.'); return; }
 
     let yearStart: number | null = null;
     let yearEnd: number | null = null;
 
-    if (!newFlow.allYears) {
-      if (!newFlow.year.trim()) { setYearErr('Enter a year or range (e.g. 5 or 5-10).'); return; }
-      const parsed = parseYearInput(newFlow.year, maxYear);
+    if (!flow.allYears) {
+      if (!flow.year.trim()) { setYearErr('Enter a year or range (e.g. 5 or 5-10).'); return; }
+      const parsed = parseYearInput(flow.year, maxYear);
       if (!parsed.valid) { setYearErr(parsed.error); return; }
       yearStart = parsed.yearStart;
       yearEnd = parsed.yearEnd;
@@ -80,15 +91,14 @@ export default function CashFlowPanel({ cashFlows, onChange, maxYear, offendingI
 
     onChange([...cashFlows, {
       id: crypto.randomUUID(),
-      description: newFlow.description.trim(),
+      description: flow.description.trim(),
       amount: parsedAmount,
-      allYears: newFlow.allYears,
+      allYears: flow.allYears,
       yearStart,
       yearEnd,
-      inflationAdj: newFlow.inflationAdj,
+      inflationAdj: flow.inflationAdj,
     }]);
-    setNewFlow(BLANK_FLOW);
-    setYearErr(null);
+    setFlow(BLANK);
   }
 
   function handleDelete(id: string) {
@@ -110,53 +120,58 @@ export default function CashFlowPanel({ cashFlows, onChange, maxYear, offendingI
                 type="text"
                 maxLength={40}
                 placeholder="e.g. Social Security"
-                value={newFlow.description}
-                onChange={e => setField('description', e.target.value)}
+                value={flow.description}
+                onChange={e => update({ description: e.target.value })}
               />
             </div>
+
             <div className="cashflow-field cashflow-field--year">
               <label>Year</label>
               <input
                 type="text"
                 placeholder="e.g. 5 or 5-10"
-                value={newFlow.year}
-                disabled={newFlow.allYears}
-                onChange={e => setField('year', e.target.value)}
+                value={flow.year}
+                disabled={flow.allYears}
+                onChange={e => update({ year: e.target.value })}
               />
               {yearErr && <p className="cashflow-error cashflow-year-error">{yearErr}</p>}
             </div>
+
             <div className="cashflow-field cashflow-field--amount">
               <label>Amount (+/-)</label>
               <input
                 type="text"
                 inputMode="decimal"
                 placeholder="e.g. 24,000 or -18,000"
-                value={newFlow.amount}
-                onChange={e => setField('amount', e.target.value.replace(/[^0-9,.-]/g, ''))}
+                value={flow.amount}
+                onChange={e => update({ amount: e.target.value.replace(/[^0-9,.-]/g, '') })}
               />
             </div>
+
             <div className="cashflow-field cashflow-field--allyears">
               <label>All Years</label>
               <input
                 type="checkbox"
-                checked={newFlow.allYears}
-                onChange={e => setNewFlow(prev => ({ ...prev, allYears: e.target.checked, year: '' }))}
+                checked={flow.allYears}
+                onChange={e => update({ allYears: e.target.checked, year: '' })}
               />
             </div>
+
             <div className="cashflow-field cashflow-field--infladj">
               <label>Inflation Adj.</label>
               <select
-                value={newFlow.inflationAdj}
-                disabled={false}
-                onChange={e => setField('inflationAdj', e.target.value)}
+                value={flow.inflationAdj}
+                onChange={e => update({ inflationAdj: e.target.value as 'none' | 'full' | 'half' })}
               >
                 <option value="none">No Adjustment</option>
                 <option value="full">Full Inflation</option>
                 <option value="half">½ Inflation</option>
               </select>
             </div>
+
             <button className="cashflow-add-btn" onClick={handleAdd}>Add</button>
           </div>
+
           {err && <p className="cashflow-error">{err}</p>}
 
           {cashFlows.length > 0 && (
@@ -175,7 +190,10 @@ export default function CashFlowPanel({ cashFlows, onChange, maxYear, offendingI
                 {cashFlows.map((cf, i) => (
                   <tr key={cf.id} className={offendingIds.includes(cf.id) ? 'cashflow-row--offending' : ''}>
                     <td className="dim">{i + 1}</td>
-                    <td>{cf.description}{offendingIds.includes(cf.id) && <span className="cashflow-offending-flag"> ⚠</span>}</td>
+                    <td>
+                      {cf.description}
+                      {offendingIds.includes(cf.id) && <span className="cashflow-offending-flag"> ⚠</span>}
+                    </td>
                     <td>{yearRangeLabel(cf)}</td>
                     <td className={cf.amount >= 0 ? 'positive' : 'negative'}>{fmt$(cf.amount)}</td>
                     <td className="dim">{inflAdjLabel(cf)}</td>
