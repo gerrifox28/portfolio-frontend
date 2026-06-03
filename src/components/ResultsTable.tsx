@@ -22,6 +22,7 @@ function TableContent({ data, showAnnuityColumns }: { data: YearResult[]; showAn
           <th>Year</th>
           <th>Begin Balance</th>
           <th>Withdrawal</th>
+          <th>Cash Flows</th>
           <th>Return %</th>
           <th>Return $</th>
           <th>Inflation</th>
@@ -40,6 +41,9 @@ function TableContent({ data, showAnnuityColumns }: { data: YearResult[]; showAn
             <td className="bold">{r.year}</td>
             <td>{fmt$(r.portfolioBeginning)}</td>
             <td className="dim">{fmt$(r.annualWithdrawal)}</td>
+            <td className={r.cashFlowApplied > 0 ? 'positive' : r.cashFlowApplied < 0 ? 'negative' : 'dim'}>
+              {r.cashFlowApplied >= 0 ? '+' : ''}{fmt$(r.cashFlowApplied)}
+            </td>
             <td className={r.portfolioReturnRate >= 0 ? 'positive' : 'negative'}>
               {fmtPct(r.portfolioReturnRate)}
             </td>

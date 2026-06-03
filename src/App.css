@@ -969,6 +969,70 @@ body {
   margin-bottom: 16px;
 }
 
+/* ── Temporary depletion modal ── */
+.depletion-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.depletion-modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  max-width: 480px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.depletion-modal-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #f59e0b;
+  margin: 0;
+}
+.depletion-modal-body {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+.depletion-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+.depletion-modal-yes {
+  padding: 10px 20px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.depletion-modal-yes:hover { opacity: 0.88; }
+.depletion-modal-no {
+  padding: 10px 20px;
+  background: none;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  cursor: pointer;
+}
+.depletion-modal-no:hover { border-color: var(--danger); color: var(--danger); }
+
+/* ── Cash flow offending entry highlight ── */
+.cashflow-row--offending { background: rgba(245, 158, 11, 0.08); }
+.cashflow-offending-flag { color: #f59e0b; font-size: 12px; }
+
 /* ── Annuity comparison section label ── */
 .compare-section-header {
   display: flex;

@@ -5,6 +5,7 @@ interface Props {
   cashFlows: CashFlow[];
   onChange: (flows: CashFlow[]) => void;
   maxYear: number;
+  offendingIds?: string[];
 }
 
 function fmt$(n: number) {
@@ -13,7 +14,7 @@ function fmt$(n: number) {
   return `${n >= 0 ? '+' : '-'}$${formatted}`;
 }
 
-export default function CashFlowPanel({ cashFlows, onChange, maxYear }: Props) {
+export default function CashFlowPanel({ cashFlows, onChange, maxYear, offendingIds = [] }: Props) {
   const [open, setOpen] = useState(false);
   const [desc, setDesc] = useState('');
   const [amount, setAmount] = useState('');
@@ -114,9 +115,9 @@ export default function CashFlowPanel({ cashFlows, onChange, maxYear }: Props) {
               </thead>
               <tbody>
                 {cashFlows.map((cf, i) => (
-                  <tr key={cf.id}>
+                  <tr key={cf.id} className={offendingIds.includes(cf.id) ? 'cashflow-row--offending' : ''}>
                     <td className="dim">{i + 1}</td>
-                    <td>{cf.description}</td>
+                    <td>{cf.description}{offendingIds.includes(cf.id) && <span className="cashflow-offending-flag"> ⚠</span>}</td>
                     <td>{cf.allYears ? 'All' : `Year ${cf.year}`}</td>
                     <td className={cf.amount >= 0 ? 'positive' : 'negative'}>{fmt$(cf.amount)}</td>
                     <td>

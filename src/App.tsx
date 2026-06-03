@@ -111,10 +111,50 @@ export default function App() {
   const [statScenario, setStatScenario] = useState<'without' | 'with'>('without');
   const [cashFlows, setCashFlows] = useState<CashFlow[]>([]);
   const [resultsStale, setResultsStale] = useState(false);
+  const [offendingFlowIds, setOffendingFlowIds] = useState<string[]>([]);
+
+  // ── Temporary depletion modal ──────────────────────────────────────────────
+  const [showDepletionModal, setShowDepletionModal] = useState(false);
+  const [pendingDrillResult, setPendingDrillResult] = useState<SimulationResponse | null>(null);
+  const [pendingDrillAnnuityResult, setPendingDrillAnnuityResult] = useState<SimulationResponse | null>(null);
+  const [depletionOffendingSeq, setDepletionOffendingSeq] = useState<number | null>(null);
 
   function handleCashFlowChange(flows: CashFlow[]) {
     setCashFlows(flows);
+    setOffendingFlowIds([]);
     setResultsStale(true);
+  }
+
+  function detectTemporaryDepletion(yearlyResults: { portfolioEnd: number; sequenceNumber: number }[]) {
+    let firstDepletionSeq: number | null = null;
+    for (const r of yearlyResults) {
+      if (r.portfolioEnd <= 0) {
+        if (firstDepletionSeq === null) firstDepletionSeq = r.sequenceNumber;
+      } else if (firstDepletionSeq !== null) {
+        return { found: true, seq: firstDepletionSeq };
+      }
+    }
+    return { found: false, seq: null };
+  }
+
+  function handleDepletionYes() {
+    setDrillResult(pendingDrillResult);
+    setDrillAnnuityResult(pendingDrillAnnuityResult);
+    setPendingDrillResult(null);
+    setPendingDrillAnnuityResult(null);
+    setShowDepletionModal(false);
+    setDepletionOffendingSeq(null);
+  }
+
+  function handleDepletionNo() {
+    const offending = cashFlows
+      .filter(cf => cf.amount < 0 && (cf.allYears || cf.year === depletionOffendingSeq))
+      .map(cf => cf.id);
+    setOffendingFlowIds(offending);
+    setPendingDrillResult(null);
+    setPendingDrillAnnuityResult(null);
+    setShowDepletionModal(false);
+    setDepletionOffendingSeq(null);
   }
 
   // ── Drill-down ─────────────────────────────────────────────────────────────
@@ -155,6 +195,7 @@ export default function App() {
         yearCount: parseInt(yearCount) || 30,
         expensesAndMgmtFee: (parseFloat(expensesFee) || 0) / 100,
         withdrawalMode,
+        cashFlows,
         ...manualFields,
       };
 
@@ -221,6 +262,7 @@ export default function App() {
         startingNestEgg: parseFloat(nestEgg.replace(/,/g, '')) || 0,
         initialWithdrawal: parseFloat(withdrawal.replace(/,/g, '')) || 0,
         yearCount: parseInt(yearCount) || 30,
+        cashFlows,
         ...baseAlloc,
       };
       const [res, annuityRes] = await Promise.all([
@@ -236,8 +278,18 @@ export default function App() {
           annuityCap,
         }) : Promise.resolve(null),
       ]);
-      setDrillResult(res);
-      setDrillAnnuityResult(annuityRes);
+
+      // Detect temporary depletion before showing results
+      const depletion = detectTemporaryDepletion(res.yearlyResults);
+      if (depletion.found) {
+        setPendingDrillResult(res);
+        setPendingDrillAnnuityResult(annuityRes);
+        setDepletionOffendingSeq(depletion.seq);
+        setShowDepletionModal(true);
+      } else {
+        setDrillResult(res);
+        setDrillAnnuityResult(annuityRes);
+      }
       setTimeout(() => document.getElementById('drill')?.scrollIntoView({ behavior: 'smooth' }), 100);
     } catch (e: any) {
       setDrillError(e.message);
@@ -440,6 +492,7 @@ export default function App() {
                 cashFlows={cashFlows}
                 onChange={handleCashFlowChange}
                 maxYear={parseInt(yearCount) || 30}
+                offendingIds={offendingFlowIds}
               />
             </div>
 
@@ -535,6 +588,22 @@ export default function App() {
         <div className="loading-overlay">
           <div className="spinner" />
           <p>Running historical scenarios…</p>
+        </div>
+      )}
+
+      {showDepletionModal && (
+        <div className="depletion-modal-overlay">
+          <div className="depletion-modal">
+            <h3 className="depletion-modal-title">⚠ Portfolio Temporarily Depleted</h3>
+            <p className="depletion-modal-body">
+              A cash flow is causing the portfolio to reach $0 before a subsequent
+              cash flow brings it back above $0. Do you wish to continue?
+            </p>
+            <div className="depletion-modal-actions">
+              <button className="depletion-modal-yes" onClick={handleDepletionYes}>Yes — Show Results</button>
+              <button className="depletion-modal-no" onClick={handleDepletionNo}>No — Highlight Offending Entry</button>
+            </div>
+          </div>
         </div>
       )}
 
