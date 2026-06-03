@@ -54,7 +54,7 @@ function DrillSection({ drillYear, setDrillYear, drillResult, drillAnnuityResult
             {activeResult.portfolioExhausted && <span className="drill-exhausted"> — portfolio exhausted</span>}
           </h3>
           <PortfolioChart data={activeResult.yearlyResults} />
-          <ResultsTable data={activeResult.yearlyResults} showAnnuityColumns={showToggle && drillView === 'with'} showCashFlowColumns={cashFlows.length > 0} />
+          <ResultsTable data={activeResult.yearlyResults} showAnnuityColumns={showToggle && drillView === 'with'} />
         </div>
       )}
     </div>
@@ -155,7 +155,6 @@ export default function App() {
         yearCount: parseInt(yearCount) || 30,
         expensesAndMgmtFee: (parseFloat(expensesFee) || 0) / 100,
         withdrawalMode,
-        cashFlows,
         ...manualFields,
       };
 
@@ -222,7 +221,6 @@ export default function App() {
         startingNestEgg: parseFloat(nestEgg.replace(/,/g, '')) || 0,
         initialWithdrawal: parseFloat(withdrawal.replace(/,/g, '')) || 0,
         yearCount: parseInt(yearCount) || 30,
-        cashFlows,
         ...baseAlloc,
       };
       const [res, annuityRes] = await Promise.all([

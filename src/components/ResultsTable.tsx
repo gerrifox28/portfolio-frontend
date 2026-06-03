@@ -4,7 +4,6 @@ import { YearResult } from '../types';
 interface Props {
   data: YearResult[];
   showAnnuityColumns?: boolean;
-  showCashFlowColumns?: boolean;
 }
 
 function fmt$(n: number) {
@@ -14,7 +13,7 @@ function fmtPct(n: number) {
   return (n * 100).toFixed(2) + '%';
 }
 
-function TableContent({ data, showAnnuityColumns, showCashFlowColumns = false }: { data: YearResult[]; showAnnuityColumns: boolean; showCashFlowColumns?: boolean }) {
+function TableContent({ data, showAnnuityColumns }: { data: YearResult[]; showAnnuityColumns: boolean }) {
   return (
     <table className="results-table">
       <thead>
@@ -26,9 +25,7 @@ function TableContent({ data, showAnnuityColumns, showCashFlowColumns = false }:
           <th>Return %</th>
           <th>Return $</th>
           <th>Inflation</th>
-          {showCashFlowColumns && <th>End Balance (Raw)</th>}
           <th>End Balance</th>
-          {showCashFlowColumns && <th>Cash Flows</th>}
           {showAnnuityColumns && <>
             <th>Annuity Pmt</th>
             <th>Inf Adj %</th>
@@ -50,17 +47,9 @@ function TableContent({ data, showAnnuityColumns, showCashFlowColumns = false }:
               {fmt$(r.portfolioReturnDollars)}
             </td>
             <td className="dim">{fmtPct(r.inflation)}</td>
-            {showCashFlowColumns && (
-              <td className="dim">{fmt$(r.portfolioEndBeforeFlows)}</td>
-            )}
             <td className={`bold ${r.portfolioEnd <= 0 ? 'negative' : ''}`}>
               {fmt$(r.portfolioEnd)}
             </td>
-            {showCashFlowColumns && (
-              <td className={r.cashFlowApplied === 0 ? 'dim' : r.cashFlowApplied > 0 ? 'positive' : 'negative'}>
-                {r.cashFlowApplied === 0 ? '—' : `${r.cashFlowApplied > 0 ? '+' : ''}${fmt$(r.cashFlowApplied)}`}
-              </td>
-            )}
             {showAnnuityColumns && <>
               <td className="positive">{fmt$(r.annuityPayment ?? 0)}</td>
               <td className="dim">{r.sequenceNumber === 1 ? '—' : fmtPct(r.inflationAdjPct ?? 0)}</td>
@@ -73,7 +62,7 @@ function TableContent({ data, showAnnuityColumns, showCashFlowColumns = false }:
   );
 }
 
-export default function ResultsTable({ data, showAnnuityColumns = false, showCashFlowColumns = false }: Props) {
+export default function ResultsTable({ data, showAnnuityColumns = false }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [modal, setModal] = useState(false);
   const rows = expanded ? data : data.slice(0, 15);
@@ -101,7 +90,7 @@ export default function ResultsTable({ data, showAnnuityColumns = false, showCas
           </button>
         </div>
         <div className="table-scroll">
-          <TableContent data={rows} showAnnuityColumns={showAnnuityColumns} showCashFlowColumns={showCashFlowColumns} />
+          <TableContent data={rows} showAnnuityColumns={showAnnuityColumns} />
         </div>
         {data.length > 15 && (
           <button className="expand-btn" onClick={() => setExpanded(e => !e)}>
@@ -118,7 +107,7 @@ export default function ResultsTable({ data, showAnnuityColumns = false, showCas
               <button className="table-modal-close" onClick={closeModal}>✕</button>
             </div>
             <div className="table-modal-scroll">
-              <TableContent data={data} showAnnuityColumns={showAnnuityColumns} cashFlows={cashFlows} />
+              <TableContent data={data} showAnnuityColumns={showAnnuityColumns} />
             </div>
           </div>
         </div>
