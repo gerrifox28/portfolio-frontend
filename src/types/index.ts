@@ -4,6 +4,7 @@ export interface CashFlow {
   amount: number;
   allYears: boolean;
   year: number | null;
+  inflationAdj: 'none' | 'full' | 'half';
 }
 
 export interface SimulationRequest {

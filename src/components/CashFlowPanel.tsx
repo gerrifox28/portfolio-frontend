@@ -14,12 +14,20 @@ function fmt$(n: number) {
   return `${n >= 0 ? '+' : '-'}$${formatted}`;
 }
 
+function inflAdjLabel(cf: CashFlow): string {
+  if (!cf.allYears) return '—';
+  if (cf.inflationAdj === 'full') return 'Full Inflation';
+  if (cf.inflationAdj === 'half') return '½ Inflation';
+  return 'No Adj.';
+}
+
 export default function CashFlowPanel({ cashFlows, onChange, maxYear, offendingIds = [] }: Props) {
   const [open, setOpen] = useState(false);
   const [desc, setDesc] = useState('');
   const [amount, setAmount] = useState('');
   const [year, setYear] = useState('');
   const [allYears, setAllYears] = useState(false);
+  const [inflationAdj, setInflationAdj] = useState<'none' | 'full' | 'half'>('none');
   const [err, setErr] = useState<string | null>(null);
 
   function handleAdd() {
@@ -41,8 +49,9 @@ export default function CashFlowPanel({ cashFlows, onChange, maxYear, offendingI
       amount: parsedAmount,
       allYears,
       year: allYears ? null : parseInt(year),
+      inflationAdj: allYears ? inflationAdj : 'none',
     }]);
-    setDesc(''); setAmount(''); setYear(''); setAllYears(false);
+    setDesc(''); setAmount(''); setYear(''); setAllYears(false); setInflationAdj('none');
   }
 
   function handleDelete(id: string) {
@@ -99,6 +108,18 @@ export default function CashFlowPanel({ cashFlows, onChange, maxYear, offendingI
                 onChange={e => { setAllYears(e.target.checked); if (e.target.checked) setYear(''); }}
               />
             </div>
+            <div className="cashflow-field cashflow-field--infladj">
+              <label>Inflation Adj.</label>
+              <select
+                value={inflationAdj}
+                disabled={!allYears}
+                onChange={e => setInflationAdj(e.target.value as 'none' | 'full' | 'half')}
+              >
+                <option value="none">No Adjustment</option>
+                <option value="full">Full Inflation</option>
+                <option value="half">½ Inflation</option>
+              </select>
+            </div>
             <button className="cashflow-add-btn" onClick={handleAdd}>Add</button>
           </div>
           {err && <p className="cashflow-error">{err}</p>}
@@ -111,6 +132,7 @@ export default function CashFlowPanel({ cashFlows, onChange, maxYear, offendingI
                   <th>Description</th>
                   <th>Year(s)</th>
                   <th>Amount</th>
+                  <th>Inflation Adj.</th>
                   <th></th>
                 </tr>
               </thead>
@@ -121,6 +143,7 @@ export default function CashFlowPanel({ cashFlows, onChange, maxYear, offendingI
                     <td>{cf.description}{offendingIds.includes(cf.id) && <span className="cashflow-offending-flag"> ⚠</span>}</td>
                     <td>{cf.allYears ? 'All' : `Year ${cf.year}`}</td>
                     <td className={cf.amount >= 0 ? 'positive' : 'negative'}>{fmt$(cf.amount)}</td>
+                    <td className="dim">{inflAdjLabel(cf)}</td>
                     <td>
                       <button className="cashflow-del-btn" onClick={() => handleDelete(cf.id)}>×</button>
                     </td>
