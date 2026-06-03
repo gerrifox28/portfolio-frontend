@@ -165,7 +165,7 @@ export default function App() {
 
   function handleDepletionNo() {
     const offending = cashFlows
-      .filter(cf => cf.amount < 0 && (cf.allYears || cf.year === depletionOffendingSeq))
+      .filter(cf => cf.amount < 0 && (cf.allYears || cf.yearStart === depletionOffendingSeq))
       .map(cf => cf.id);
     setOffendingFlowIds(offending);
     setPendingDrillResult(null);
