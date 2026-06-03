@@ -26,6 +26,7 @@ export interface SimulationRequest {
   annuityInitialIncome?: number;
   annuityCap?: number;
   cashFlows?: CashFlow[];
+  incomeStartYear?: number;
 }
 
 export interface YearResult {
@@ -91,6 +92,7 @@ export interface AllScenariosRequest {
   mOneMonth?: number;
   mFiveYearUS?: number;
   cashFlows?: CashFlow[];
+  incomeStartYear?: number;
 }
 
 export interface ScenarioSummary {
@@ -136,6 +138,7 @@ export interface AnnuityCompareRequest {
   mOneMonth?: number;
   mFiveYearUS?: number;
   cashFlows?: CashFlow[];
+  incomeStartYear?: number;
 }
 
 export interface AnnuityCompareResponse {

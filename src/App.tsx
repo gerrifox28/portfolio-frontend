@@ -71,6 +71,7 @@ export default function App() {
   // ── Core inputs ────────────────────────────────────────────────────────────
   const [nestEgg, setNestEgg] = useState('1,000,000');
   const [withdrawal, setWithdrawal] = useState('40,000');
+  const [incomeStartYear, setIncomeStartYear] = useState(1);
   const [yearCount, setYearCount] = useState('30');
   const [stockPct, setStockPct] = useState(60);
 
@@ -213,6 +214,7 @@ export default function App() {
         expensesAndMgmtFee: (parseFloat(expensesFee) || 0) / 100,
         withdrawalMode,
         cashFlows,
+        incomeStartYear,
         ...manualFields,
       };
 
@@ -280,6 +282,7 @@ export default function App() {
         initialWithdrawal: parseFloat(withdrawal.replace(/,/g, '')) || 0,
         yearCount: parseInt(yearCount) || 30,
         cashFlows,
+        incomeStartYear,
         ...baseAlloc,
       };
       const [res, annuityRes] = await Promise.all([
@@ -290,6 +293,7 @@ export default function App() {
           initialWithdrawal: parseFloat(withdrawal.replace(/,/g, '')) || 0,
           yearCount: parseInt(yearCount) || 30,
           cashFlows,
+          incomeStartYear,
           ...baseAlloc,
           annuityInitialIncome: activeCompare.initialAnnuityIncome,
           annuityCap,
@@ -371,6 +375,32 @@ export default function App() {
               </select>
               {withdrawalMode === 'tpa' && ((parseInt(yearCount) || 0) < 30 || (parseInt(yearCount) || 0) > 45) && (
                 <p className="field-warn">TPA requires Years to Simulate between 30 and 45.</p>
+              )}
+            </div>
+
+            <div className="main-input-group">
+              <label>Income Start Year</label>
+              <div className="input-prefix">
+                <span>yr</span>
+                <input
+                  type="number"
+                  className="hide-spin"
+                  value={incomeStartYear}
+                  min={1}
+                  max={parseInt(yearCount) || 30}
+                  step={1}
+                  onChange={e => {
+                    const v = parseInt(e.target.value) || 1;
+                    setIncomeStartYear(Math.max(1, Math.min(v, parseInt(yearCount) || 30)));
+                  }}
+                />
+                <div className="spin-btns">
+                  <button type="button" className="spin-btn" onClick={() => setIncomeStartYear(v => Math.min(v + 1, parseInt(yearCount) || 30))} />
+                  <button type="button" className="spin-btn" onClick={() => setIncomeStartYear(v => Math.max(1, v - 1))} />
+                </div>
+              </div>
+              {incomeStartYear > 1 && (
+                <p className="field-note">Income withdrawals begin in simulation year {incomeStartYear}. Years 1–{incomeStartYear - 1} show $0 withdrawal.</p>
               )}
             </div>
 
