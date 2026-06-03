@@ -3,7 +3,8 @@ export interface CashFlow {
   description: string;
   amount: number;
   allYears: boolean;
-  year: number | null;
+  yearStart: number | null;
+  yearEnd: number | null;
   inflationAdj: 'none' | 'full' | 'half';
 }
 
