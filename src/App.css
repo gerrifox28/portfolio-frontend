@@ -816,6 +816,7 @@ body {
 .cashflow-field input:focus { border-color: var(--accent); }
 .cashflow-field input:disabled { opacity: 0.4; cursor: not-allowed; }
 .cashflow-field--desc input { width: 180px; }
+.cashflow-field--year { position: relative; }
 .cashflow-field--year input { width: 70px; }
 .cashflow-field--amount input { width: 130px; }
 .cashflow-field--allyears { align-items: center; }
@@ -844,6 +845,7 @@ body {
 }
 .cashflow-add-btn:hover { opacity: 0.88; }
 .cashflow-error { color: var(--danger); font-size: 12px; margin: 0; }
+.cashflow-year-error { position: absolute; top: 100%; left: 0; white-space: nowrap; margin-top: 2px; }
 .cashflow-list {
   width: 100%;
   border-collapse: collapse;

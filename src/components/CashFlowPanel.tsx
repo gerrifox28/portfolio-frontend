@@ -17,6 +17,8 @@ function fmt$(n: number) {
 }
 
 function inflAdjLabel(cf: CashFlow): string {
+  // Single-year entries: inflation adj has no mathematical effect (yearsElapsed=0)
+  if (!cf.allYears && cf.yearStart === cf.yearEnd) return '—';
   if (cf.inflationAdj === 'full') return 'Full Inflation';
   if (cf.inflationAdj === 'half') return '½ Inflation';
   return 'No Adj.';
@@ -50,13 +52,16 @@ export default function CashFlowPanel({ cashFlows, onChange, maxYear, offendingI
   const [open, setOpen] = useState(false);
   const [newFlow, setNewFlow] = useState(BLANK_FLOW);
   const [err, setErr] = useState<string | null>(null);
+  const [yearErr, setYearErr] = useState<string | null>(null);
 
   function setField(field: keyof typeof BLANK_FLOW, value: string | boolean) {
     setNewFlow(prev => ({ ...prev, [field]: value }));
+    if (field === 'year') setYearErr(null);
   }
 
   function handleAdd() {
     setErr(null);
+    setYearErr(null);
     if (!newFlow.description.trim()) { setErr('Description is required.'); return; }
     const rawAmount = newFlow.amount.toString().replace(/[$,\s]/g, '');
     const parsedAmount = parseFloat(rawAmount);
@@ -66,9 +71,9 @@ export default function CashFlowPanel({ cashFlows, onChange, maxYear, offendingI
     let yearEnd: number | null = null;
 
     if (!newFlow.allYears) {
-      if (!newFlow.year.trim()) { setErr('Enter a year or range (e.g. 5 or 5-10).'); return; }
+      if (!newFlow.year.trim()) { setYearErr('Enter a year or range (e.g. 5 or 5-10).'); return; }
       const parsed = parseYearInput(newFlow.year, maxYear);
-      if (!parsed.valid) { setErr(parsed.error); return; }
+      if (!parsed.valid) { setYearErr(parsed.error); return; }
       yearStart = parsed.yearStart;
       yearEnd = parsed.yearEnd;
     }
@@ -83,6 +88,7 @@ export default function CashFlowPanel({ cashFlows, onChange, maxYear, offendingI
       inflationAdj: newFlow.inflationAdj,
     }]);
     setNewFlow(BLANK_FLOW);
+    setYearErr(null);
   }
 
   function handleDelete(id: string) {
@@ -117,6 +123,7 @@ export default function CashFlowPanel({ cashFlows, onChange, maxYear, offendingI
                 disabled={newFlow.allYears}
                 onChange={e => setField('year', e.target.value)}
               />
+              {yearErr && <p className="cashflow-error cashflow-year-error">{yearErr}</p>}
             </div>
             <div className="cashflow-field cashflow-field--amount">
               <label>Amount (+/-)</label>
