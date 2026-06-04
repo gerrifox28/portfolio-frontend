@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { AllScenariosRequest, AllScenariosResponse, AnnuityCompareRequest, AnnuityCompareResponse, CashFlow } from './types';
 import { runAllScenarios, runCompare, runSimulation } from './hooks/useSimulator';
 import StatCards from './components/StatCards';
@@ -136,6 +136,88 @@ export default function App() {
       };
     }));
   }, []);
+
+  // ── Save / Load ────────────────────────────────────────────────────────────
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [saveLoadError, setSaveLoadError] = useState<string | null>(null);
+
+  function handleSave() {
+    const sessionData = {
+      version: '1.0',
+      savedAt: new Date().toISOString(),
+      nestEgg,
+      withdrawal,
+      incomeStartYear,
+      yearCount,
+      expensesFee,
+      withdrawalMode,
+      stockPct,
+      allocMode,
+      manualAlloc,
+      showAnnuity,
+      age,
+      joint,
+      annuityPct,
+      annuityCap,
+      cashFlows,
+      incomeMode,
+      statScenario,
+      chartView,
+    };
+    const json = JSON.stringify(sessionData, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `retirement-simulation-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function handleLoad(e: React.ChangeEvent<HTMLInputElement>) {
+    setSaveLoadError(null);
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const d = JSON.parse(event.target?.result as string);
+        if (!d.version) {
+          setSaveLoadError('Unrecognized file format. Please load a valid save file.');
+          return;
+        }
+        setNestEgg(d.nestEgg ?? '1,000,000');
+        setWithdrawal(d.withdrawal ?? '40,000');
+        setIncomeStartYear(d.incomeStartYear ?? 1);
+        setYearCount(d.yearCount ?? '30');
+        setExpensesFee(d.expensesFee ?? '1.2');
+        setWithdrawalMode(d.withdrawalMode ?? 'inflation_adjusted');
+        setStockPct(d.stockPct ?? 60);
+        setAllocMode(d.allocMode ?? 'auto');
+        if (d.manualAlloc) setManualAlloc(d.manualAlloc);
+        setShowAnnuity(d.showAnnuity ?? false);
+        setAge(d.age ?? 65);
+        setJoint(d.joint ?? false);
+        setAnnuityPct(d.annuityPct ?? 30);
+        setAnnuityCap(d.annuityCap ?? 0.03);
+        setCashFlows(d.cashFlows ?? []);
+        setIncomeMode(d.incomeMode ?? false);
+        setStatScenario(d.statScenario ?? 'without');
+        if (d.chartView) setChartView(d.chartView);
+        // Clear previous results so the user re-runs with the loaded config
+        setResult(null);
+        setCompareResult(null);
+        setDrillResult(null);
+        setDrillAnnuityResult(null);
+        setResultsStale(false);
+      } catch {
+        setSaveLoadError('Failed to load file. Please ensure it is a valid save file.');
+      }
+    };
+    reader.readAsText(file);
+    // Reset input so the same file can be reloaded if needed
+    e.target.value = '';
+  }
 
   function handleCashFlowChange(flows: CashFlow[]) {
     setCashFlows(flows);
@@ -342,6 +424,12 @@ export default function App() {
       {/* ── Inputs ── */}
       <section className="inputs-section">
         <div className="inputs-inner">
+          <div className="save-load-toolbar">
+            <input type="file" accept=".json" style={{ display: 'none' }} ref={fileInputRef} onChange={handleLoad} />
+            <button className="save-load-btn" onClick={handleSave}>💾 Save</button>
+            <button className="save-load-btn" onClick={() => fileInputRef.current?.click()}>📂 Load</button>
+            {saveLoadError && <span className="save-load-error">{saveLoadError}</span>}
+          </div>
           <div className="main-inputs">
 
             <div className="main-input-group">

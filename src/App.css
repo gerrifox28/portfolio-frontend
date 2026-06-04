@@ -205,6 +205,33 @@ body {
   border-bottom: 1px solid var(--border);
 }
 
+/* ── Save / Load toolbar ── */
+.save-load-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+  grid-column: 1 / -1;
+}
+.save-load-btn {
+  padding: 8px 16px;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.save-load-btn:hover { border-color: var(--accent); color: var(--text); }
+.save-load-error {
+  font-size: 12px;
+  color: var(--danger);
+}
+
 .run-btn {
   grid-column: 1 / -1;
   padding: 16px 32px;
