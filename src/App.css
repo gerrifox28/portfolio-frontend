@@ -933,6 +933,24 @@ body {
   cursor: pointer;
 }
 .cashflow-cancel-btn:hover { border-color: var(--danger); color: var(--danger); }
+.cashflow-edit-input {
+  background: var(--surface-2);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 12px;
+  padding: 3px 6px;
+  width: 100%;
+  min-width: 0;
+  outline: none;
+}
+.cashflow-edit-year { width: 70px; }
+.cashflow-edit-amount { width: 90px; }
+.cashflow-edit-year-group { display: flex; align-items: center; gap: 6px; }
+.cashflow-edit-allyears-label { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-muted); white-space: nowrap; cursor: pointer; }
+.cashflow-edit-actions { display: flex; flex-direction: column; gap: 4px; }
+.cashflow-edit-err { font-size: 11px; color: var(--danger); }
+
 .cashflow-edit-select {
   background: var(--surface-2);
   border: 1px solid var(--accent);

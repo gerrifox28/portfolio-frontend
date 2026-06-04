@@ -65,24 +65,58 @@ export default function CashFlowPanel({ cashFlows, onChange, maxYear, offendingI
 
   // ── Inline edit state ──────────────────────────────────────────────────────
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editingInflationAdj, setEditingInflationAdj] = useState<'none' | 'full' | 'half'>('none');
+  const [editDesc, setEditDesc] = useState('');
+  const [editAmount, setEditAmount] = useState('');
+  const [editYear, setEditYear] = useState('');
+  const [editAllYears, setEditAllYears] = useState(false);
+  const [editInflAdj, setEditInflAdj] = useState<'none' | 'full' | 'half'>('none');
+  const [editErr, setEditErr] = useState('');
 
   function handleStartEdit(cf: CashFlow) {
     setEditingId(cf.id);
-    setEditingInflationAdj(cf.inflationAdj ?? 'none');
+    setEditDesc(cf.description);
+    setEditAmount(String(cf.amount));
+    setEditAllYears(cf.allYears);
+    setEditYear(cf.allYears ? '' : cf.yearStart === cf.yearEnd ? String(cf.yearStart) : `${cf.yearStart}-${cf.yearEnd}`);
+    setEditInflAdj(cf.inflationAdj ?? 'none');
+    setEditErr('');
   }
 
   function handleSaveEdit(id: string) {
+    setEditErr('');
+    if (!editDesc.trim()) { setEditErr('Description is required.'); return; }
+    const rawAmount = editAmount.replace(/[$,\s]/g, '');
+    const parsedAmount = parseFloat(rawAmount);
+    if (!rawAmount || isNaN(parsedAmount)) { setEditErr('Enter a valid amount.'); return; }
+
+    let yearStart: number | null = null;
+    let yearEnd: number | null = null;
+    if (!editAllYears) {
+      if (!editYear.trim()) { setEditErr('Enter a year or range (e.g. 5 or 5-10).'); return; }
+      const parsed = parseYearInput(editYear, maxYear);
+      if (!parsed.valid) { setEditErr(parsed.error); return; }
+      yearStart = parsed.yearStart;
+      yearEnd = parsed.yearEnd;
+    }
+
     onChange(cashFlows.map(cf =>
-      cf.id === id ? { ...cf, inflationAdj: editingInflationAdj } : cf
+      cf.id === id ? {
+        ...cf,
+        description: editDesc.trim(),
+        amount: parsedAmount,
+        allYears: editAllYears,
+        yearStart,
+        yearEnd,
+        inflationAdj: editInflAdj,
+      } : cf
     ));
     setEditingId(null);
-    setEditingInflationAdj('none');
+    setEditErr('');
   }
 
   function handleCancelEdit() {
     setEditingId(null);
-    setEditingInflationAdj('none');
+    setEditErr('');
   }
 
   function update(patch: Partial<NewFlowState>) {
@@ -211,24 +245,50 @@ export default function CashFlowPanel({ cashFlows, onChange, maxYear, offendingI
               <tbody>
                 {cashFlows.map((cf, i) => {
                   const isEditing = editingId === cf.id;
-                  const isSingleYear = !cf.allYears && cf.yearStart === cf.yearEnd;
+                  const editIsSingle = !editAllYears && !!editYear.trim() && !editYear.trim().match(/\d+\s*-\s*\d+/);
                   return (
                     <tr key={cf.id} className={offendingIds.includes(cf.id) ? 'cashflow-row--offending' : ''}>
                       <td className="dim">{i + 1}</td>
-                      <td>
-                        {cf.description}
-                        {offendingIds.includes(cf.id) && <span className="cashflow-offending-flag"> ⚠</span>}
-                      </td>
-                      <td>{yearRangeLabel(cf)}</td>
-                      <td className={cf.amount >= 0 ? 'positive' : 'negative'}>{fmt$(cf.amount)}</td>
+
+                      {/* Description */}
                       <td>
                         {isEditing ? (
-                          <select
-                            className="cashflow-edit-select"
-                            value={editingInflationAdj}
-                            disabled={isSingleYear}
-                            onChange={e => setEditingInflationAdj(e.target.value as 'none' | 'full' | 'half')}
-                          >
+                          <input type="text" maxLength={40} className="cashflow-edit-input" value={editDesc}
+                            onChange={e => setEditDesc(e.target.value)} />
+                        ) : (
+                          <>{cf.description}{offendingIds.includes(cf.id) && <span className="cashflow-offending-flag"> ⚠</span>}</>
+                        )}
+                      </td>
+
+                      {/* Year(s) */}
+                      <td>
+                        {isEditing ? (
+                          <div className="cashflow-edit-year-group">
+                            <input type="text" className="cashflow-edit-input cashflow-edit-year"
+                              placeholder="e.g. 5 or 5-10" value={editYear} disabled={editAllYears}
+                              onChange={e => setEditYear(e.target.value)} />
+                            <label className="cashflow-edit-allyears-label">
+                              <input type="checkbox" checked={editAllYears}
+                                onChange={e => { setEditAllYears(e.target.checked); if (e.target.checked) setEditYear(''); }} />
+                              All
+                            </label>
+                          </div>
+                        ) : yearRangeLabel(cf)}
+                      </td>
+
+                      {/* Amount */}
+                      <td className={isEditing ? '' : cf.amount >= 0 ? 'positive' : 'negative'}>
+                        {isEditing ? (
+                          <input type="text" className="cashflow-edit-input cashflow-edit-amount"
+                            value={editAmount} onChange={e => setEditAmount(e.target.value.replace(/[^0-9,.-]/g, ''))} />
+                        ) : fmt$(cf.amount)}
+                      </td>
+
+                      {/* Inflation Adj */}
+                      <td>
+                        {isEditing ? (
+                          <select className="cashflow-edit-select" value={editInflAdj} disabled={editIsSingle}
+                            onChange={e => setEditInflAdj(e.target.value as 'none' | 'full' | 'half')}>
                             <option value="none">No Adjustment</option>
                             <option value="full">Full Inflation</option>
                             <option value="half">½ Inflation</option>
@@ -237,12 +297,17 @@ export default function CashFlowPanel({ cashFlows, onChange, maxYear, offendingI
                           <span className="dim">{inflAdjLabel(cf)}</span>
                         )}
                       </td>
+
+                      {/* Actions */}
                       <td className="cashflow-actions">
                         {isEditing ? (
-                          <>
-                            <button className="cashflow-save-btn" onClick={() => handleSaveEdit(cf.id)}>Save</button>
-                            <button className="cashflow-cancel-btn" onClick={handleCancelEdit}>Cancel</button>
-                          </>
+                          <div className="cashflow-edit-actions">
+                            <div style={{ display: 'flex', gap: '6px' }}>
+                              <button className="cashflow-save-btn" onClick={() => handleSaveEdit(cf.id)}>Save</button>
+                              <button className="cashflow-cancel-btn" onClick={handleCancelEdit}>Cancel</button>
+                            </div>
+                            {editErr && <span className="cashflow-error cashflow-edit-err">{editErr}</span>}
+                          </div>
                         ) : (
                           <>
                             <button className="cashflow-edit-btn" onClick={() => handleStartEdit(cf)}>Edit</button>
