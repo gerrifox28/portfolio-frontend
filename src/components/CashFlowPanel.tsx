@@ -63,6 +63,28 @@ export default function CashFlowPanel({ cashFlows, onChange, maxYear, offendingI
   const [err, setErr] = useState('');
   const [yearErr, setYearErr] = useState('');
 
+  // ── Inline edit state ──────────────────────────────────────────────────────
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingInflationAdj, setEditingInflationAdj] = useState<'none' | 'full' | 'half'>('none');
+
+  function handleStartEdit(cf: CashFlow) {
+    setEditingId(cf.id);
+    setEditingInflationAdj(cf.inflationAdj ?? 'none');
+  }
+
+  function handleSaveEdit(id: string) {
+    onChange(cashFlows.map(cf =>
+      cf.id === id ? { ...cf, inflationAdj: editingInflationAdj } : cf
+    ));
+    setEditingId(null);
+    setEditingInflationAdj('none');
+  }
+
+  function handleCancelEdit() {
+    setEditingId(null);
+    setEditingInflationAdj('none');
+  }
+
   function update(patch: Partial<NewFlowState>) {
     setFlow(prev => ({ ...prev, ...patch }));
     if ('year' in patch) setYearErr('');
@@ -183,25 +205,54 @@ export default function CashFlowPanel({ cashFlows, onChange, maxYear, offendingI
                   <th>Year(s)</th>
                   <th>Amount</th>
                   <th>Inflation Adj.</th>
-                  <th></th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {cashFlows.map((cf, i) => (
-                  <tr key={cf.id} className={offendingIds.includes(cf.id) ? 'cashflow-row--offending' : ''}>
-                    <td className="dim">{i + 1}</td>
-                    <td>
-                      {cf.description}
-                      {offendingIds.includes(cf.id) && <span className="cashflow-offending-flag"> ⚠</span>}
-                    </td>
-                    <td>{yearRangeLabel(cf)}</td>
-                    <td className={cf.amount >= 0 ? 'positive' : 'negative'}>{fmt$(cf.amount)}</td>
-                    <td className="dim">{inflAdjLabel(cf)}</td>
-                    <td>
-                      <button className="cashflow-del-btn" onClick={() => handleDelete(cf.id)}>×</button>
-                    </td>
-                  </tr>
-                ))}
+                {cashFlows.map((cf, i) => {
+                  const isEditing = editingId === cf.id;
+                  const isSingleYear = !cf.allYears && cf.yearStart === cf.yearEnd;
+                  return (
+                    <tr key={cf.id} className={offendingIds.includes(cf.id) ? 'cashflow-row--offending' : ''}>
+                      <td className="dim">{i + 1}</td>
+                      <td>
+                        {cf.description}
+                        {offendingIds.includes(cf.id) && <span className="cashflow-offending-flag"> ⚠</span>}
+                      </td>
+                      <td>{yearRangeLabel(cf)}</td>
+                      <td className={cf.amount >= 0 ? 'positive' : 'negative'}>{fmt$(cf.amount)}</td>
+                      <td>
+                        {isEditing ? (
+                          <select
+                            className="cashflow-edit-select"
+                            value={editingInflationAdj}
+                            disabled={isSingleYear}
+                            onChange={e => setEditingInflationAdj(e.target.value as 'none' | 'full' | 'half')}
+                          >
+                            <option value="none">No Adjustment</option>
+                            <option value="full">Full Inflation</option>
+                            <option value="half">½ Inflation</option>
+                          </select>
+                        ) : (
+                          <span className="dim">{inflAdjLabel(cf)}</span>
+                        )}
+                      </td>
+                      <td className="cashflow-actions">
+                        {isEditing ? (
+                          <>
+                            <button className="cashflow-save-btn" onClick={() => handleSaveEdit(cf.id)}>Save</button>
+                            <button className="cashflow-cancel-btn" onClick={handleCancelEdit}>Cancel</button>
+                          </>
+                        ) : (
+                          <>
+                            <button className="cashflow-edit-btn" onClick={() => handleStartEdit(cf)}>Edit</button>
+                            <button className="cashflow-del-btn" onClick={() => handleDelete(cf.id)}>×</button>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}

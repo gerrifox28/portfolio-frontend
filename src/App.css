@@ -889,6 +889,7 @@ body {
 }
 .cashflow-list td { padding: 6px 8px; }
 .cashflow-list tr:not(:last-child) td { border-bottom: 1px solid rgba(255,255,255,0.04); }
+.cashflow-actions { display: flex; gap: 6px; align-items: center; }
 .cashflow-del-btn {
   background: none;
   border: 1px solid var(--border);
@@ -901,6 +902,47 @@ body {
   display: flex; align-items: center; justify-content: center;
 }
 .cashflow-del-btn:hover { border-color: var(--danger); color: var(--danger); }
+.cashflow-edit-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.cashflow-edit-btn:hover { border-color: var(--accent); color: var(--text); }
+.cashflow-save-btn {
+  background: var(--accent);
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.cashflow-save-btn:hover { opacity: 0.88; }
+.cashflow-cancel-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.cashflow-cancel-btn:hover { border-color: var(--danger); color: var(--danger); }
+.cashflow-edit-select {
+  background: var(--surface-2);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 12px;
+  padding: 3px 6px;
+  cursor: pointer;
+}
+.cashflow-edit-select:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* ── Annuity Section ── */
 .annuity-section { display: flex; flex-direction: column; gap: 16px; }
