@@ -415,7 +415,7 @@ export default function App() {
 
   // Asset breakdown
   const assetTotal = assets.reduce((s, a) => s + a.amount, 0);
-  const nestEggLocked = assetBreakdownOpen && assets.length > 0;
+  const nestEggLocked = assets.length > 0;
   const effectiveNestEgg = nestEggLocked ? assetTotal : (parseFloat(nestEgg.replace(/,/g, '')) || 0);
 
   // Allocation breakdown for display
