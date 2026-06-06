@@ -458,7 +458,8 @@ export default function App() {
                   inputMode="numeric"
                   value={nestEggLocked ? assetTotal.toLocaleString('en-US') : nestEgg}
                   readOnly={nestEggLocked}
-                  onChange={nestEggLocked ? undefined : e => {
+                  onChange={e => {
+                    if (nestEggLocked) return;
                     const d = e.target.value.replace(/[^0-9]/g, '');
                     setNestEgg(d === '' ? '' : parseInt(d, 10).toLocaleString('en-US'));
                   }}
