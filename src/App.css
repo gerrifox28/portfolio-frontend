@@ -811,6 +811,25 @@ body {
 }
 .drill-exhausted { color: var(--danger); font-size: 0.85rem; font-weight: 400; }
 
+/* ── Asset Breakdown Panel ── */
+.nest-egg-locked { opacity: 0.65; cursor: default; }
+.nest-egg-locked input { cursor: default; }
+.asset-total-row td {
+  padding: 7px 8px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+.asset-total-row td:first-child {
+  color: var(--text-muted);
+  font-weight: 400;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: right;
+}
+
 /* ── Cash Flow Panel ── */
 .cashflow-section { display: flex; flex-direction: column; gap: 0; }
 .cashflow-body {

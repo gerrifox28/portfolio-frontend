@@ -8,6 +8,7 @@ import SorrExplainer from './components/SorrExplainer';
 import PortfolioChart from './components/PortfolioChart';
 import ResultsTable from './components/ResultsTable';
 import CashFlowPanel from './components/CashFlowPanel';
+import AssetBreakdownPanel, { Asset } from './components/AssetBreakdownPanel';
 import './App.css';
 import { SimulationRequest, SimulationResponse } from './types';
 
@@ -111,6 +112,8 @@ export default function App() {
   const [incomeMode, setIncomeMode] = useState(false);
   const [statScenario, setStatScenario] = useState<'without' | 'with'>('without');
   const [cashFlows, setCashFlows] = useState<CashFlow[]>([]);
+  const [assets, setAssets] = useState<Asset[]>([]);
+  const [assetBreakdownOpen, setAssetBreakdownOpen] = useState(false);
   const [resultsStale, setResultsStale] = useState(false);
   const [offendingFlowIds, setOffendingFlowIds] = useState<string[]>([]);
 
@@ -160,6 +163,8 @@ export default function App() {
       annuityPct,
       annuityCap,
       cashFlows,
+      assets,
+      assetBreakdownOpen,
       incomeMode,
       statScenario,
       chartView,
@@ -201,6 +206,8 @@ export default function App() {
         setAnnuityPct(d.annuityPct ?? 30);
         setAnnuityCap(d.annuityCap ?? 0.03);
         setCashFlows(d.cashFlows ?? []);
+        setAssets(d.assets ?? []);
+        setAssetBreakdownOpen(d.assetBreakdownOpen ?? false);
         setIncomeMode(d.incomeMode ?? false);
         setStatScenario(d.statScenario ?? 'without');
         if (d.chartView) setChartView(d.chartView);
@@ -222,6 +229,11 @@ export default function App() {
   function handleCashFlowChange(flows: CashFlow[]) {
     setCashFlows(flows);
     setOffendingFlowIds([]);
+    setResultsStale(true);
+  }
+
+  function handleAssetsChange(newAssets: Asset[]) {
+    setAssets(newAssets);
     setResultsStale(true);
   }
 
@@ -289,7 +301,7 @@ export default function App() {
         mFiveYearUS: parseAlloc(manualAlloc.mFiveYearUS) / 100,
       } : {};
       const base = {
-        startingNestEgg: parseFloat(nestEgg.replace(/,/g, '')) || 0,
+        startingNestEgg: effectiveNestEgg,
         initialWithdrawal: parseFloat(withdrawal.replace(/,/g, '')) || 0,
         stockMarketAllocation: stockPct / 100,
         yearCount: parseInt(yearCount) || 30,
@@ -360,7 +372,7 @@ export default function App() {
       };
       const req: SimulationRequest = {
         startYear: year,
-        startingNestEgg: parseFloat(nestEgg.replace(/,/g, '')) || 0,
+        startingNestEgg: effectiveNestEgg,
         initialWithdrawal: parseFloat(withdrawal.replace(/,/g, '')) || 0,
         yearCount: parseInt(yearCount) || 30,
         cashFlows,
@@ -371,7 +383,7 @@ export default function App() {
         runSimulation(req),
         activeCompare ? runSimulation({
           startYear: year,
-          startingNestEgg: (parseFloat(nestEgg.replace(/,/g, '')) || 0) * (1 - annuityPct / 100),
+          startingNestEgg: effectiveNestEgg * (1 - annuityPct / 100),
           initialWithdrawal: parseFloat(withdrawal.replace(/,/g, '')) || 0,
           yearCount: parseInt(yearCount) || 30,
           cashFlows,
@@ -400,6 +412,11 @@ export default function App() {
       setDrillLoading(false);
     }
   }
+
+  // Asset breakdown
+  const assetTotal = assets.reduce((s, a) => s + a.amount, 0);
+  const nestEggLocked = assetBreakdownOpen && assets.length > 0;
+  const effectiveNestEgg = nestEggLocked ? assetTotal : (parseFloat(nestEgg.replace(/,/g, '')) || 0);
 
   // Allocation breakdown for display
   const reitPct = Math.min(10, 100 - stockPct);
@@ -434,15 +451,31 @@ export default function App() {
 
             <div className="main-input-group">
               <label>Size of Nest Egg</label>
-              <div className="input-prefix">
+              <div className={`input-prefix${nestEggLocked ? ' nest-egg-locked' : ''}`}>
                 <span>$</span>
-                <input type="text" inputMode="numeric" value={nestEgg}
-                  onChange={e => { const d = e.target.value.replace(/[^0-9]/g, ''); setNestEgg(d === '' ? '' : parseInt(d, 10).toLocaleString('en-US')); }} />
-                <div className="spin-btns">
-                  <button type="button" className="spin-btn" onClick={() => adjustCurrency(nestEgg, 10000, setNestEgg)} />
-                  <button type="button" className="spin-btn" onClick={() => adjustCurrency(nestEgg, -10000, setNestEgg)} />
-                </div>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={nestEggLocked ? assetTotal.toLocaleString('en-US') : nestEgg}
+                  readOnly={nestEggLocked}
+                  onChange={nestEggLocked ? undefined : e => {
+                    const d = e.target.value.replace(/[^0-9]/g, '');
+                    setNestEgg(d === '' ? '' : parseInt(d, 10).toLocaleString('en-US'));
+                  }}
+                />
+                {!nestEggLocked && (
+                  <div className="spin-btns">
+                    <button type="button" className="spin-btn" onClick={() => adjustCurrency(nestEgg, 10000, setNestEgg)} />
+                    <button type="button" className="spin-btn" onClick={() => adjustCurrency(nestEgg, -10000, setNestEgg)} />
+                  </div>
+                )}
               </div>
+              <AssetBreakdownPanel
+                assets={assets}
+                onChange={handleAssetsChange}
+                open={assetBreakdownOpen}
+                onToggle={() => { setAssetBreakdownOpen(v => !v); setResultsStale(true); }}
+              />
             </div>
 
             <div className="main-input-group">
@@ -615,7 +648,7 @@ export default function App() {
                       <span className="stock-pct-value">{annuityPct}%</span>
                     </div>
                     <p className="alloc-breakdown">
-                      ${Math.round((parseFloat(nestEgg.replace(/,/g, '')) || 0) * annuityPct / 100).toLocaleString()} to annuity · ${Math.round((parseFloat(nestEgg.replace(/,/g, '')) || 0) * (100 - annuityPct) / 100).toLocaleString()} invested
+                      ${Math.round(effectiveNestEgg * annuityPct / 100).toLocaleString()} to annuity · ${Math.round(effectiveNestEgg * (100 - annuityPct) / 100).toLocaleString()} invested
                     </p>
                   </div>
                 </div>
