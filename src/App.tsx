@@ -143,8 +143,11 @@ export default function App() {
   // ── Save / Load ────────────────────────────────────────────────────────────
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [saveLoadError, setSaveLoadError] = useState<string | null>(null);
+  const [saveStatus, setSaveStatus] = useState<string | null>(null);
 
-  function handleSave() {
+  async function handleSave() {
+    setSaveStatus(null);
+    setSaveLoadError(null);
     const sessionData = {
       version: '1.0',
       savedAt: new Date().toISOString(),
@@ -170,13 +173,36 @@ export default function App() {
       chartView,
     };
     const json = JSON.stringify(sessionData, null, 2);
+    const suggestedName = `retirement-simulation-${new Date().toISOString().split('T')[0]}.json`;
+
+    if ('showSaveFilePicker' in window) {
+      try {
+        const fileHandle = await (window as any).showSaveFilePicker({
+          suggestedName,
+          types: [{ description: 'Retirement Simulation File', accept: { 'application/json': ['.json'] } }],
+        });
+        const writable = await fileHandle.createWritable();
+        await writable.write(json);
+        await writable.close();
+        setSaveStatus('File saved successfully.');
+      } catch (err: any) {
+        if (err.name === 'AbortError') return;
+        handleSaveFallback(json, suggestedName);
+      }
+    } else {
+      handleSaveFallback(json, suggestedName);
+    }
+  }
+
+  function handleSaveFallback(json: string, filename: string) {
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `retirement-simulation-${new Date().toISOString().split('T')[0]}.json`;
+    link.download = filename;
     link.click();
     URL.revokeObjectURL(url);
+    setSaveStatus('File downloaded to your default Downloads folder.');
   }
 
   function handleLoad(e: React.ChangeEvent<HTMLInputElement>) {
@@ -445,6 +471,7 @@ export default function App() {
             <input type="file" accept=".json" style={{ display: 'none' }} ref={fileInputRef} onChange={handleLoad} />
             <button className="save-load-btn" onClick={handleSave}>💾 Save</button>
             <button className="save-load-btn" onClick={() => fileInputRef.current?.click()}>📂 Load</button>
+            {saveStatus && <span className="save-load-status">{saveStatus}</span>}
             {saveLoadError && <span className="save-load-error">{saveLoadError}</span>}
           </div>
           <div className="main-inputs">

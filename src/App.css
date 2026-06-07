@@ -231,6 +231,10 @@ body {
   font-size: 12px;
   color: var(--danger);
 }
+.save-load-status {
+  font-size: 12px;
+  color: var(--accent);
+}
 
 .run-btn {
   grid-column: 1 / -1;
