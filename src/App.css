@@ -65,6 +65,87 @@ body {
   margin-top: 6px;
 }
 
+/* ── Client Information Section ─────────────────────────────────────────── */
+.client-section {
+  padding: 32px 24px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(99, 102, 241, 0.03);
+}
+.client-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+.client-heading {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 20px;
+}
+.client-two-column {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.person-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.person-label {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 4px;
+}
+.client-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.client-field label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.client-field input[type="text"] {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 14px;
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+.client-field input[type="text"]:focus { border-color: var(--accent); }
+.age-readonly {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.client-field-error {
+  font-size: 11px;
+  color: var(--danger);
+  margin: 0;
+}
+@media (max-width: 640px) {
+  .client-two-column { grid-template-columns: 1fr; }
+  .client-section { padding: 24px 20px; }
+}
+
 /* ── Inputs Section ──────────────────────────────────────────────────────── */
 .inputs-section {
   padding: 48px 24px;

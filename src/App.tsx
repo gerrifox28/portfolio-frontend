@@ -9,6 +9,7 @@ import PortfolioChart from './components/PortfolioChart';
 import ResultsTable from './components/ResultsTable';
 import CashFlowPanel from './components/CashFlowPanel';
 import AssetBreakdownPanel, { Asset } from './components/AssetBreakdownPanel';
+import ClientInformation, { Person } from './components/ClientInformation';
 import './App.css';
 import { SimulationRequest, SimulationResponse } from './types';
 
@@ -69,6 +70,10 @@ function adjustCurrency(current: string, step: number, setter: (v: string) => vo
 }
 
 export default function App() {
+  // ── Client information ─────────────────────────────────────────────────────
+  const [person1, setPerson1] = useState<Person>({ name: '', dob: '' });
+  const [person2, setPerson2] = useState<Person>({ name: '', dob: '' });
+
   // ── Core inputs ────────────────────────────────────────────────────────────
   const [nestEgg, setNestEgg] = useState('1,000,000');
   const [withdrawal, setWithdrawal] = useState('40,000');
@@ -151,6 +156,8 @@ export default function App() {
     const sessionData = {
       version: '1.0',
       savedAt: new Date().toISOString(),
+      person1,
+      person2,
       nestEgg,
       withdrawal,
       incomeStartYear,
@@ -217,6 +224,8 @@ export default function App() {
           setSaveLoadError('Unrecognized file format. Please load a valid save file.');
           return;
         }
+        if (d.person1) setPerson1(d.person1);
+        if (d.person2) setPerson2(d.person2);
         setNestEgg(d.nestEgg ?? '1,000,000');
         setWithdrawal(d.withdrawal ?? '40,000');
         setIncomeStartYear(d.incomeStartYear ?? 1);
@@ -463,6 +472,14 @@ export default function App() {
           </div>
         </div>
       </header>
+
+      {/* ── Client Information ── */}
+      <ClientInformation
+        person1={person1}
+        person2={person2}
+        onChangePerson1={setPerson1}
+        onChangePerson2={setPerson2}
+      />
 
       {/* ── Inputs ── */}
       <section className="inputs-section">
