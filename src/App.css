@@ -73,6 +73,7 @@ body {
 }
 .client-inner {
   max-width: var(--max-width);
+  width: 100%;
   margin: 0 auto;
 }
 .client-information-header {
@@ -80,6 +81,7 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  width: 100%;
 }
 .filename-display {
   font-size: 12px;
@@ -108,6 +110,7 @@ body {
   background: var(--surface-1);
   border: 1px solid var(--border);
   border-radius: var(--radius);
+  min-width: 0;
 }
 .person-label {
   font-family: var(--font-display);
