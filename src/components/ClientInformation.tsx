@@ -44,38 +44,34 @@ function PersonFields({ label, values, onChange, required = false }: PersonField
   const age = calculateAge(values.dob);
   const dobError = required || values.name || values.dob ? validateDOB(values.dob) : null;
 
-  const inputStyle: React.CSSProperties = { width: '100%', boxSizing: 'border-box', minWidth: 0 };
-
   return (
-    <div className="person-fields" style={{ width: '100%', boxSizing: 'border-box', minWidth: 0, overflow: 'hidden' }}>
+    <div className="person-fields">
       <h3 className="person-label">{label}</h3>
 
-      <div className="client-field" style={{ width: '100%', boxSizing: 'border-box', minWidth: 0 }}>
+      <div className="client-field">
         <label>Name</label>
         <input
           type="text"
           maxLength={50}
           placeholder="First and Last Name"
           value={values.name}
-          style={inputStyle}
           onChange={e => onChange({ ...values, name: e.target.value })}
         />
       </div>
 
-      <div className="client-field" style={{ width: '100%', boxSizing: 'border-box', minWidth: 0 }}>
+      <div className="client-field">
         <label>Date of Birth</label>
         <input
           type="text"
           placeholder="MM/DD/YYYY"
           maxLength={10}
           value={values.dob}
-          style={inputStyle}
           onChange={e => onChange({ ...values, dob: formatDOBInput(e.target.value) })}
         />
         {dobError && <p className="client-field-error">{dobError}</p>}
       </div>
 
-      <div className="client-field" style={{ width: '100%', boxSizing: 'border-box', minWidth: 0 }}>
+      <div className="client-field">
         <label>Age</label>
         <input
           type="text"
@@ -83,7 +79,6 @@ function PersonFields({ label, values, onChange, required = false }: PersonField
           readOnly
           disabled
           className="age-readonly"
-          style={inputStyle}
         />
       </div>
     </div>
@@ -99,10 +94,10 @@ interface Props {
 
 export default function ClientInformation({ person1, person2, onChangePerson1, onChangePerson2 }: Props) {
   return (
-    <section className="client-section" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflowX: 'hidden' }}>
-      <div className="client-inner" style={{ width: '100%', maxWidth: '900px', boxSizing: 'border-box', margin: '0 auto', overflowX: 'hidden' }}>
-        <h2 className="client-heading" style={{ marginBottom: '20px' }}>Client Information</h2>
-        <div className="client-two-column" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '16px', width: '100%', boxSizing: 'border-box' }}>
+    <section className="client-section">
+      <div className="client-inner">
+        <h2 className="client-heading">Client Information</h2>
+        <div className="client-two-column">
           <PersonFields label="Person 1" values={person1} onChange={onChangePerson1} required />
           <PersonFields label="Person 2" values={person2} onChange={onChangePerson2} />
         </div>
