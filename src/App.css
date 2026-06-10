@@ -333,6 +333,19 @@ body {
   font-size: 12px;
   color: var(--accent);
 }
+.save-load-divider {
+  color: var(--border-hover);
+  font-size: 1rem;
+  user-select: none;
+}
+.filename-display {
+  font-size: 0.85rem;
+  color: #8b8fa8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
+}
 
 .run-btn {
   grid-column: 1 / -1;

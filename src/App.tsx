@@ -149,6 +149,7 @@ export default function App() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [saveLoadError, setSaveLoadError] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
+  const [currentFileName, setCurrentFileName] = useState<string | null>(null);
 
   async function handleSave() {
     setSaveStatus(null);
@@ -179,7 +180,7 @@ export default function App() {
       statScenario,
       chartView,
     };
-    const suggestedName = `retirement-simulation-${new Date().toISOString().split('T')[0]}.json`;
+    const suggestedName = currentFileName ?? `retirement-simulation-${new Date().toISOString().split('T')[0]}.json`;
     const json = JSON.stringify(sessionData, null, 2);
 
     if ('showSaveFilePicker' in window) {
@@ -191,6 +192,7 @@ export default function App() {
         const writable = await fileHandle.createWritable();
         await writable.write(json);
         await writable.close();
+        setCurrentFileName(fileHandle.name);
         setSaveStatus('File saved successfully.');
       } catch (err: any) {
         if (err.name === 'AbortError') return;
@@ -209,6 +211,7 @@ export default function App() {
     link.download = filename;
     link.click();
     URL.revokeObjectURL(url);
+    setCurrentFileName(filename);
     setSaveStatus('File downloaded to your default Downloads folder.');
   }
 
@@ -246,6 +249,7 @@ export default function App() {
         setIncomeMode(d.incomeMode ?? false);
         setStatScenario(d.statScenario ?? 'without');
         if (d.chartView) setChartView(d.chartView);
+        setCurrentFileName(file.name);
         // Clear previous results so the user re-runs with the loaded config
         setResult(null);
         setCompareResult(null);
@@ -488,6 +492,8 @@ export default function App() {
             <input type="file" accept=".json" style={{ display: 'none' }} ref={fileInputRef} onChange={handleLoad} />
             <button className="save-load-btn" onClick={handleSave}>💾 Save</button>
             <button className="save-load-btn" onClick={() => fileInputRef.current?.click()}>📂 Load</button>
+            <span className="save-load-divider">|</span>
+            <span className="filename-display">{currentFileName ?? 'Unsaved'}</span>
             {saveStatus && <span className="save-load-status">{saveStatus}</span>}
             {saveLoadError && <span className="save-load-error">{saveLoadError}</span>}
           </div>
