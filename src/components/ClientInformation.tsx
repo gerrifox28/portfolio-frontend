@@ -34,20 +34,17 @@ function validateDOB(dobString: string): string | null {
 }
 
 interface PersonFieldsProps {
-  label: string;
   values: Person;
   onChange: (p: Person) => void;
   required?: boolean;
 }
 
-function PersonFields({ label, values, onChange, required = false }: PersonFieldsProps) {
+function PersonFields({ values, onChange, required = false }: PersonFieldsProps) {
   const age = calculateAge(values.dob);
   const dobError = required || values.name || values.dob ? validateDOB(values.dob) : null;
 
   return (
     <div className="person-fields">
-      <h3 className="person-label">{label}</h3>
-
       <div className="client-field">
         <label>Name</label>
         <input
@@ -98,8 +95,8 @@ export default function ClientInformation({ person1, person2, onChangePerson1, o
       <div className="client-inner">
         <h2 className="client-heading">Client Information</h2>
         <div className="client-two-column">
-          <PersonFields label="Person 1" values={person1} onChange={onChangePerson1} required />
-          <PersonFields label="Person 2" values={person2} onChange={onChangePerson2} />
+          <PersonFields values={person1} onChange={onChangePerson1} required />
+          <PersonFields values={person2} onChange={onChangePerson2} />
         </div>
       </div>
     </section>
