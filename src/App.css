@@ -83,25 +83,6 @@ body {
   margin: 0 auto;
   overflow: hidden;
 }
-.client-information-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  width: 100%;
-  box-sizing: border-box;
-  margin-bottom: 20px;
-}
-.filename-display {
-  font-size: 0.8rem;
-  color: var(--text);
-  opacity: 0.6;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 50%;
-}
 .client-heading {
   font-family: var(--font-display);
   font-size: 11px;
@@ -185,7 +166,6 @@ body {
 @media (max-width: 600px) {
   .client-two-column { grid-template-columns: 1fr; }
   .client-section { padding: 24px 20px; }
-  .filename-display { max-width: 100%; }
 }
 
 /* ── Inputs Section ──────────────────────────────────────────────────────── */

@@ -149,7 +149,6 @@ export default function App() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [saveLoadError, setSaveLoadError] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
-  const [currentFileName, setCurrentFileName] = useState<string | null>(null);
 
   async function handleSave() {
     setSaveStatus(null);
@@ -180,8 +179,8 @@ export default function App() {
       statScenario,
       chartView,
     };
-    const suggestedName = currentFileName ?? `retirement-simulation-${new Date().toISOString().split('T')[0]}.json`;
-    const json = JSON.stringify({ ...sessionData, fileName: suggestedName }, null, 2);
+    const suggestedName = `retirement-simulation-${new Date().toISOString().split('T')[0]}.json`;
+    const json = JSON.stringify(sessionData, null, 2);
 
     if ('showSaveFilePicker' in window) {
       try {
@@ -192,7 +191,6 @@ export default function App() {
         const writable = await fileHandle.createWritable();
         await writable.write(json);
         await writable.close();
-        setCurrentFileName(fileHandle.name);
         setSaveStatus('File saved successfully.');
       } catch (err: any) {
         if (err.name === 'AbortError') return;
@@ -211,7 +209,6 @@ export default function App() {
     link.download = filename;
     link.click();
     URL.revokeObjectURL(url);
-    setCurrentFileName(filename);
     setSaveStatus('File downloaded to your default Downloads folder.');
   }
 
@@ -250,7 +247,6 @@ export default function App() {
         setStatScenario(d.statScenario ?? 'without');
         if (d.chartView) setChartView(d.chartView);
         // Clear previous results so the user re-runs with the loaded config
-        setCurrentFileName(file.name);
         setResult(null);
         setCompareResult(null);
         setDrillResult(null);
@@ -483,7 +479,6 @@ export default function App() {
         person2={person2}
         onChangePerson1={setPerson1}
         onChangePerson2={setPerson2}
-        currentFileName={currentFileName}
       />
 
       {/* ── Inputs ── */}
