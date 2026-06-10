@@ -90,13 +90,19 @@ interface Props {
   person2: Person;
   onChangePerson1: (p: Person) => void;
   onChangePerson2: (p: Person) => void;
+  currentFileName: string | null;
 }
 
-export default function ClientInformation({ person1, person2, onChangePerson1, onChangePerson2 }: Props) {
+export default function ClientInformation({ person1, person2, onChangePerson1, onChangePerson2, currentFileName }: Props) {
   return (
     <section className="client-section">
       <div className="client-inner">
-        <h2 className="client-heading">Client Information</h2>
+        <div className="client-information-header">
+          <h2 className="client-heading">Client Information</h2>
+          <span className="filename-display">
+            {currentFileName ? `File: ${currentFileName}` : 'File: Unsaved'}
+          </span>
+        </div>
         <div className="client-two-column">
           <PersonFields label="Person 1" values={person1} onChange={onChangePerson1} required />
           <PersonFields label="Person 2" values={person2} onChange={onChangePerson2} />
