@@ -68,27 +68,39 @@ body {
 
 /* ── Client Information Section ─────────────────────────────────────────── */
 .client-section {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   padding: 32px 24px;
   border-bottom: 1px solid var(--border);
   background: rgba(99, 102, 241, 0.03);
-  max-width: 100%;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 .client-inner {
-  max-width: var(--max-width);
   width: 100%;
+  max-width: var(--max-width);
+  box-sizing: border-box;
   margin: 0 auto;
+  overflow: hidden;
 }
 .client-information-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
   margin-bottom: 20px;
 }
 .filename-display {
-  font-size: 12px;
+  font-size: 0.8rem;
   color: var(--text);
   opacity: 0.6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 50%;
 }
 .client-heading {
   font-family: var(--font-display);
@@ -102,9 +114,14 @@ body {
 .client-two-column {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 24px;
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
 }
 .person-fields {
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -112,6 +129,10 @@ body {
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius);
+}
+.person-fields input {
+  width: 100%;
+  box-sizing: border-box;
   min-width: 0;
 }
 .person-label {
@@ -127,6 +148,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
 }
 .client-field label {
   font-size: 11px;
@@ -136,6 +160,9 @@ body {
   letter-spacing: 0.06em;
 }
 .client-field input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -144,8 +171,6 @@ body {
   padding: 9px 12px;
   outline: none;
   transition: border-color 0.15s;
-  width: 100%;
-  box-sizing: border-box;
 }
 .client-field input[type="text"]:focus { border-color: var(--accent); }
 .age-readonly {
@@ -157,9 +182,10 @@ body {
   color: var(--danger);
   margin: 0;
 }
-@media (max-width: 640px) {
+@media (max-width: 600px) {
   .client-two-column { grid-template-columns: 1fr; }
   .client-section { padding: 24px 20px; }
+  .filename-display { max-width: 100%; }
 }
 
 /* ── Inputs Section ──────────────────────────────────────────────────────── */
