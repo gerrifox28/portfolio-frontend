@@ -13,16 +13,17 @@ import ClientInformation, { Person } from './components/ClientInformation';
 import './App.css';
 import { SimulationRequest, SimulationResponse } from './types';
 
-function DrillSection({ drillYear, setDrillYear, drillResult, drillAnnuityResult, drillLoading, drillError, onRun }: {
+function DrillSection({ drillYear, setDrillYear, drillView, setDrillView, drillResult, drillAnnuityResult, drillLoading, drillError, onRun }: {
   drillYear: number;
   setDrillYear: (y: number) => void;
+  drillView: 'without' | 'with';
+  setDrillView: (v: 'without' | 'with') => void;
   drillResult: SimulationResponse | null;
   drillAnnuityResult: SimulationResponse | null;
   drillLoading: boolean;
   drillError: string | null;
   onRun: (year: number) => void;
 }) {
-  const [drillView, setDrillView] = React.useState<'without' | 'with'>('without');
   const showToggle = !!drillAnnuityResult;
   const activeResult = showToggle && drillView === 'with' ? drillAnnuityResult : drillResult;
 
@@ -310,6 +311,7 @@ export default function App() {
 
   // ── Drill-down ─────────────────────────────────────────────────────────────
   const [drillYear, setDrillYear] = useState<number>(1970);
+  const [drillView, setDrillView] = useState<'without' | 'with'>('without');
   const [drillResult, setDrillResult] = useState<SimulationResponse | null>(null);
   const [drillLoading, setDrillLoading] = useState(false);
   const [drillError, setDrillError] = useState<string | null>(null);
@@ -327,6 +329,7 @@ export default function App() {
     setCompareResult(null);
     setDrillResult(null);
     setDrillAnnuityResult(null);
+    setDrillView('without');
     try {
       const manualFields = allocMode === 'manual' ? {
         manualAllocations: true,
@@ -359,11 +362,15 @@ export default function App() {
           annuityPercentage: annuityPct / 100,
           annuityCap,
         };
-        setCompareResult(await runCompare(req));
+        const compareRes = await runCompare(req);
+        setCompareResult(compareRes);
         setStatScenario('without');
+        setDrillYear(compareRes.withoutAnnuity.scenarios[0]?.startYear ?? 1970);
       } else {
         const req: AllScenariosRequest = base;
-        setResult(await runAllScenarios(req));
+        const allRes = await runAllScenarios(req);
+        setResult(allRes);
+        setDrillYear(allRes.scenarios[0]?.startYear ?? 1970);
       }
 
       setResultsStale(false);
@@ -375,9 +382,10 @@ export default function App() {
     }
   }
 
-  async function handleDrill(year: number, currentCompareResult?: typeof compareResult) {
+  async function handleDrill(year: number, scenario?: 'without' | 'with', currentCompareResult?: typeof compareResult) {
     const activeCompare = currentCompareResult ?? compareResult;
     setDrillYear(year);
+    if (scenario !== undefined) setDrillView(scenario);
     setDrillLoading(true);
     setDrillError(null);
     try {
@@ -748,11 +756,12 @@ export default function App() {
               <button className={`chart-toggle-btn ${chartView === 'both' ? 'active' : ''}`} onClick={() => setChartView('both')}>Show Both</button>
               <button className={`chart-toggle-btn ${incomeMode ? 'active' : ''}`} onClick={() => setIncomeMode(v => !v)}>Income</button>
             </div>
-            {(chartView === 'scatter' || chartView === 'both') && <OutcomesChart scenarios={result.scenarios} yearCount={result.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} />}
-            {(chartView === 'heatmap' || chartView === 'both') && <OutcomesHeatmap scenarios={result.scenarios} yearCount={result.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} />}
+            {(chartView === 'scatter' || chartView === 'both') && <OutcomesChart scenarios={result.scenarios} yearCount={result.yearCount} onYearClick={(year) => handleDrill(year, 'without')} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} />}
+            {(chartView === 'heatmap' || chartView === 'both') && <OutcomesHeatmap scenarios={result.scenarios} yearCount={result.yearCount} onYearClick={(year) => handleDrill(year, 'without')} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} />}
 
             <DrillSection
               drillYear={drillYear} setDrillYear={setDrillYear}
+              drillView={drillView} setDrillView={setDrillView}
               drillResult={drillResult} drillAnnuityResult={null}
               drillLoading={drillLoading} drillError={drillError}
               onRun={handleDrill}
@@ -782,21 +791,20 @@ export default function App() {
               <h3 className="compare-section-label">Without Annuity</h3>
               <button className={`chart-toggle-btn ${incomeMode ? 'active' : ''}`} onClick={() => setIncomeMode(v => !v)}>Income</button>
             </div>
-            <OutcomesChart scenarios={compareResult.withoutAnnuity.scenarios} yearCount={compareResult.withoutAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} />
-            <OutcomesHeatmap scenarios={compareResult.withoutAnnuity.scenarios} yearCount={compareResult.withoutAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} />
+            <OutcomesChart scenarios={compareResult.withoutAnnuity.scenarios} yearCount={compareResult.withoutAnnuity.yearCount} onYearClick={(year) => handleDrill(year, 'without')} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} />
+            <OutcomesHeatmap scenarios={compareResult.withoutAnnuity.scenarios} yearCount={compareResult.withoutAnnuity.yearCount} onYearClick={(year) => handleDrill(year, 'without')} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} />
 
             <h3 className="compare-section-label">With Annuity</h3>
-            <OutcomesChart scenarios={compareResult.withAnnuity.scenarios} yearCount={compareResult.withAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={true} />
-            <OutcomesHeatmap scenarios={compareResult.withAnnuity.scenarios} yearCount={compareResult.withAnnuity.yearCount} onYearClick={handleDrill} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={true} />
+            <OutcomesChart scenarios={compareResult.withAnnuity.scenarios} yearCount={compareResult.withAnnuity.yearCount} onYearClick={(year) => handleDrill(year, 'with')} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={true} />
+            <OutcomesHeatmap scenarios={compareResult.withAnnuity.scenarios} yearCount={compareResult.withAnnuity.yearCount} onYearClick={(year) => handleDrill(year, 'with')} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={true} />
 
-            {drillResult && (
-              <DrillSection
-                drillYear={drillYear} setDrillYear={setDrillYear}
-                drillResult={drillResult} drillAnnuityResult={drillAnnuityResult}
-                drillLoading={drillLoading} drillError={drillError}
-                onRun={handleDrill}
-              />
-            )}
+            <DrillSection
+              drillYear={drillYear} setDrillYear={setDrillYear}
+              drillView={drillView} setDrillView={setDrillView}
+              drillResult={drillResult} drillAnnuityResult={drillAnnuityResult}
+              drillLoading={drillLoading} drillError={drillError}
+              onRun={handleDrill}
+            />
 
             <SorrExplainer result={compareResult.withAnnuity} />
           </div>
