@@ -479,7 +479,7 @@ export default function App() {
         <div className="header-inner">
           <span className="header-logo">◈</span>
           <div>
-            <h1>Sequence of Returns Risk</h1>
+            <h1>SORR and More!</h1>
             <p className="header-sub">How much does your retirement start year matter? More than you think.</p>
           </div>
         </div>
