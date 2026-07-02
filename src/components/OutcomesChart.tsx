@@ -22,6 +22,7 @@ function fmt$(n: number) {
 
 function getDisplayValue(s: ScenarioSummary, incomeMode: boolean, annuityMode: boolean): number {
   if (!incomeMode) return s.endingBalance;
+  if (s.failed) return 0;
   return annuityMode ? (s.finalTotalIncome ?? 0) : (s.finalWithdrawal ?? 0);
 }
 
@@ -30,6 +31,14 @@ export default function OutcomesChart({ scenarios, yearCount, onYearClick, selec
     if (!active || !payload?.length) return null;
     const d: ScenarioSummary & { y: number } = payload[0].payload;
     if (incomeMode) {
+      if (d.failed) {
+        return (
+          <div className="chart-tooltip">
+            <p className="tooltip-year">Started {d.startYear}</p>
+            <p>Portfolio <strong style={{ color: '#ef4444' }}>exhausted</strong></p>
+          </div>
+        );
+      }
       const label = annuityMode ? 'Total income' : 'Withdrawal';
       return (
         <div className="chart-tooltip">

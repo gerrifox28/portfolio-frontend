@@ -17,6 +17,7 @@ function fmt$(n: number) {
 }
 
 function getDisplayValue(s: ScenarioSummary, annuityMode: boolean): number {
+  if (s.failed) return 0;
   return annuityMode ? (s.finalTotalIncome ?? 0) : (s.finalWithdrawal ?? 0);
 }
 
