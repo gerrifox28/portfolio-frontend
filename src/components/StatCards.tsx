@@ -1,7 +1,7 @@
 import React from 'react';
 import { AllScenariosResponse } from '../types';
 
-interface Props { result: AllScenariosResponse; }
+interface Props { result: AllScenariosResponse; allYearsMode?: boolean; }
 
 function fmt$(n: number) {
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
@@ -9,12 +9,13 @@ function fmt$(n: number) {
   return `$${Math.round(n).toLocaleString()}`;
 }
 
-export default function StatCards({ result }: Props) {
+export default function StatCards({ result, allYearsMode = false }: Props) {
   const { failureCount, totalScenarios, failureRate, earliestFailureYears,
         highestEndingBalance, averageEndingBalance, yearCount } = result;
 
   const adjHighest = highestEndingBalance;
-  const adjAverage = averageEndingBalance;
+  const allYearsAverage = result.scenarios.reduce((sum, s) => sum + s.endingBalance, 0) / result.totalScenarios;
+  const adjAverage = allYearsMode ? allYearsAverage : averageEndingBalance;
 
   const cards = [
     {
@@ -45,7 +46,7 @@ export default function StatCards({ result }: Props) {
       icon: '📊',
       label: `Average Balance After ${yearCount} Years`,
       value: fmt$(adjAverage),
-      sub: 'Mean ending balance among surviving scenarios',
+      sub: allYearsMode ? 'Mean ending balance among all scenarios' : 'Mean ending balance among surviving scenarios',
     },
   ];
 
