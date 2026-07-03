@@ -20,9 +20,11 @@ export default function StatCards({ result, allYearsMode = false, annuityMode = 
   const bestIncome = Math.max(...result.scenarios.map(s =>
     s.failed ? 0 : (annuityMode ? (s.finalTotalIncome ?? 0) : (s.finalWithdrawal ?? 0))
   ));
-  const avgAnnualIncome = annuityMode
-    ? (result.averageAnnualTotalIncome ?? 0)
-    : (result.averageAnnualWithdrawal ?? 0);
+  const avgAnnualIncome = result.totalScenarios > 0
+    ? result.scenarios.reduce((sum, s) =>
+        sum + (s.failed ? 0 : (annuityMode ? (s.finalTotalIncome ?? 0) : (s.finalWithdrawal ?? 0))), 0
+      ) / result.totalScenarios
+    : 0;
 
   const cards = [
     {
