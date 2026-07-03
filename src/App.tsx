@@ -783,7 +783,7 @@ export default function App() {
             )}
             <div className="stat-scenario-toggle">
               <button className={`chart-toggle-btn ${statScenario === 'without' ? 'active' : ''}`} onClick={() => setStatScenario('without')}>Without Annuity</button>
-              <button className={`chart-toggle-btn ${statScenario === 'all' ? 'active' : ''}`} onClick={() => setStatScenario('all')}>All Years Without Annuity</button>
+              <button className={`chart-toggle-btn ${statScenario === 'all' ? 'active' : ''}`} onClick={() => setStatScenario('all')}>Average Balance, All Years Without Annuity</button>
               <button className={`chart-toggle-btn ${statScenario === 'with' ? 'active' : ''}`} onClick={() => setStatScenario('with')}>With Annuity</button>
             </div>
             <StatCards result={statScenario === 'with' ? compareResult.withAnnuity : compareResult.withoutAnnuity} allYearsMode={statScenario === 'all'} annuityMode={statScenario === 'with'} />
