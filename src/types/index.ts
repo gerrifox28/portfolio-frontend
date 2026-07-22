@@ -6,6 +6,7 @@ export interface CashFlow {
   yearStart: number | null;
   yearEnd: number | null;
   inflationAdj: 'none' | 'full' | 'half';
+  type: 'income' | 'cashflow';
 }
 
 export interface SimulationRequest {
@@ -42,6 +43,7 @@ export interface YearResult {
   annuityPayment?: number;
   inflationAdjPct?: number;
   cashFlowApplied: number;
+  incomeApplied: number;
 }
 
 export interface SimulationResponse {

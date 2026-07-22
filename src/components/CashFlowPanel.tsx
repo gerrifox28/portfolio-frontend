@@ -14,11 +14,16 @@ interface NewFlowState {
   year: string;
   allYears: boolean;
   inflationAdj: 'none' | 'full' | 'half';
+  type: 'income' | 'cashflow';
 }
 
 const BLANK: NewFlowState = {
-  description: '', amount: '', year: '', allYears: false, inflationAdj: 'none',
+  description: '', amount: '', year: '', allYears: false, inflationAdj: 'none', type: 'cashflow',
 };
+
+function typeLabel(t: 'income' | 'cashflow' | undefined): string {
+  return t === 'income' ? 'Income' : 'Cash Flow';
+}
 
 function fmt$(n: number) {
   const abs = Math.abs(n);
@@ -70,6 +75,7 @@ export default function CashFlowPanel({ cashFlows, onChange, maxYear, offendingI
   const [editYear, setEditYear] = useState('');
   const [editAllYears, setEditAllYears] = useState(false);
   const [editInflAdj, setEditInflAdj] = useState<'none' | 'full' | 'half'>('none');
+  const [editType, setEditType] = useState<'income' | 'cashflow'>('cashflow');
   const [editErr, setEditErr] = useState('');
 
   function handleStartEdit(cf: CashFlow) {
@@ -79,6 +85,7 @@ export default function CashFlowPanel({ cashFlows, onChange, maxYear, offendingI
     setEditAllYears(cf.allYears);
     setEditYear(cf.allYears ? '' : cf.yearStart === cf.yearEnd ? String(cf.yearStart) : `${cf.yearStart}-${cf.yearEnd}`);
     setEditInflAdj(cf.inflationAdj ?? 'none');
+    setEditType(cf.type ?? 'cashflow');
     setEditErr('');
   }
 
@@ -108,6 +115,7 @@ export default function CashFlowPanel({ cashFlows, onChange, maxYear, offendingI
         yearStart,
         yearEnd,
         inflationAdj: editInflAdj,
+        type: editType,
       } : cf
     ));
     setEditingId(null);
@@ -153,6 +161,7 @@ export default function CashFlowPanel({ cashFlows, onChange, maxYear, offendingI
       yearStart,
       yearEnd,
       inflationAdj: flow.inflationAdj,
+      type: flow.type,
     }]);
     setFlow(BLANK);
   }
@@ -204,6 +213,17 @@ export default function CashFlowPanel({ cashFlows, onChange, maxYear, offendingI
               />
             </div>
 
+            <div className="cashflow-field cashflow-field--type">
+              <label>Type</label>
+              <select
+                value={flow.type}
+                onChange={e => update({ type: e.target.value as 'income' | 'cashflow' })}
+              >
+                <option value="cashflow">Cash Flow</option>
+                <option value="income">Income</option>
+              </select>
+            </div>
+
             <div className="cashflow-field cashflow-field--allyears">
               <label>All Years</label>
               <input
@@ -238,6 +258,7 @@ export default function CashFlowPanel({ cashFlows, onChange, maxYear, offendingI
                   <th>Description</th>
                   <th>Year(s)</th>
                   <th>Amount</th>
+                  <th>Type</th>
                   <th>Inflation Adj.</th>
                   <th>Actions</th>
                 </tr>
@@ -282,6 +303,19 @@ export default function CashFlowPanel({ cashFlows, onChange, maxYear, offendingI
                           <input type="text" className="cashflow-edit-input cashflow-edit-amount"
                             value={editAmount} onChange={e => setEditAmount(e.target.value.replace(/[^0-9,.-]/g, ''))} />
                         ) : fmt$(cf.amount)}
+                      </td>
+
+                      {/* Type */}
+                      <td>
+                        {isEditing ? (
+                          <select className="cashflow-edit-select" value={editType}
+                            onChange={e => setEditType(e.target.value as 'income' | 'cashflow')}>
+                            <option value="cashflow">Cash Flow</option>
+                            <option value="income">Income</option>
+                          </select>
+                        ) : (
+                          <span className="dim">{typeLabel(cf.type)}</span>
+                        )}
                       </td>
 
                       {/* Inflation Adj */}

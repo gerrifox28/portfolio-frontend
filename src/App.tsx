@@ -140,6 +140,7 @@ export default function App() {
         ...cf,
         amount: isNaN(parseFloat(String(cf.amount))) ? 0 : parseFloat(String(cf.amount)),
         inflationAdj: cf.inflationAdj ?? 'none',
+        type: cf.type ?? 'cashflow',
         yearStart,
         yearEnd,
       };

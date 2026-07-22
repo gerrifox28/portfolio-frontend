@@ -23,6 +23,7 @@ function TableContent({ data, showAnnuityColumns }: { data: YearResult[]; showAn
           <th>Year</th>
           <th>Begin Balance</th>
           <th>Withdrawal</th>
+          <th>Income</th>
           <th>Cash Flows</th>
           <th>Return %</th>
           <th>Return $</th>
@@ -31,8 +32,8 @@ function TableContent({ data, showAnnuityColumns }: { data: YearResult[]; showAn
           {showAnnuityColumns && <>
             <th>Annuity Pmt</th>
             <th>Inf Adj %</th>
-            <th>Total Income</th>
           </>}
+          <th>Total Income</th>
         </tr>
       </thead>
       <tbody>
@@ -42,6 +43,9 @@ function TableContent({ data, showAnnuityColumns }: { data: YearResult[]; showAn
             <td className="bold">{r.year}</td>
             <td>{fmt$(r.portfolioBeginning)}</td>
             <td className="dim">{fmt$(r.annualWithdrawal)}</td>
+            <td className={(() => { const v = r.incomeApplied ?? 0; return v > 0 ? 'positive' : v < 0 ? 'negative' : 'dim'; })()}>
+              {(() => { const v = isNaN(r.incomeApplied) ? 0 : (r.incomeApplied ?? 0); return `${v >= 0 ? '+' : ''}${fmt$(v)}`; })()}
+            </td>
             <td className={(() => { const v = r.cashFlowApplied ?? 0; return v > 0 ? 'positive' : v < 0 ? 'negative' : 'dim'; })()}>
               {(() => { const v = isNaN(r.cashFlowApplied) ? 0 : (r.cashFlowApplied ?? 0); return `${v >= 0 ? '+' : ''}${fmt$(v)}`; })()}
             </td>
@@ -58,8 +62,8 @@ function TableContent({ data, showAnnuityColumns }: { data: YearResult[]; showAn
             {showAnnuityColumns && <>
               <td className="positive">{fmt$(r.annuityPayment ?? 0)}</td>
               <td className="dim">{r.sequenceNumber === 1 ? '—' : fmtPct(r.inflationAdjPct ?? 0)}</td>
-              <td className="bold">{fmt$(r.totalIncome)}</td>
             </>}
+            <td className="bold">{fmt$(r.totalIncome)}</td>
           </tr>
         ))}
       </tbody>
