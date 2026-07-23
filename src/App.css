@@ -1339,84 +1339,6 @@ body {
   margin: 0;
   color: var(--text-dim);
 }
-.table-expand-btn {
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text-muted);
-  font-size: 11px;
-  padding: 4px 10px;
-  cursor: pointer;
-  letter-spacing: 0.02em;
-  transition: border-color 0.15s, color 0.15s;
-}
-.table-expand-btn:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-/* ── Table modal ── */
-.table-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.72);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-}
-.table-modal {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  width: min(1400px, 96vw);
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
-}
-.table-modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
-.table-modal-title {
-  font-family: var(--font-display);
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--text-dim);
-  letter-spacing: 0.02em;
-}
-.table-modal-close {
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text-muted);
-  font-size: 13px;
-  width: 28px;
-  height: 28px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: border-color 0.15s, color 0.15s;
-}
-.table-modal-close:hover {
-  border-color: var(--danger, #f87171);
-  color: var(--danger, #f87171);
-}
-.table-modal-scroll {
-  overflow: auto;
-  flex: 1;
-}
-/* In the modal the table uses larger font; sticky columns are preserved */
-.table-modal-scroll .results-table {
-  font-size: 13px;
-}
 .table-scroll {
   overflow-x: auto;
   border: 1px solid var(--border);
@@ -1496,17 +1418,3 @@ body {
 .results-table .positive { color: #4ade80; }
 .results-table .negative { color: #f87171; }
 .results-table .row-exhausted td { background: rgba(239,68,68,0.07); }
-.expand-btn {
-  margin-top: 10px;
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text-muted);
-  font-family: var(--font-mono);
-  font-size: 12px;
-  padding: 7px 16px;
-  cursor: pointer;
-  width: 100%;
-  transition: border-color 0.15s, color 0.15s;
-}
-.expand-btn:hover { border-color: var(--border-hover); color: var(--text); }

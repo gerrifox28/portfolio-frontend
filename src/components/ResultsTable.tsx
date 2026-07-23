@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React from 'react';
 import { YearResult } from '../types';
 
 interface Props {
@@ -72,55 +72,14 @@ function TableContent({ data, showAnnuityColumns }: { data: YearResult[]; showAn
 }
 
 export default function ResultsTable({ data, showAnnuityColumns = false }: Props) {
-  const [expanded, setExpanded] = useState(false);
-  const [modal, setModal] = useState(false);
-  const rows = expanded ? data : data.slice(0, 15);
-
-  const closeModal = useCallback(() => setModal(false), []);
-
-  useEffect(() => {
-    if (!modal) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeModal(); };
-    document.addEventListener('keydown', onKey);
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.removeEventListener('keydown', onKey);
-      document.body.style.overflow = '';
-    };
-  }, [modal, closeModal]);
-
   return (
-    <>
-      <div className="results-table-wrap">
-        <div className="results-table-header">
-          <h3>Year-by-Year Detail</h3>
-          <button className="table-expand-btn" onClick={() => setModal(true)} title="Open full view">
-            ⤢ Full view
-          </button>
-        </div>
-        <div className="table-scroll">
-          <TableContent data={rows} showAnnuityColumns={showAnnuityColumns} />
-        </div>
-        {data.length > 15 && (
-          <button className="expand-btn" onClick={() => setExpanded(e => !e)}>
-            {expanded ? '▲ Show less' : `▼ Show all ${data.length} years`}
-          </button>
-        )}
+    <div className="results-table-wrap">
+      <div className="results-table-header">
+        <h3>Year-by-Year Detail</h3>
       </div>
-
-      {modal && (
-        <div className="table-modal-overlay" onClick={closeModal}>
-          <div className="table-modal" onClick={e => e.stopPropagation()}>
-            <div className="table-modal-header">
-              <span className="table-modal-title">Year-by-Year Detail</span>
-              <button className="table-modal-close" onClick={closeModal}>✕</button>
-            </div>
-            <div className="table-modal-scroll">
-              <TableContent data={data} showAnnuityColumns={showAnnuityColumns} />
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+      <div className="table-scroll">
+        <TableContent data={data} showAnnuityColumns={showAnnuityColumns} />
+      </div>
+    </div>
   );
 }
