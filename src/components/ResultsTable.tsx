@@ -30,6 +30,7 @@ function TableContent({ data, showAnnuityColumns }: { data: YearResult[]; showAn
           <th>Inflation</th>
           <th>End Balance</th>
           {showAnnuityColumns && <>
+            <th>Annuity Bal</th>
             <th>Annuity Pmt</th>
             <th>Inf Adj %</th>
           </>}
@@ -60,6 +61,7 @@ function TableContent({ data, showAnnuityColumns }: { data: YearResult[]; showAn
               {fmt$(r.portfolioEnd)}
             </td>
             {showAnnuityColumns && <>
+              <td className="dim">{fmt$(r.annuityBalance ?? 0)}</td>
               <td className="positive">{fmt$(r.annuityPayment ?? 0)}</td>
               <td className="dim">{r.sequenceNumber === 1 ? '—' : fmtPct(r.inflationAdjPct ?? 0)}</td>
             </>}

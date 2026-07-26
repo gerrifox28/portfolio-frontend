@@ -26,6 +26,8 @@ export interface SimulationRequest {
   yearCount?: number;
   annuityInitialIncome?: number;
   annuityCap?: number;
+  annuityPurchaseAmount?: number;
+  deferralGrowthRate?: number;
   cashFlows?: CashFlow[];
   incomeStartYear?: number;
 }
@@ -41,6 +43,7 @@ export interface YearResult {
   totalIncome: number;
   portfolioEnd: number;
   annuityPayment?: number;
+  annuityBalance?: number;
   inflationAdjPct?: number;
   cashFlowApplied: number;
   incomeApplied: number;

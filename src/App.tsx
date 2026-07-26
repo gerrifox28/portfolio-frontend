@@ -445,6 +445,8 @@ export default function App() {
           ...baseAlloc,
           annuityInitialIncome: activeCompare.initialAnnuityIncome,
           annuityCap,
+          annuityPurchaseAmount: effectiveNestEgg * annuityPct / 100,
+          deferralGrowthRate,
         }) : Promise.resolve(null),
       ]);
 
