@@ -175,6 +175,7 @@ export default function App() {
       joint,
       annuityPct,
       annuityCap,
+      deferralGrowthRate,
       cashFlows,
       assets,
       assetBreakdownOpen,
@@ -245,6 +246,7 @@ export default function App() {
         setJoint(d.joint ?? false);
         setAnnuityPct(d.annuityPct ?? 30);
         setAnnuityCap(d.annuityCap ?? 0.03);
+        setDeferralGrowthRate(d.deferralGrowthRate ?? 0.03);
         setCashFlows(d.cashFlows ?? []);
         setAssets(d.assets ?? []);
         setAssetBreakdownOpen(d.assetBreakdownOpen ?? false);
@@ -320,6 +322,9 @@ export default function App() {
   // ── Annuity cap ────────────────────────────────────────────────────────────
   const [annuityCap, setAnnuityCap] = useState(0.03);
 
+  // ── Annuity deferral growth rate ────────────────────────────────────────────
+  const [deferralGrowthRate, setDeferralGrowthRate] = useState(0.03);
+
   // ── Annuity drill result ───────────────────────────────────────────────────
   const [drillAnnuityResult, setDrillAnnuityResult] = useState<SimulationResponse | null>(null);
 
@@ -362,6 +367,7 @@ export default function App() {
           joint,
           annuityPercentage: annuityPct / 100,
           annuityCap,
+          deferralGrowthRate,
         };
         const compareRes = await runCompare(req);
         setCompareResult(compareRes);
@@ -697,6 +703,18 @@ export default function App() {
                       <option value={0.05}>5% / year</option>
                     </select>
                     <span className="field-note">Max annual annuity income increase</span>
+                  </div>
+
+                  <div className="adv-input-group">
+                    <label>Deferral Growth Rate</label>
+                    <select className="withdrawal-mode-select" value={deferralGrowthRate} onChange={e => setDeferralGrowthRate(parseFloat(e.target.value))}>
+                      <option value={0.01}>1% / year</option>
+                      <option value={0.02}>2% / year</option>
+                      <option value={0.03}>3% / year</option>
+                      <option value={0.04}>4% / year</option>
+                      <option value={0.05}>5% / year</option>
+                    </select>
+                    <span className="field-note">Growth of the annuitized amount between purchase and Income Start Year</span>
                   </div>
 
                   <div className="adv-input-group">

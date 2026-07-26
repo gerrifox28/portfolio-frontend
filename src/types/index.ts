@@ -130,6 +130,7 @@ export interface AnnuityCompareRequest {
   annuityPercentage: number;
   withdrawalMode: string;
   annuityCap: number;
+  deferralGrowthRate: number;
   manualAllocations?: boolean;
   mSp500?: number;
   mCrsp1_10?: number;
