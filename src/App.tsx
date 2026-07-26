@@ -9,7 +9,7 @@ import PortfolioChart from './components/PortfolioChart';
 import ResultsTable from './components/ResultsTable';
 import CashFlowPanel from './components/CashFlowPanel';
 import AssetBreakdownPanel, { Asset } from './components/AssetBreakdownPanel';
-import ClientInformation, { Person } from './components/ClientInformation';
+import ClientInformation, { Person, calculateAge } from './components/ClientInformation';
 import './App.css';
 import { SimulationRequest, SimulationResponse } from './types';
 
@@ -105,9 +105,17 @@ export default function App() {
 
   // ── Annuity inputs ─────────────────────────────────────────────────────────
   const [showAnnuity, setShowAnnuity] = useState(false);
-  const [age, setAge] = useState(65);
   const [joint, setJoint] = useState(false);
   const [annuityPct, setAnnuityPct] = useState(30); // displayed as whole number
+
+  // Annuity age is derived from Client Information DOBs, not manually entered.
+  // Joint coverage uses the younger of the two ages (payments must last as long
+  // as the longer-lived spouse); Single uses Person 1's age.
+  const person1Age = calculateAge(person1.dob);
+  const person2Age = calculateAge(person2.dob);
+  const age = joint
+    ? (person1Age !== null && person2Age !== null ? Math.min(person1Age, person2Age) : (person1Age ?? person2Age ?? 65))
+    : (person1Age ?? 65);
 
   // ── Results ────────────────────────────────────────────────────────────────
   const [result, setResult] = useState<AllScenariosResponse | null>(null);
@@ -242,7 +250,6 @@ export default function App() {
         setAllocMode(d.allocMode ?? 'auto');
         if (d.manualAlloc) setManualAlloc(d.manualAlloc);
         setShowAnnuity(d.showAnnuity ?? false);
-        setAge(d.age ?? 65);
         setJoint(d.joint ?? false);
         setAnnuityPct(d.annuityPct ?? 30);
         setAnnuityCap(d.annuityCap ?? 0.03);
@@ -683,10 +690,14 @@ export default function App() {
               {showAnnuity && (
                 <div className="annuity-grid">
                   <div className="adv-input-group">
-                    <label>Your Age</label>
-                    <input type="number" value={age} min={49} max={80} step={1}
-                      onChange={e => setAge(parseInt(e.target.value) || 65)} />
-                    <span className="field-note">Ages 49–80 supported</span>
+                    <label>Annuity Age</label>
+                    <input type="text" value={String(age)} readOnly disabled className="age-readonly" />
+                    <span className="field-note">
+                      {joint ? 'Younger of Person 1 / Person 2' : "Person 1's age"} (from Client Information) · Ages 49–80 supported
+                    </span>
+                    {(age < 49 || age > 80) && (
+                      <p className="client-field-error">Age must be between 49 and 80 — check Client Information DOBs.</p>
+                    )}
                   </div>
 
                   <div className="adv-input-group">

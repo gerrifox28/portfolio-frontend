@@ -5,7 +5,7 @@ export interface Person {
   dob: string;
 }
 
-function calculateAge(dobString: string): number | null {
+export function calculateAge(dobString: string): number | null {
   if (!dobString) return null;
   const [month, day, year] = dobString.split('/').map(Number);
   if (!month || !day || !year) return null;
