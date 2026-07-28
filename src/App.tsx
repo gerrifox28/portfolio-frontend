@@ -724,6 +724,9 @@ export default function App() {
                   <div className="adv-input-group">
                     <label>Annuity COLA Cap</label>
                     <select className="withdrawal-mode-select" value={annuityCap} onChange={e => setAnnuityCap(parseFloat(e.target.value))}>
+                      <option value={0}>0% / year</option>
+                      <option value={0.01}>1% / year</option>
+                      <option value={0.02}>2% / year</option>
                       <option value={0.03}>3% / year</option>
                       <option value={0.04}>4% / year</option>
                       <option value={0.05}>5% / year</option>
