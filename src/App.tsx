@@ -332,6 +332,19 @@ export default function App() {
   // ── Annuity deferral growth rate ────────────────────────────────────────────
   const [deferralGrowthRate, setDeferralGrowthRate] = useState(0.03);
 
+  // Any change to a simulation input other than cash flows/assets (which mark stale
+  // via their own handlers) must also invalidate the displayed results — otherwise
+  // the table can silently keep showing numbers from a previous, different run.
+  const isFirstInputRender = useRef(true);
+  useEffect(() => {
+    if (isFirstInputRender.current) { isFirstInputRender.current = false; return; }
+    setResultsStale(true);
+  }, [
+    nestEgg, withdrawal, incomeStartYear, yearCount, expensesFee, withdrawalMode,
+    stockPct, allocMode, manualAlloc, showAnnuity, joint, annuityPct, annuityCap,
+    deferralGrowthRate, age,
+  ]);
+
   // ── Annuity drill result ───────────────────────────────────────────────────
   const [drillAnnuityResult, setDrillAnnuityResult] = useState<SimulationResponse | null>(null);
 
@@ -757,7 +770,7 @@ export default function App() {
 
             {resultsStale && (result || compareResult) && (
               <div className="stale-warning" style={{ gridColumn: '1 / -1' }}>
-                ⚠ Cash flows have changed — re-run to see updated results.
+                ⚠ Inputs have changed — re-run to see updated results.
               </div>
             )}
 
@@ -778,7 +791,7 @@ export default function App() {
           <div className="results-inner">
             {resultsStale && (
               <div className="stale-warning">
-                ⚠ Cash flows have changed — re-run to see updated results.
+                ⚠ Inputs have changed — re-run to see updated results.
               </div>
             )}
             <StatCards result={result} />
@@ -810,7 +823,7 @@ export default function App() {
           <div className="results-inner">
             {resultsStale && (
               <div className="stale-warning">
-                ⚠ Cash flows have changed — re-run to see updated results.
+                ⚠ Inputs have changed — re-run to see updated results.
               </div>
             )}
             <div className="stat-scenario-toggle">
