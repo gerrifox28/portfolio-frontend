@@ -119,6 +119,7 @@ export interface AllScenariosResponse {
   averageEndingBalance: number;
   averageAnnualWithdrawal: number;
   averageAnnualTotalIncome: number;
+  averageIncomeAtStartYear: number;
   worstStartYear: number;
   bestStartYear: number;
   yearCount: number;

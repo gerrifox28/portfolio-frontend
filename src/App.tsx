@@ -907,7 +907,10 @@ export default function App() {
                 </React.Fragment>
               ) : (
                 <React.Fragment key="with">
-                  <h3 className="compare-section-label">With Annuity</h3>
+                  <h3 className="compare-section-label">
+                    With Annuity
+                    {annuitizeDeployed && ` (Avg. Total Income at Start: $${Math.round(compareResult.withAnnuity.averageIncomeAtStartYear).toLocaleString()})`}
+                  </h3>
                   <OutcomesChart scenarios={compareResult.withAnnuity.scenarios} yearCount={compareResult.withAnnuity.yearCount} onYearClick={(year) => handleDrill(year, 'with')} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={true} />
                   <OutcomesHeatmap scenarios={compareResult.withAnnuity.scenarios} yearCount={compareResult.withAnnuity.yearCount} onYearClick={(year) => handleDrill(year, 'with')} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={true} />
                 </React.Fragment>
