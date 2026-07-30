@@ -1280,7 +1280,8 @@ body {
   padding-bottom: 8px;
   border-bottom: 1px solid var(--border);
 }
-.compare-income-toggle {
+.compare-income-toggle,
+.stat-toggle-row {
   display: flex;
   justify-content: flex-end;
   margin: 12px 0 0;

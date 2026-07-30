@@ -125,6 +125,7 @@ export default function App() {
   const [chartView, setChartView] = useState<'scatter' | 'heatmap' | 'both'>('both');
   const [incomeMode, setIncomeMode] = useState(false);
   const [statScenario, setStatScenario] = useState<'without' | 'with' | 'all'>('without');
+  const [showStatCards, setShowStatCards] = useState(true);
   const [cashFlows, setCashFlows] = useState<CashFlow[]>([]);
   const [assets, setAssets] = useState<Asset[]>([]);
   const [assetBreakdownOpen, setAssetBreakdownOpen] = useState(false);
@@ -797,7 +798,10 @@ export default function App() {
                 ⚠ Inputs have changed — re-run to see updated results.
               </div>
             )}
-            <StatCards result={result} />
+            <div className="stat-toggle-row">
+              <button className="chart-toggle-btn" onClick={() => setShowStatCards(v => !v)}>{showStatCards ? 'Hide Stat Cards' : 'Show Stat Cards'}</button>
+            </div>
+            {showStatCards && <StatCards result={result} />}
             <div className="chart-toggle">
               <button className={`chart-toggle-btn ${chartView === 'scatter' ? 'active' : ''}`} onClick={() => setChartView('scatter')}>Scatter Plot</button>
               <button className={`chart-toggle-btn ${chartView === 'heatmap' ? 'active' : ''}`} onClick={() => setChartView('heatmap')}>Outcomes Grid</button>
@@ -834,7 +838,10 @@ export default function App() {
               <button className={`chart-toggle-btn ${statScenario === 'all' ? 'active' : ''}`} onClick={() => setStatScenario('all')}>Average Balance, All Years Without Annuity</button>
               <button className={`chart-toggle-btn ${statScenario === 'with' ? 'active' : ''}`} onClick={() => setStatScenario('with')}>With Annuity</button>
             </div>
-            <StatCards result={statScenario === 'with' ? compareResult.withAnnuity : compareResult.withoutAnnuity} allYearsMode={statScenario === 'all'} annuityMode={statScenario === 'with'} />
+            <div className="stat-toggle-row">
+              <button className="chart-toggle-btn" onClick={() => setShowStatCards(v => !v)}>{showStatCards ? 'Hide Stat Cards' : 'Show Stat Cards'}</button>
+            </div>
+            {showStatCards && <StatCards result={statScenario === 'with' ? compareResult.withAnnuity : compareResult.withoutAnnuity} allYearsMode={statScenario === 'all'} annuityMode={statScenario === 'with'} />}
 
             <div className="compare-income-toggle">
               <button className={`chart-toggle-btn ${incomeMode ? 'active' : ''}`} onClick={() => setIncomeMode(v => !v)}>Income</button>
