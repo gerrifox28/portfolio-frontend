@@ -1144,6 +1144,22 @@ body {
 .coverage-btn:last-child  { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; border-left: none; }
 .coverage-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
+.annuitize-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.annuitize-btn:hover { border-color: var(--accent); color: var(--accent); }
+.annuitize-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
 /* ── Comparison Charts ── */
 .compare-container {
   background: var(--surface);

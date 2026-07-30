@@ -103,6 +103,38 @@ export default function App() {
   }
   function parseAlloc(v: string) { return parseFloat(v) || 0; }
 
+  // ── "Annuitize 90%" preset ─────────────────────────────────────────────────
+  // Overrides Desired Year 1 Annual Income and Portfolio Allocation while
+  // deployed; reverts both to their pre-deploy values when toggled off.
+  const [annuitizeDeployed, setAnnuitizeDeployed] = useState(false);
+  const [preAnnuitizeSnapshot, setPreAnnuitizeSnapshot] = useState<{
+    withdrawal: string;
+    allocMode: 'auto' | 'manual';
+    manualAlloc: typeof manualAlloc;
+  } | null>(null);
+
+  function toggleAnnuitize() {
+    if (!annuitizeDeployed) {
+      setPreAnnuitizeSnapshot({ withdrawal, allocMode, manualAlloc });
+      setWithdrawal('1,000');
+      setAllocMode('manual');
+      setManualAlloc({
+        mSp500: '0', mCrsp1_10: '0', mCrsp6_10: '100',
+        mFfIntl: '0', mFfEmgMkts: '0', mDjUsReit: '0',
+        mOneMonth: '0', mFiveYearUS: '0',
+      });
+      setAnnuitizeDeployed(true);
+    } else {
+      if (preAnnuitizeSnapshot) {
+        setWithdrawal(preAnnuitizeSnapshot.withdrawal);
+        setAllocMode(preAnnuitizeSnapshot.allocMode);
+        setManualAlloc(preAnnuitizeSnapshot.manualAlloc);
+      }
+      setPreAnnuitizeSnapshot(null);
+      setAnnuitizeDeployed(false);
+    }
+  }
+
   // ── Annuity inputs ─────────────────────────────────────────────────────────
   const [showAnnuity, setShowAnnuity] = useState(false);
   const [joint, setJoint] = useState(false);
@@ -565,6 +597,21 @@ export default function App() {
                 open={assetBreakdownOpen}
                 onToggle={() => { setAssetBreakdownOpen(v => !v); setResultsStale(true); }}
               />
+            </div>
+
+            <div className="main-input-group full-width">
+              <button
+                type="button"
+                className={`annuitize-btn ${annuitizeDeployed ? 'active' : ''}`}
+                onClick={toggleAnnuitize}
+              >
+                {annuitizeDeployed ? '✓ Annuitize 90% — Deployed (click to revert)' : 'Annuitize 90%'}
+              </button>
+              {annuitizeDeployed && (
+                <p className="field-note">
+                  Desired Year 1 Annual Income set to $1,000 and Portfolio Allocation set to 100% CRSP 6-10. Click again to restore your previous values.
+                </p>
+              )}
             </div>
 
             <div className="main-input-group">
