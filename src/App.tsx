@@ -903,7 +903,9 @@ export default function App() {
                 <React.Fragment key="without">
                   <h3 className="compare-section-label">
                     Without Annuity
-                    {` (Avg. Total Income at Start: $${Math.round(compareResult.withoutAnnuity.averageIncomeAtStartYear).toLocaleString()})`}
+                    {annuitizeDeployed
+                      ? ' (Avg. Total Income at Start: N/A)'
+                      : ` (Avg. Total Income at Start: $${Math.round(compareResult.withoutAnnuity.averageIncomeAtStartYear).toLocaleString()})`}
                   </h3>
                   <OutcomesChart scenarios={compareResult.withoutAnnuity.scenarios} yearCount={compareResult.withoutAnnuity.yearCount} onYearClick={(year) => handleDrill(year, 'without')} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} />
                   <OutcomesHeatmap scenarios={compareResult.withoutAnnuity.scenarios} yearCount={compareResult.withoutAnnuity.yearCount} onYearClick={(year) => handleDrill(year, 'without')} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} />
