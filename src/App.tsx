@@ -901,7 +901,10 @@ export default function App() {
             {(statScenario === 'with' ? (['with', 'without'] as const) : (['without', 'with'] as const)).map((scenario) => (
               scenario === 'without' ? (
                 <React.Fragment key="without">
-                  <h3 className="compare-section-label">Without Annuity</h3>
+                  <h3 className="compare-section-label">
+                    Without Annuity
+                    {` (Avg. Total Income at Start: $${Math.round(compareResult.withoutAnnuity.averageIncomeAtStartYear).toLocaleString()})`}
+                  </h3>
                   <OutcomesChart scenarios={compareResult.withoutAnnuity.scenarios} yearCount={compareResult.withoutAnnuity.yearCount} onYearClick={(year) => handleDrill(year, 'without')} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} />
                   <OutcomesHeatmap scenarios={compareResult.withoutAnnuity.scenarios} yearCount={compareResult.withoutAnnuity.yearCount} onYearClick={(year) => handleDrill(year, 'without')} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} />
                 </React.Fragment>
@@ -909,7 +912,7 @@ export default function App() {
                 <React.Fragment key="with">
                   <h3 className="compare-section-label">
                     With Annuity
-                    {annuitizeDeployed && ` (Avg. Total Income at Start: $${Math.round(compareResult.withAnnuity.averageIncomeAtStartYear).toLocaleString()})`}
+                    {` (Avg. Total Income at Start: $${Math.round(compareResult.withAnnuity.averageIncomeAtStartYear).toLocaleString()})`}
                   </h3>
                   <OutcomesChart scenarios={compareResult.withAnnuity.scenarios} yearCount={compareResult.withAnnuity.yearCount} onYearClick={(year) => handleDrill(year, 'with')} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={true} />
                   <OutcomesHeatmap scenarios={compareResult.withAnnuity.scenarios} yearCount={compareResult.withAnnuity.yearCount} onYearClick={(year) => handleDrill(year, 'with')} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={true} />
