@@ -111,11 +111,12 @@ export default function App() {
     withdrawal: string;
     allocMode: 'auto' | 'manual';
     manualAlloc: typeof manualAlloc;
+    annuityPct: number;
   } | null>(null);
 
   function toggleAnnuitize() {
     if (!annuitizeDeployed) {
-      setPreAnnuitizeSnapshot({ withdrawal, allocMode, manualAlloc });
+      setPreAnnuitizeSnapshot({ withdrawal, allocMode, manualAlloc, annuityPct });
       setWithdrawal('1,000');
       setAllocMode('manual');
       setManualAlloc({
@@ -123,12 +124,15 @@ export default function App() {
         mFfIntl: '0', mFfEmgMkts: '0', mDjUsReit: '0',
         mOneMonth: '0', mFiveYearUS: '0',
       });
+      setAnnuityPct(90);
+      setShowAnnuity(true);
       setAnnuitizeDeployed(true);
     } else {
       if (preAnnuitizeSnapshot) {
         setWithdrawal(preAnnuitizeSnapshot.withdrawal);
         setAllocMode(preAnnuitizeSnapshot.allocMode);
         setManualAlloc(preAnnuitizeSnapshot.manualAlloc);
+        setAnnuityPct(preAnnuitizeSnapshot.annuityPct);
       }
       setPreAnnuitizeSnapshot(null);
       setAnnuitizeDeployed(false);
@@ -609,7 +613,7 @@ export default function App() {
               </button>
               {annuitizeDeployed && (
                 <p className="field-note">
-                  Desired Year 1 Annual Income set to $1,000 and Portfolio Allocation set to 100% CRSP 6-10. Click again to restore your previous values.
+                  Desired Year 1 Annual Income set to $1,000, Portfolio Allocation set to 100% CRSP 6-10, and % of Nest Egg to Annuitize set to 90%. Click again to restore your previous values.
                 </p>
               )}
             </div>
