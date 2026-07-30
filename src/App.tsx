@@ -836,16 +836,25 @@ export default function App() {
             </div>
             <StatCards result={statScenario === 'with' ? compareResult.withAnnuity : compareResult.withoutAnnuity} allYearsMode={statScenario === 'all'} annuityMode={statScenario === 'with'} />
 
-            <div className="compare-section-header">
-              <h3 className="compare-section-label">Without Annuity</h3>
+            <div className="compare-income-toggle">
               <button className={`chart-toggle-btn ${incomeMode ? 'active' : ''}`} onClick={() => setIncomeMode(v => !v)}>Income</button>
             </div>
-            <OutcomesChart scenarios={compareResult.withoutAnnuity.scenarios} yearCount={compareResult.withoutAnnuity.yearCount} onYearClick={(year) => handleDrill(year, 'without')} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} />
-            <OutcomesHeatmap scenarios={compareResult.withoutAnnuity.scenarios} yearCount={compareResult.withoutAnnuity.yearCount} onYearClick={(year) => handleDrill(year, 'without')} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} />
 
-            <h3 className="compare-section-label">With Annuity</h3>
-            <OutcomesChart scenarios={compareResult.withAnnuity.scenarios} yearCount={compareResult.withAnnuity.yearCount} onYearClick={(year) => handleDrill(year, 'with')} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={true} />
-            <OutcomesHeatmap scenarios={compareResult.withAnnuity.scenarios} yearCount={compareResult.withAnnuity.yearCount} onYearClick={(year) => handleDrill(year, 'with')} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={true} />
+            {(statScenario === 'with' ? (['with', 'without'] as const) : (['without', 'with'] as const)).map((scenario) => (
+              scenario === 'without' ? (
+                <React.Fragment key="without">
+                  <h3 className="compare-section-label">Without Annuity</h3>
+                  <OutcomesChart scenarios={compareResult.withoutAnnuity.scenarios} yearCount={compareResult.withoutAnnuity.yearCount} onYearClick={(year) => handleDrill(year, 'without')} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} />
+                  <OutcomesHeatmap scenarios={compareResult.withoutAnnuity.scenarios} yearCount={compareResult.withoutAnnuity.yearCount} onYearClick={(year) => handleDrill(year, 'without')} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={false} />
+                </React.Fragment>
+              ) : (
+                <React.Fragment key="with">
+                  <h3 className="compare-section-label">With Annuity</h3>
+                  <OutcomesChart scenarios={compareResult.withAnnuity.scenarios} yearCount={compareResult.withAnnuity.yearCount} onYearClick={(year) => handleDrill(year, 'with')} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={true} />
+                  <OutcomesHeatmap scenarios={compareResult.withAnnuity.scenarios} yearCount={compareResult.withAnnuity.yearCount} onYearClick={(year) => handleDrill(year, 'with')} selectedYear={drillResult ? drillYear : undefined} incomeMode={incomeMode} annuityMode={true} />
+                </React.Fragment>
+              )
+            ))}
 
             <DrillSection
               drillYear={drillYear} setDrillYear={setDrillYear}
