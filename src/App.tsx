@@ -904,6 +904,14 @@ export default function App() {
             <div className="compare-income-toggle">
               <button className={`chart-toggle-btn ${incomeMode ? 'active' : ''}`} onClick={() => setIncomeMode(v => !v)}>Income</button>
             </div>
+            {!annuitizeDeployed && (
+              <p className="field-note">
+                Avg. Total Income at Start can differ slightly between Without and With Annuity: deflation
+                before the Income Start Year can shrink the income target below the annuity payment, and
+                since withdrawals can't go negative, the With Annuity total ends up a bit above target for
+                those scenarios.
+              </p>
+            )}
 
             {(annuitizeDeployed ? (['with'] as const) : statScenario === 'with' ? (['with', 'without'] as const) : (['without', 'with'] as const)).map((scenario) => (
               scenario === 'without' ? (
