@@ -13,7 +13,7 @@ import ClientInformation, { Person, calculateAge } from './components/ClientInfo
 import './App.css';
 import { SimulationRequest, SimulationResponse } from './types';
 
-function DrillSection({ drillYear, setDrillYear, drillView, setDrillView, drillResult, drillAnnuityResult, drillLoading, drillError, onRun }: {
+function DrillSection({ drillYear, setDrillYear, drillView, setDrillView, drillResult, drillAnnuityResult, drillLoading, drillError, onRun, hideWithoutOption }: {
   drillYear: number;
   setDrillYear: (y: number) => void;
   drillView: 'without' | 'with';
@@ -23,9 +23,13 @@ function DrillSection({ drillYear, setDrillYear, drillView, setDrillView, drillR
   drillLoading: boolean;
   drillError: string | null;
   onRun: (year: number) => void;
+  hideWithoutOption?: boolean;
 }) {
-  const showToggle = !!drillAnnuityResult;
-  const activeResult = showToggle && drillView === 'with' ? drillAnnuityResult : drillResult;
+  const showToggle = !!drillAnnuityResult && !hideWithoutOption;
+  const activeResult = hideWithoutOption
+    ? (drillAnnuityResult ?? drillResult)
+    : (showToggle && drillView === 'with' ? drillAnnuityResult : drillResult);
+  const showingWith = hideWithoutOption || (showToggle && drillView === 'with');
 
   return (
     <div id="drill" className="drill-section">
@@ -57,7 +61,7 @@ function DrillSection({ drillYear, setDrillYear, drillView, setDrillView, drillR
             {activeResult.portfolioExhausted && <span className="drill-exhausted"> — portfolio exhausted</span>}
           </h3>
           <PortfolioChart data={activeResult.yearlyResults} />
-          <ResultsTable data={activeResult.yearlyResults} showAnnuityColumns={showToggle && drillView === 'with'} />
+          <ResultsTable data={activeResult.yearlyResults} showAnnuityColumns={showingWith} />
         </div>
       )}
     </div>
@@ -126,6 +130,8 @@ export default function App() {
       });
       setAnnuityPct(90);
       setShowAnnuity(true);
+      setStatScenario('with');
+      setDrillView('with');
       setAnnuitizeDeployed(true);
     } else {
       if (preAnnuitizeSnapshot) {
@@ -428,7 +434,7 @@ export default function App() {
         };
         const compareRes = await runCompare(req);
         setCompareResult(compareRes);
-        setStatScenario('without');
+        setStatScenario(annuitizeDeployed ? 'with' : 'without');
         setDrillYear(compareRes.withoutAnnuity.scenarios[0]?.startYear ?? 1970);
       } else {
         const req: AllScenariosRequest = base;
@@ -885,8 +891,12 @@ export default function App() {
               </div>
             )}
             <div className="stat-scenario-toggle">
-              <button className={`chart-toggle-btn ${statScenario === 'without' ? 'active' : ''}`} onClick={() => setStatScenario('without')}>Without Annuity</button>
-              <button className={`chart-toggle-btn ${statScenario === 'all' ? 'active' : ''}`} onClick={() => setStatScenario('all')}>Average Balance, All Years Without Annuity</button>
+              {!annuitizeDeployed && (
+                <>
+                  <button className={`chart-toggle-btn ${statScenario === 'without' ? 'active' : ''}`} onClick={() => setStatScenario('without')}>Without Annuity</button>
+                  <button className={`chart-toggle-btn ${statScenario === 'all' ? 'active' : ''}`} onClick={() => setStatScenario('all')}>Average Balance, All Years Without Annuity</button>
+                </>
+              )}
               <button className={`chart-toggle-btn ${statScenario === 'with' ? 'active' : ''}`} onClick={() => setStatScenario('with')}>With Annuity</button>
             </div>
             <div className="stat-toggle-row">
@@ -898,7 +908,7 @@ export default function App() {
               <button className={`chart-toggle-btn ${incomeMode ? 'active' : ''}`} onClick={() => setIncomeMode(v => !v)}>Income</button>
             </div>
 
-            {(statScenario === 'with' ? (['with', 'without'] as const) : (['without', 'with'] as const)).map((scenario) => (
+            {(annuitizeDeployed ? (['with'] as const) : statScenario === 'with' ? (['with', 'without'] as const) : (['without', 'with'] as const)).map((scenario) => (
               scenario === 'without' ? (
                 <React.Fragment key="without">
                   <h3 className="compare-section-label">
@@ -928,6 +938,7 @@ export default function App() {
               drillResult={drillResult} drillAnnuityResult={drillAnnuityResult}
               drillLoading={drillLoading} drillError={drillError}
               onRun={handleDrill}
+              hideWithoutOption={annuitizeDeployed}
             />
 
             <SorrExplainer result={compareResult.withAnnuity} />
