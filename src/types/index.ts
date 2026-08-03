@@ -116,6 +116,7 @@ export interface AllScenariosResponse {
   failureRate: number;
   earliestFailureYears: number;
   highestEndingBalance: number;
+  lowestEndingBalance: number;
   averageEndingBalance: number;
   averageAnnualWithdrawal: number;
   averageAnnualTotalIncome: number;

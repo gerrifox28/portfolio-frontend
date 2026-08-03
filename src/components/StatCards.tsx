@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { AllScenariosResponse } from '../types';
 
 interface Props { result: AllScenariosResponse; allYearsMode?: boolean; annuityMode?: boolean; }
@@ -9,11 +9,21 @@ function fmt$(n: number) {
   return `$${Math.round(n).toLocaleString()}`;
 }
 
-export default function StatCards({ result, allYearsMode = false, annuityMode = false }: Props) {
-  const { failureCount, totalScenarios, failureRate, earliestFailureYears,
-        highestEndingBalance, averageEndingBalance, yearCount } = result;
+interface CardData {
+  type: 'success' | 'danger';
+  icon: string;
+  label: string;
+  value: string;
+  sub: string;
+  toggle?: boolean;
+}
 
-  const adjHighest = highestEndingBalance;
+export default function StatCards({ result, allYearsMode = false, annuityMode = false }: Props) {
+  const [showWorstOutcome, setShowWorstOutcome] = useState(false);
+
+  const { failureCount, totalScenarios, failureRate, earliestFailureYears,
+        highestEndingBalance, lowestEndingBalance, averageEndingBalance, yearCount } = result;
+
   const allYearsAverage = result.scenarios.reduce((sum, s) => sum + s.endingBalance, 0) / result.totalScenarios;
   const adjAverage = allYearsMode ? allYearsAverage : averageEndingBalance;
 
@@ -23,7 +33,25 @@ export default function StatCards({ result, allYearsMode = false, annuityMode = 
   // True average across every year of every scenario (not just each scenario's final year).
   const avgAnnualIncome = annuityMode ? result.averageAnnualTotalIncome : result.averageAnnualWithdrawal;
 
-  const cards = [
+  const outcomeCard: CardData = showWorstOutcome
+    ? {
+        type: 'danger',
+        icon: '📉',
+        label: `Worst Outcome After ${yearCount} Years`,
+        value: fmt$(lowestEndingBalance),
+        sub: 'Lowest remaining balance across all scenarios',
+        toggle: true,
+      }
+    : {
+        type: 'success',
+        icon: '🏆',
+        label: `Best Outcome After ${yearCount} Years`,
+        value: fmt$(highestEndingBalance),
+        sub: 'Highest remaining balance across all scenarios',
+        toggle: true,
+      };
+
+  const cards: CardData[] = [
     {
       type: failureCount === 0 ? 'success' : 'danger',
       icon: '⏳',
@@ -40,13 +68,7 @@ export default function StatCards({ result, allYearsMode = false, annuityMode = 
       value: `${failureCount} of ${totalScenarios}`,
       sub: `${failureRate}% of all historical scenarios failed`,
     },
-    {
-      type: 'success',
-      icon: '🏆',
-      label: `Best Outcome After ${yearCount} Years`,
-      value: fmt$(adjHighest),
-      sub: 'Highest remaining balance across all scenarios',
-    },
+    outcomeCard,
     {
       type: 'success',
       icon: '📊',
@@ -56,7 +78,7 @@ export default function StatCards({ result, allYearsMode = false, annuityMode = 
     },
   ];
 
-  const incomeCards = [
+  const incomeCards: CardData[] = [
     {
       type: 'success',
       icon: '💰',
@@ -82,6 +104,15 @@ export default function StatCards({ result, allYearsMode = false, annuityMode = 
             <div className="stat-label">{c.label}</div>
             <div className="stat-value">{c.value}</div>
             <div className="stat-sub">{c.sub}</div>
+            {c.toggle && (
+              <button
+                type="button"
+                className="stat-card-toggle"
+                onClick={() => setShowWorstOutcome(v => !v)}
+              >
+                {showWorstOutcome ? 'Show Best Outcome' : 'Show Worst Outcome'}
+              </button>
+            )}
           </div>
         ))}
       </div>
