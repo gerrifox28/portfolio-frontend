@@ -7,7 +7,6 @@ interface Props {
   onYearClick?: (year: number) => void;
   selectedYear?: number;
   incomeMode?: boolean;
-  annuityMode?: boolean;
 }
 
 function fmt$(n: number) {
@@ -16,20 +15,20 @@ function fmt$(n: number) {
   return '$0';
 }
 
-function getDisplayValue(s: ScenarioSummary, annuityMode: boolean): number {
+function getDisplayValue(s: ScenarioSummary): number {
   if (s.failed) return 0;
-  return annuityMode ? (s.finalTotalIncome ?? 0) : (s.finalWithdrawal ?? 0);
+  return s.finalTotalIncome ?? 0;
 }
 
-export default function OutcomesHeatmap({ scenarios, yearCount, onYearClick, selectedYear, incomeMode = false, annuityMode = false }: Props) {
+export default function OutcomesHeatmap({ scenarios, yearCount, onYearClick, selectedYear, incomeMode = false }: Props) {
   const maxBalance = Math.max(...scenarios.map(s => s.endingBalance));
-  const maxIncome  = Math.max(...scenarios.map(s => getDisplayValue(s, annuityMode)));
+  const maxIncome  = Math.max(...scenarios.map(s => getDisplayValue(s)));
 
   return (
     <div className="chart-container">
       <div className="chart-header">
         {incomeMode
-          ? <h3>{yearCount}-Year {annuityMode ? 'Total Income' : 'Withdrawal'} Grid by Starting Year</h3>
+          ? <h3>{yearCount}-Year Total Income Grid by Starting Year</h3>
           : <h3>{yearCount}-Year Outcomes Grid by Starting Year</h3>
         }
         {!incomeMode && (
@@ -45,7 +44,7 @@ export default function OutcomesHeatmap({ scenarios, yearCount, onYearClick, sel
           let bg: string;
 
           if (incomeMode) {
-            const incomeValue = getDisplayValue(s, annuityMode);
+            const incomeValue = getDisplayValue(s);
             const intensity = maxIncome > 0 ? incomeValue / maxIncome : 0;
             const opacity = Math.max(0.35, 0.2 + intensity * 0.75);
             bg = s.failed
@@ -73,7 +72,7 @@ export default function OutcomesHeatmap({ scenarios, yearCount, onYearClick, sel
               <div className="heatmap-year">{s.startYear}</div>
               <div className="heatmap-value">
                 {incomeMode
-                  ? fmt$(getDisplayValue(s, annuityMode))
+                  ? fmt$(getDisplayValue(s))
                   : s.failed
                     ? <><span className="heatmap-fail">✗</span> {s.yearsSurvived}yr</>
                     : fmt$(s.endingBalance)
@@ -86,7 +85,7 @@ export default function OutcomesHeatmap({ scenarios, yearCount, onYearClick, sel
 
       <p className="chart-note">
         {incomeMode
-          ? `Each tile shows the final-year ${annuityMode ? 'total income (portfolio + annuity)' : 'withdrawal amount'} for that starting year. Brighter = higher income.${onYearClick ? ' Click any tile to see the year-by-year detail.' : ''}`
+          ? `Each tile shows the final-year total income (portfolio withdrawal + any Income entries + annuity, if applicable) for that starting year. Brighter = higher income.${onYearClick ? ' Click any tile to see the year-by-year detail.' : ''}`
           : `Each tile represents one ${yearCount}-year retirement window. Greener = larger remaining balance. Brighter red = portfolio ran out sooner.${onYearClick ? ' Click any tile to see the year-by-year detail.' : ''}`
         }
       </p>

@@ -11,7 +11,6 @@ interface Props {
   onYearClick?: (year: number) => void;
   selectedYear?: number;
   incomeMode?: boolean;
-  annuityMode?: boolean;
 }
 
 function fmt$(n: number) {
@@ -20,13 +19,13 @@ function fmt$(n: number) {
   return `$0`;
 }
 
-function getDisplayValue(s: ScenarioSummary, incomeMode: boolean, annuityMode: boolean): number {
+function getDisplayValue(s: ScenarioSummary, incomeMode: boolean): number {
   if (!incomeMode) return s.endingBalance;
   if (s.failed) return 0;
-  return annuityMode ? (s.finalTotalIncome ?? 0) : (s.finalWithdrawal ?? 0);
+  return s.finalTotalIncome ?? 0;
 }
 
-export default function OutcomesChart({ scenarios, yearCount, onYearClick, selectedYear, incomeMode = false, annuityMode = false }: Props) {
+export default function OutcomesChart({ scenarios, yearCount, onYearClick, selectedYear, incomeMode = false }: Props) {
   const CustomTooltip = ({ active, payload }: any) => {
     if (!active || !payload?.length) return null;
     const d: ScenarioSummary & { y: number } = payload[0].payload;
@@ -39,11 +38,10 @@ export default function OutcomesChart({ scenarios, yearCount, onYearClick, selec
           </div>
         );
       }
-      const label = annuityMode ? 'Total income' : 'Withdrawal';
       return (
         <div className="chart-tooltip">
           <p className="tooltip-year">Started {d.startYear}</p>
-          <p>{label} in final year: <strong>{fmt$(d.y)}</strong></p>
+          <p>Total income in final year: <strong>{fmt$(d.y)}</strong></p>
         </div>
       );
     }
@@ -59,8 +57,8 @@ export default function OutcomesChart({ scenarios, yearCount, onYearClick, selec
   };
 
   if (incomeMode) {
-    const data = scenarios.map(s => ({ ...s, y: getDisplayValue(s, true, annuityMode) }));
-    const incomeLabel = annuityMode ? 'Total Income (Final Year)' : 'Withdrawal (Final Year)';
+    const data = scenarios.map(s => ({ ...s, y: getDisplayValue(s, true) }));
+    const incomeLabel = 'Total Income (Final Year)';
     return (
       <div className="chart-container">
         <div className="chart-header">
@@ -101,7 +99,7 @@ export default function OutcomesChart({ scenarios, yearCount, onYearClick, selec
           </ScatterChart>
         </ResponsiveContainer>
         <p className="chart-note">
-          {onYearClick ? 'Click' : 'Hover'} any dot for details. Shows final-year {annuityMode ? 'total income (portfolio withdrawal + annuity)' : 'withdrawal amount'} for each starting year.
+          {onYearClick ? 'Click' : 'Hover'} any dot for details. Shows final-year total income (portfolio withdrawal + any Income entries + annuity, if applicable) for each starting year.
         </p>
       </div>
     );
