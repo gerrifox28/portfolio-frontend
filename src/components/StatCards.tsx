@@ -31,7 +31,9 @@ export default function StatCards({ result, allYearsMode = false, annuityMode = 
     s.failed ? 0 : (annuityMode ? (s.finalTotalIncome ?? 0) : (s.finalWithdrawal ?? 0))
   ));
   // True average across every year of every scenario (not just each scenario's final year).
-  const avgAnnualIncome = annuityMode ? result.averageAnnualTotalIncome : result.averageAnnualWithdrawal;
+  // Always Total Income (withdrawal + manual Income entries + annuity, if any) so Without
+  // and With Annuity are comparing the same thing — not withdrawal-only vs. total income.
+  const avgAnnualIncome = result.averageAnnualTotalIncome;
 
   const outcomeCard: CardData = showWorstOutcome
     ? {
@@ -91,7 +93,7 @@ export default function StatCards({ result, allYearsMode = false, annuityMode = 
       icon: '📈',
       label: `Average Annual Income for all ${yearCount} Years`,
       value: fmt$(avgAnnualIncome),
-      sub: `Mean annual ${annuityMode ? 'total income' : 'withdrawal'} across all scenarios and all years`,
+      sub: 'Mean annual total income across all scenarios and all years',
     },
   ];
 
