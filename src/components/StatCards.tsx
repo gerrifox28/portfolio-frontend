@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AllScenariosResponse } from '../types';
 
-interface Props { result: AllScenariosResponse; allYearsMode?: boolean; annuityMode?: boolean; }
+interface Props { result: AllScenariosResponse; allYearsMode?: boolean; }
 
 function fmt$(n: number) {
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
@@ -18,7 +18,7 @@ interface CardData {
   toggle?: boolean;
 }
 
-export default function StatCards({ result, allYearsMode = false, annuityMode = false }: Props) {
+export default function StatCards({ result, allYearsMode = false }: Props) {
   const [showWorstOutcome, setShowWorstOutcome] = useState(false);
 
   const { failureCount, totalScenarios, failureRate, earliestFailureYears,
@@ -27,9 +27,8 @@ export default function StatCards({ result, allYearsMode = false, annuityMode = 
   const allYearsAverage = result.scenarios.reduce((sum, s) => sum + s.endingBalance, 0) / result.totalScenarios;
   const adjAverage = allYearsMode ? allYearsAverage : averageEndingBalance;
 
-  const bestIncome = Math.max(...result.scenarios.map(s =>
-    s.failed ? 0 : (annuityMode ? (s.finalTotalIncome ?? 0) : (s.finalWithdrawal ?? 0))
-  ));
+  // Always Total Income, same reasoning as avgAnnualIncome below.
+  const bestIncome = Math.max(...result.scenarios.map(s => s.failed ? 0 : (s.finalTotalIncome ?? 0)));
   // True average across every year of every scenario (not just each scenario's final year).
   // Always Total Income (withdrawal + manual Income entries + annuity, if any) so Without
   // and With Annuity are comparing the same thing — not withdrawal-only vs. total income.
@@ -86,7 +85,7 @@ export default function StatCards({ result, allYearsMode = false, annuityMode = 
       icon: '💰',
       label: `Best Income After ${yearCount} Years`,
       value: fmt$(bestIncome),
-      sub: `Highest ${annuityMode ? 'total income' : 'withdrawal'} in the final simulated year`,
+      sub: 'Highest total income in the final simulated year',
     },
     {
       type: 'success',

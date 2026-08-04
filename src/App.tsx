@@ -899,7 +899,7 @@ export default function App() {
             <div className="stat-toggle-row">
               <button className="chart-toggle-btn" onClick={() => setShowStatCards(v => !v)}>{showStatCards ? 'Hide Stat Cards' : 'Show Stat Cards'}</button>
             </div>
-            {showStatCards && <StatCards result={statScenario === 'with' ? compareResult.withAnnuity : compareResult.withoutAnnuity} allYearsMode={statScenario === 'all'} annuityMode={statScenario === 'with'} />}
+            {showStatCards && <StatCards result={statScenario === 'with' ? compareResult.withAnnuity : compareResult.withoutAnnuity} allYearsMode={statScenario === 'all'} />}
 
             <div className="compare-income-toggle">
               <button className={`chart-toggle-btn ${incomeMode ? 'active' : ''}`} onClick={() => setIncomeMode(v => !v)}>Income</button>
