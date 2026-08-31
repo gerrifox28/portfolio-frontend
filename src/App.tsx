@@ -173,6 +173,8 @@ export default function App() {
   const [assetBreakdownOpen, setAssetBreakdownOpen] = useState(false);
   const [resultsStale, setResultsStale] = useState(false);
   const [offendingFlowIds, setOffendingFlowIds] = useState<string[]>([]);
+  const [notes, setNotes] = useState('');
+  const [showNotesModal, setShowNotesModal] = useState(false);
 
   // ── Temporary depletion modal ──────────────────────────────────────────────
   const [showDepletionModal, setShowDepletionModal] = useState(false);
@@ -233,6 +235,7 @@ export default function App() {
       incomeMode,
       statScenario,
       chartView,
+      notes,
     };
     const suggestedName = currentFileName ?? `retirement-simulation-${new Date().toISOString().split('T')[0]}.json`;
     const json = JSON.stringify(sessionData, null, 2);
@@ -303,6 +306,7 @@ export default function App() {
         setIncomeMode(d.incomeMode ?? false);
         setStatScenario(d.statScenario ?? 'without');
         if (d.chartView) setChartView(d.chartView);
+        setNotes(d.notes ?? '');
         setCurrentFileName(file.name);
         // Clear previous results so the user re-runs with the loaded config
         setResult(null);
@@ -572,6 +576,7 @@ export default function App() {
             <input type="file" accept=".json" style={{ display: 'none' }} ref={fileInputRef} onChange={handleLoad} />
             <button className="save-load-btn" onClick={handleSave}>💾 Save</button>
             <button className="save-load-btn" onClick={() => fileInputRef.current?.click()}>📂 Load</button>
+            <button className={`save-load-btn${notes.trim() ? ' has-notes' : ''}`} onClick={() => setShowNotesModal(true)}>📝 Notes</button>
             <span className="save-load-divider">|</span>
             <span className="filename-display">{currentFileName ?? 'Unsaved'}</span>
             {saveStatus && <span className="save-load-status">{saveStatus}</span>}
@@ -969,6 +974,25 @@ export default function App() {
             <div className="depletion-modal-actions">
               <button className="depletion-modal-yes" onClick={handleDepletionYes}>Yes — Show Results</button>
               <button className="depletion-modal-no" onClick={handleDepletionNo}>No — Highlight Offending Entry</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showNotesModal && (
+        <div className="notes-modal-overlay" onClick={() => setShowNotesModal(false)}>
+          <div className="notes-modal" onClick={e => e.stopPropagation()}>
+            <h3 className="notes-modal-title">📝 Notes</h3>
+            <textarea
+              className="notes-modal-textarea"
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+              placeholder="Jot down anything useful about this scenario…"
+              autoFocus
+            />
+            <p className="notes-modal-hint">Notes are saved along with the rest of this scenario when you click Save.</p>
+            <div className="notes-modal-actions">
+              <button className="notes-modal-close" onClick={() => setShowNotesModal(false)}>Close</button>
             </div>
           </div>
         </div>

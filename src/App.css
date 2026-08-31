@@ -317,6 +317,20 @@ body {
   transition: border-color 0.15s, color 0.15s;
 }
 .save-load-btn:hover { border-color: var(--accent); color: var(--text); }
+.save-load-btn.has-notes {
+  border-color: var(--accent);
+  color: var(--text);
+}
+.save-load-btn.has-notes::after {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-left: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  vertical-align: middle;
+}
 .save-load-error {
   font-size: 12px;
   color: var(--danger);
@@ -1297,6 +1311,73 @@ body {
   cursor: pointer;
 }
 .depletion-modal-no:hover { border-color: var(--danger); color: var(--danger); }
+
+/* ── Notes modal ── */
+.notes-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.notes-modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  max-width: 520px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.notes-modal-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+.notes-modal-textarea {
+  width: 100%;
+  min-height: 220px;
+  resize: vertical;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.5;
+  padding: 12px;
+  box-sizing: border-box;
+}
+.notes-modal-textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.notes-modal-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+}
+.notes-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+.notes-modal-close {
+  padding: 10px 20px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.notes-modal-close:hover { opacity: 0.88; }
 
 /* ── Cash flow offending entry highlight ── */
 .cashflow-row--offending { background: rgba(245, 158, 11, 0.08); }
