@@ -13,7 +13,7 @@ import ClientInformation, { Person, calculateAge } from './components/ClientInfo
 import './App.css';
 import { SimulationRequest, SimulationResponse } from './types';
 
-function DrillSection({ drillYear, setDrillYear, drillView, setDrillView, drillResult, drillAnnuityResult, drillLoading, drillError, onRun, hideWithoutOption }: {
+function DrillSection({ drillYear, setDrillYear, drillView, setDrillView, drillResult, drillAnnuityResult, drillLoading, drillError, onRun, hideWithoutOption, person1AgeLabel, person1Age, person2AgeLabel, person2Age }: {
   drillYear: number;
   setDrillYear: (y: number) => void;
   drillView: 'without' | 'with';
@@ -24,6 +24,10 @@ function DrillSection({ drillYear, setDrillYear, drillView, setDrillView, drillR
   drillError: string | null;
   onRun: (year: number) => void;
   hideWithoutOption?: boolean;
+  person1AgeLabel?: string;
+  person1Age?: number | null;
+  person2AgeLabel?: string;
+  person2Age?: number | null;
 }) {
   const showToggle = !!drillAnnuityResult && !hideWithoutOption;
   const activeResult = hideWithoutOption
@@ -61,7 +65,14 @@ function DrillSection({ drillYear, setDrillYear, drillView, setDrillView, drillR
             {activeResult.portfolioExhausted && <span className="drill-exhausted"> — portfolio exhausted</span>}
           </h3>
           <PortfolioChart data={activeResult.yearlyResults} />
-          <ResultsTable data={activeResult.yearlyResults} showAnnuityColumns={showingWith} />
+          <ResultsTable
+            data={activeResult.yearlyResults}
+            showAnnuityColumns={showingWith}
+            person1AgeLabel={person1AgeLabel}
+            person1Age={person1Age}
+            person2AgeLabel={person2AgeLabel}
+            person2Age={person2Age}
+          />
         </div>
       )}
     </div>
@@ -155,6 +166,8 @@ export default function App() {
   // as the longer-lived spouse); Single uses Person 1's age.
   const person1Age = calculateAge(person1.dob);
   const person2Age = calculateAge(person2.dob);
+  const person1AgeLabel = person1.name.trim() ? `${person1.name.trim().split(' ')[0]} Age` : 'Age';
+  const person2AgeLabel = person2.name.trim() ? `${person2.name.trim().split(' ')[0]} Age` : 'Age (2)';
   const age = joint
     ? (person1Age !== null && person2Age !== null ? Math.min(person1Age, person2Age) : (person1Age ?? person2Age ?? 65))
     : (person1Age ?? 65);
@@ -879,6 +892,8 @@ export default function App() {
               drillResult={drillResult} drillAnnuityResult={null}
               drillLoading={drillLoading} drillError={drillError}
               onRun={handleDrill}
+              person1AgeLabel={person1AgeLabel} person1Age={person1Age}
+              person2AgeLabel={person2AgeLabel} person2Age={person2Age}
             />
 
             <SorrExplainer result={result} />
@@ -949,6 +964,8 @@ export default function App() {
               drillLoading={drillLoading} drillError={drillError}
               onRun={handleDrill}
               hideWithoutOption={annuitizeDeployed}
+              person1AgeLabel={person1AgeLabel} person1Age={person1Age}
+              person2AgeLabel={person2AgeLabel} person2Age={person2Age}
             />
 
             <SorrExplainer result={compareResult.withAnnuity} />
