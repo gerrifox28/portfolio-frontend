@@ -563,78 +563,6 @@ body {
 }
 .chart-tooltip strong { color: var(--text); }
 
-/* ── Explainer ───────────────────────────────────────────────────────────── */
-.explainer {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-.explainer-section {
-  padding: 36px 40px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.explainer-section:last-child { border-bottom: none; }
-.explainer-heading {
-  font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  color: var(--text);
-}
-.explainer-section p {
-  font-size: 14px;
-  line-height: 1.8;
-  color: var(--text-dim);
-  max-width: 68ch;
-}
-.explainer-section strong { color: var(--text); }
-.explainer-section em { color: var(--accent); font-style: normal; font-weight: 500; }
-.explainer-callout {
-  font-family: var(--font-display) !important;
-  font-size: 20px !important;
-  font-weight: 700 !important;
-  color: var(--text) !important;
-  border-left: 3px solid var(--accent);
-  padding-left: 20px !important;
-}
-.explainer-cta-section {
-  background: linear-gradient(135deg, rgba(99,102,241,0.06) 0%, transparent 100%);
-}
-.cta-buttons {
-  display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
-  margin-top: 8px;
-}
-.cta-btn {
-  padding: 13px 24px;
-  border-radius: var(--radius-sm);
-  font-family: var(--font-display);
-  font-size: 14px;
-  font-weight: 700;
-  text-decoration: none;
-  transition: all 0.15s;
-  display: inline-block;
-}
-.cta-btn--primary {
-  background: var(--accent);
-  color: white;
-  box-shadow: 0 0 24px var(--accent-glow);
-}
-.cta-btn--primary:hover { opacity: 0.88; transform: translateY(-1px); }
-.cta-btn--secondary {
-  background: transparent;
-  color: var(--text-dim);
-  border: 1px solid var(--border-hover);
-}
-.cta-btn--secondary:hover { border-color: var(--accent); color: var(--accent); }
-
 /* ── Loading ─────────────────────────────────────────────────────────────── */
 .loading-overlay {
   padding: 80px 24px;
@@ -658,8 +586,6 @@ body {
 @media (max-width: 640px) {
   .main-inputs { grid-template-columns: 1fr; }
   .stat-cards  { grid-template-columns: 1fr; }
-  .explainer-section { padding: 28px 24px; }
-  .cta-buttons { flex-direction: column; }
   .app-header { padding: 32px 20px; }
   .inputs-section, .results-section { padding: 36px 20px; }
 }

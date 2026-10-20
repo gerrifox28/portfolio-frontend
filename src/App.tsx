@@ -4,7 +4,6 @@ import { runAllScenarios, runCompare, runSimulation } from './hooks/useSimulator
 import StatCards from './components/StatCards';
 import OutcomesChart from './components/OutcomesChart';
 import OutcomesHeatmap from './components/OutcomesHeatmap';
-import SorrExplainer from './components/SorrExplainer';
 import PortfolioChart from './components/PortfolioChart';
 import ResultsTable from './components/ResultsTable';
 import CashFlowPanel from './components/CashFlowPanel';
@@ -895,8 +894,6 @@ export default function App() {
               person1AgeLabel={person1AgeLabel} person1Age={person1Age}
               person2AgeLabel={person2AgeLabel} person2Age={person2Age}
             />
-
-            <SorrExplainer result={result} />
           </div>
         </section>
       )}
@@ -967,8 +964,6 @@ export default function App() {
               person1AgeLabel={person1AgeLabel} person1Age={person1Age}
               person2AgeLabel={person2AgeLabel} person2Age={person2Age}
             />
-
-            <SorrExplainer result={compareResult.withAnnuity} />
           </div>
         </section>
       )}
