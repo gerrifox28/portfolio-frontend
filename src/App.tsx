@@ -97,7 +97,7 @@ export default function App() {
   const [stockPct, setStockPct] = useState(60);
 
   // ── Withdrawal mode ────────────────────────────────────────────────────────
-  const [withdrawalMode, setWithdrawalMode] = useState<'inflation_adjusted' | 'fixed' | 'tpa'>('inflation_adjusted');
+  const [withdrawalMode, setWithdrawalMode] = useState<'inflation_adjusted' | 'fixed' | 'tpa' | 'tpa_total'>('inflation_adjusted');
 
   // ── Expenses fee ───────────────────────────────────────────────────────────
   const [expensesFee, setExpensesFee] = useState('1.2'); // displayed as %, stored as %
@@ -652,10 +652,11 @@ export default function App() {
                   <button type="button" className="spin-btn" onClick={() => adjustCurrency(withdrawal, -1000, setWithdrawal)} />
                 </div>
               </div>
-              <select className="withdrawal-mode-select" value={withdrawalMode} onChange={e => setWithdrawalMode(e.target.value as 'inflation_adjusted' | 'fixed' | 'tpa')}>
+              <select className="withdrawal-mode-select" value={withdrawalMode} onChange={e => setWithdrawalMode(e.target.value as 'inflation_adjusted' | 'fixed' | 'tpa' | 'tpa_total')}>
                 <option value="inflation_adjusted">With Inflation Adjustment</option>
                 <option value="fixed">Fixed Withdrawal Amount</option>
                 <option value="tpa">Withdrawal Amount Subject to TPA</option>
+                <option value="tpa_total">Withdrawal Subject to TPA (Total Income)</option>
               </select>
               {withdrawalMode === 'tpa' && ((parseInt(yearCount) || 0) < 30 || (parseInt(yearCount) || 0) > 45) && (
                 <p className="field-warn">TPA requires Years to Simulate between 30 and 45.</p>
