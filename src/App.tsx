@@ -97,7 +97,7 @@ export default function App() {
   const [stockPct, setStockPct] = useState(60);
 
   // ── Withdrawal mode ────────────────────────────────────────────────────────
-  const [withdrawalMode, setWithdrawalMode] = useState<'inflation_adjusted' | 'fixed' | 'tpa' | 'tpa_total' | 'tpa_sustainable'>('inflation_adjusted');
+  const [withdrawalMode, setWithdrawalMode] = useState<'inflation_adjusted' | 'fixed' | 'tpa' | 'tpa_total'>('inflation_adjusted');
 
   // ── Expenses fee ───────────────────────────────────────────────────────────
   const [expensesFee, setExpensesFee] = useState('1.2'); // displayed as %, stored as %
@@ -303,7 +303,8 @@ export default function App() {
         setIncomeStartYear(d.incomeStartYear ?? 1);
         setYearCount(d.yearCount ?? '30');
         setExpensesFee(d.expensesFee ?? '1.2');
-        setWithdrawalMode(d.withdrawalMode ?? 'inflation_adjusted');
+        // 'tpa_sustainable' (TPA – Sustainable Start) was removed; load it as its closest relative.
+        setWithdrawalMode(d.withdrawalMode === 'tpa_sustainable' ? 'tpa_total' : (d.withdrawalMode ?? 'inflation_adjusted'));
         setStockPct(d.stockPct ?? 60);
         setAllocMode(d.allocMode ?? 'auto');
         if (d.manualAlloc) setManualAlloc(d.manualAlloc);
@@ -652,16 +653,12 @@ export default function App() {
                   <button type="button" className="spin-btn" onClick={() => adjustCurrency(withdrawal, -1000, setWithdrawal)} />
                 </div>
               </div>
-              <select className="withdrawal-mode-select" value={withdrawalMode} onChange={e => setWithdrawalMode(e.target.value as 'inflation_adjusted' | 'fixed' | 'tpa' | 'tpa_total' | 'tpa_sustainable')}>
+              <select className="withdrawal-mode-select" value={withdrawalMode} onChange={e => setWithdrawalMode(e.target.value as 'inflation_adjusted' | 'fixed' | 'tpa' | 'tpa_total')}>
                 <option value="inflation_adjusted">With Inflation Adjustment</option>
                 <option value="fixed">Fixed Withdrawal Amount</option>
                 <option value="tpa">Withdrawal Amount Subject to TPA</option>
                 <option value="tpa_total">Withdrawal Subject to TPA (Total Income)</option>
-                <option value="tpa_sustainable">TPA – Sustainable Start (Total Income)</option>
               </select>
-              {withdrawalMode === 'tpa_sustainable' && (
-                <p className="field-note">Year 1 Total Income is the lesser of the amount above and the calculated sustainable amount (shown with the results).</p>
-              )}
             </div>
 
             <div className="main-input-group">
@@ -874,12 +871,6 @@ export default function App() {
                 ⚠ Inputs have changed — re-run to see updated results.
               </div>
             )}
-            {result.sustainableStartIncome != null && (
-              <p className="field-note">
-                Sustainable starting income (TPA test): ${Math.round(result.sustainableStartIncome).toLocaleString()}/yr
-                in today's dollars. Year 1 Total Income uses the lesser of this and your entered withdrawal.
-              </p>
-            )}
             <div className="stat-toggle-row">
               <button className="chart-toggle-btn" onClick={() => setShowStatCards(v => !v)}>{showStatCards ? 'Hide Stat Cards' : 'Show Stat Cards'}</button>
             </div>
@@ -935,15 +926,6 @@ export default function App() {
                 before the Income Start Year can shrink the income target below the annuity payment plus
                 the income amount (if applicable), and since withdrawals can't go negative, the With
                 Annuity total ends up a bit above target for those scenarios.
-              </p>
-            )}
-            {compareResult.withAnnuity.sustainableStartIncome != null && (
-              <p className="field-note">
-                Sustainable starting income (TPA test), today's dollars:
-                {!annuitizeDeployed && compareResult.withoutAnnuity.sustainableStartIncome != null &&
-                  ` Without Annuity $${Math.round(compareResult.withoutAnnuity.sustainableStartIncome).toLocaleString()}/yr;`}
-                {` With Annuity $${Math.round(compareResult.withAnnuity.sustainableStartIncome).toLocaleString()}/yr.`}
-                {' '}Year 1 Total Income uses the lesser of this and your entered withdrawal.
               </p>
             )}
 
