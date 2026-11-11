@@ -124,6 +124,8 @@ export interface AllScenariosResponse {
   worstStartYear: number;
   bestStartYear: number;
   yearCount: number;
+  /** "tpa_sustainable" mode only: calculated sustainable year-1 Total Income (today's dollars). */
+  sustainableStartIncome?: number | null;
 }
 
 export interface AnnuityCompareRequest {
