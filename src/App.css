@@ -190,6 +190,9 @@ body {
 }
 .withdrawal-mode-select:focus { outline: none; border-color: var(--accent); }
 .withdrawal-mode-select option[disabled] { color: var(--text-muted); font-style: italic; }
+.tpa-assumptions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.tpa-assumptions label { display: flex; flex-direction: column; gap: 3px; flex: 1 1 120px; min-width: 0; font-size: 11px; color: var(--text-muted); }
+.tpa-assumptions .withdrawal-mode-select { width: 100%; }
 .field-warn { font-size: 11px; color: var(--danger); margin-top: 4px; }
 .main-input-group.full-width { grid-column: 1 / -1; }
 .main-input-group label {

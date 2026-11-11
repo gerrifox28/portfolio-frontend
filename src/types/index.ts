@@ -30,6 +30,9 @@ export interface SimulationRequest {
   deferralGrowthRate?: number;
   cashFlows?: CashFlow[];
   incomeStartYear?: number;
+  /** TPA modes: assumed nominal return / inflation for the TPA test (decimals; default 0.07 / 0.03). */
+  tpaAssumedReturn?: number;
+  tpaAssumedInflation?: number;
 }
 
 export interface YearResult {
@@ -98,6 +101,8 @@ export interface AllScenariosRequest {
   mFiveYearUS?: number;
   cashFlows?: CashFlow[];
   incomeStartYear?: number;
+  tpaAssumedReturn?: number;
+  tpaAssumedInflation?: number;
 }
 
 export interface ScenarioSummary {
@@ -138,6 +143,8 @@ export interface AnnuityCompareRequest {
   withdrawalMode: string;
   annuityCap: number;
   deferralGrowthRate: number;
+  tpaAssumedReturn?: number;
+  tpaAssumedInflation?: number;
   manualAllocations?: boolean;
   mSp500?: number;
   mCrsp1_10?: number;

@@ -12,6 +12,10 @@ import ClientInformation, { Person, calculateAge } from './components/ClientInfo
 import './App.css';
 import { SimulationRequest, SimulationResponse } from './types';
 
+// TPA test assumption choices, in percent (½% steps). Defaults: 7% return, 3% inflation.
+const TPA_RETURN_OPTIONS = Array.from({ length: 13 }, (_, k) => 4 + k * 0.5);    // 4% – 10%
+const TPA_INFLATION_OPTIONS = Array.from({ length: 9 }, (_, k) => 1 + k * 0.5);  // 1% – 5%
+
 function DrillSection({ drillYear, setDrillYear, drillView, setDrillView, drillResult, drillAnnuityResult, drillLoading, drillError, onRun, hideWithoutOption, person1AgeLabel, person1Age, person2AgeLabel, person2Age }: {
   drillYear: number;
   setDrillYear: (y: number) => void;
@@ -98,6 +102,12 @@ export default function App() {
 
   // ── Withdrawal mode ────────────────────────────────────────────────────────
   const [withdrawalMode, setWithdrawalMode] = useState<'inflation_adjusted' | 'fixed' | 'tpa' | 'tpa_total'>('inflation_adjusted');
+  // TPA test assumptions, in percent (defaults 7% / 3%); used by both TPA modes.
+  const [tpaReturn, setTpaReturn] = useState(7);
+  const [tpaInflation, setTpaInflation] = useState(3);
+  // TPA assumptions used for the results currently shown (null when the run wasn't a TPA mode).
+  const [ranTpa, setRanTpa] = useState<{ r: number; i: number } | null>(null);
+  const isTpaMode = withdrawalMode === 'tpa' || withdrawalMode === 'tpa_total';
 
   // ── Expenses fee ───────────────────────────────────────────────────────────
   const [expensesFee, setExpensesFee] = useState('1.2'); // displayed as %, stored as %
@@ -232,6 +242,8 @@ export default function App() {
       yearCount,
       expensesFee,
       withdrawalMode,
+      tpaReturn,
+      tpaInflation,
       stockPct,
       allocMode,
       manualAlloc,
@@ -305,6 +317,8 @@ export default function App() {
         setExpensesFee(d.expensesFee ?? '1.2');
         // 'tpa_sustainable' (TPA – Sustainable Start) was removed; load it as its closest relative.
         setWithdrawalMode(d.withdrawalMode === 'tpa_sustainable' ? 'tpa_total' : (d.withdrawalMode ?? 'inflation_adjusted'));
+        setTpaReturn(typeof d.tpaReturn === 'number' ? d.tpaReturn : 7);
+        setTpaInflation(typeof d.tpaInflation === 'number' ? d.tpaInflation : 3);
         setStockPct(d.stockPct ?? 60);
         setAllocMode(d.allocMode ?? 'auto');
         if (d.manualAlloc) setManualAlloc(d.manualAlloc);
@@ -401,6 +415,7 @@ export default function App() {
     setResultsStale(true);
   }, [
     nestEgg, withdrawal, incomeStartYear, yearCount, expensesFee, withdrawalMode,
+    tpaReturn, tpaInflation,
     stockPct, allocMode, manualAlloc, showAnnuity, joint, annuityPct, annuityCap,
     deferralGrowthRate, age,
   ]);
@@ -435,6 +450,8 @@ export default function App() {
         yearCount: parseInt(yearCount) || 30,
         expensesAndMgmtFee: (parseFloat(expensesFee) || 0) / 100,
         withdrawalMode,
+        tpaAssumedReturn: tpaReturn / 100,
+        tpaAssumedInflation: tpaInflation / 100,
         cashFlows,
         incomeStartYear,
         ...manualFields,
@@ -460,6 +477,7 @@ export default function App() {
         setDrillYear(allRes.scenarios[0]?.startYear ?? 1970);
       }
 
+      setRanTpa(isTpaMode ? { r: tpaReturn, i: tpaInflation } : null);
       setResultsStale(false);
       setTimeout(() => document.getElementById('results')?.scrollIntoView({ behavior: 'smooth' }), 100);
     } catch (e: any) {
@@ -492,6 +510,8 @@ export default function App() {
         fiveYearUS: parseAlloc(manualAlloc.mFiveYearUS) / 100,
         expensesAndMgmtFee: (parseFloat(expensesFee) || 0) / 100,
         withdrawalMode,
+        tpaAssumedReturn: tpaReturn / 100,
+        tpaAssumedInflation: tpaInflation / 100,
       } : {
         sp500: 0,
         crsp1_10: sma * 0.56,
@@ -503,6 +523,8 @@ export default function App() {
         fiveYearUS: fiveYearAuto,
         expensesAndMgmtFee: (parseFloat(expensesFee) || 0) / 100,
         withdrawalMode,
+        tpaAssumedReturn: tpaReturn / 100,
+        tpaAssumedInflation: tpaInflation / 100,
       };
       const req: SimulationRequest = {
         startYear: year,
@@ -659,6 +681,28 @@ export default function App() {
                 <option value="tpa">Withdrawal Amount Subject to TPA</option>
                 <option value="tpa_total">Withdrawal Subject to TPA (Total Income)</option>
               </select>
+              {isTpaMode && (
+                <>
+                  <div className="tpa-assumptions">
+                    <label>
+                      <span>TPA assumed return</span>
+                      <select className="withdrawal-mode-select" value={tpaReturn} onChange={e => setTpaReturn(parseFloat(e.target.value))}>
+                        {TPA_RETURN_OPTIONS.map(v => <option key={v} value={v}>{v}%{v === 7 ? ' (default)' : ''}</option>)}
+                      </select>
+                    </label>
+                    <label>
+                      <span>TPA assumed inflation</span>
+                      <select className="withdrawal-mode-select" value={tpaInflation} onChange={e => setTpaInflation(parseFloat(e.target.value))}>
+                        {TPA_INFLATION_OPTIONS.map(v => <option key={v} value={v}>{v}%{v === 3 ? ' (default)' : ''}</option>)}
+                      </select>
+                    </label>
+                  </div>
+                  <p className="field-note">
+                    The gap between return and inflation drives most of the result. For the same starting income, a higher
+                    assumed return (or lower inflation) grants raises sooner but relies on stronger future returns.
+                  </p>
+                </>
+              )}
             </div>
 
             <div className="main-input-group">
@@ -871,6 +915,9 @@ export default function App() {
                 ⚠ Inputs have changed — re-run to see updated results.
               </div>
             )}
+            {ranTpa && (
+              <p className="field-note">TPA assumptions: {ranTpa.r}% return / {ranTpa.i}% inflation</p>
+            )}
             <div className="stat-toggle-row">
               <button className="chart-toggle-btn" onClick={() => setShowStatCards(v => !v)}>{showStatCards ? 'Hide Stat Cards' : 'Show Stat Cards'}</button>
             </div>
@@ -917,6 +964,9 @@ export default function App() {
             </div>
             {showStatCards && <StatCards result={statScenario === 'with' ? compareResult.withAnnuity : compareResult.withoutAnnuity} allYearsMode={statScenario === 'all'} />}
 
+            {ranTpa && (
+              <p className="field-note">TPA assumptions: {ranTpa.r}% return / {ranTpa.i}% inflation</p>
+            )}
             <div className="compare-income-toggle">
               <button className={`chart-toggle-btn ${incomeMode ? 'active' : ''}`} onClick={() => setIncomeMode(v => !v)}>Income</button>
             </div>
