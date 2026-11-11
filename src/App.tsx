@@ -659,9 +659,6 @@ export default function App() {
                 <option value="tpa_total">Withdrawal Subject to TPA (Total Income)</option>
                 <option value="tpa_sustainable">TPA – Sustainable Start (Total Income)</option>
               </select>
-              {withdrawalMode === 'tpa' && ((parseInt(yearCount) || 0) < 30 || (parseInt(yearCount) || 0) > 45) && (
-                <p className="field-warn">TPA requires Years to Simulate between 30 and 45.</p>
-              )}
               {withdrawalMode === 'tpa_sustainable' && (
                 <p className="field-note">Year 1 Total Income is the lesser of the amount above and the calculated sustainable amount (shown with the results).</p>
               )}
