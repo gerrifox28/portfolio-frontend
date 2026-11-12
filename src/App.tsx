@@ -698,8 +698,9 @@ export default function App() {
                     </label>
                   </div>
                   <p className="field-note">
-                    The gap between return and inflation drives most of the result. For the same starting income, a higher
-                    assumed return (or lower inflation) grants raises sooner but relies on stronger future returns.
+                    These are the assumptions the TPA test uses, not actual market results. A higher assumed return or
+                    lower assumed inflation is more optimistic: raises are approved sooner, but the plan depends on
+                    returns actually being that strong. Lower return or higher inflation is more conservative.
                   </p>
                 </>
               )}
